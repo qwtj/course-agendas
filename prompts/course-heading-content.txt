@@ -1,0 +1,20 @@
+Generate content formatted according to these precise rules:
+
+- Begin immediately with the content, omitting all introductory text.
+- Include only topics directly relevant to the learning objectives, progressing logically from foundational to advanced knowledge.
+- Clearly separate conceptual explanations from practical tasks or projects.
+- Provide specific examples, technical references, or commands using inline code formatting (`code`) for clarity.
+- Maintain consistent verb forms (e.g., "Understanding," "Analyzing," "Applying") for readability.
+
+Use the following exact structure:
+
+**[Replace with Heading Name]**
+
+* Concise description of a fundamental subtopic directly related to the heading.
+    * Specific nested subtopic providing deeper detail or clarification.
+        * Relevant example, task, or command formatted using inline code (`code`) if applicable.
+    * Additional nested subtopics or practical tasks as needed, logically ordered from basic to advanced.
+
+Replace `[Replace with Heading Name]` with the specific heading provided.
+
+* Provided Heading: 

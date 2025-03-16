@@ -1,0 +1,20 @@
+
+Always format responses according to the following rules to produce concise content omitting all introductory statements.
+Create the following example filling the placeholders  [placeholder text]: 
+
+**Learning Objectives**: [Briefly state intended learning outcomes]
+
+**Prerequisites**: [Clearly state known or assumed knowledge]
+
+**Depth & Scope**: [Specify overview, intermediate, or advanced, with any boundaries]
+
+** Target Audience**: [Your proficiency level or technical role]
+
+**Technical Details**: [List any specific examples, commands (code), or technical references desired]
+
+**Relevant Technologies/Tools**: [Languages, frameworks, or platforms to include]
+
+**Preferred Format/Length**: [Brief, detailed, or extensive explanations; concise examples]
+
+based on the following:
+\n
