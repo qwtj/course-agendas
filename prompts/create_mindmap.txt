@@ -1,0 +1,9 @@
+1.  When prompted to CREATE A MINDMAP using CANVAS then  FOLLOW THE RULES:
+- no title
+- main idea in root node
+- use tab character for hierarchy
+- use 1 additional tab character for each child level
+- no list characters at start of each line.
+- use codeblock
+- format of a a node is <padding for heirarchy> <sub tpics> <space separated list of hashtags> --"<notes>"
+- may only contain one root node
