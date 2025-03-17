@@ -72,6 +72,32 @@ Here's a high-level overview of the topics covered:
 
 Feel free to browse the repository and explore the topics that interest you. The markdown files are designed to be easily readable and searchable.  The synopsis files provide a condensed overview, and the mind maps offer a visual representation of the key concepts.
 
+### `run.sh`
+
+1.  **Prerequisites:**
+    *   `zsh`
+    *   `ask` (assumed to be an executable available in your `$PATH`)
+    *   A directory named `prompts` containing a text file named `course-syllabus-agenda-prompt.txt`
+
+2.  **Input:** The script reads a list of topic names from standard input, one topic per line.  Empty lines are skipped.
+
+3.  **Execution:**
+    *   Run the script: `./your_script_name.sh < input_topic_list.txt` (replace `your_script_name.sh` and `input_topic_list.txt` with the actual filenames).
+    *   For each non-empty topic name:
+        *   The script constructs a prompt by concatenating the contents of `prompts/course-syllabus-agenda-prompt.txt` with the string " Topic " and the current topic name.
+        *   The `ask` command is executed with the generated prompt. Standard input for `ask` is redirected from `/dev/null`.
+        *   The output of `ask` is redirected to a Markdown file named `${topic_name}.md` in the current directory.
+        *   If the output file is empty (size 0), the script exits with an error message and indicates the last successfully processed topic.
+        *   A 10-second delay is introduced before processing the next topic.
+
+4.  **Output:**
+    *   Markdown files named `${topic_name}.md` are created in the current directory, one for each successfully processed topic.
+
+5.  **Error Handling:**
+    *   The script exits if `ask` produces an empty output file, indicating a failure to process a topic.
+    *   The last successfully processed topic is reported on script exit, even in the event of an error
+
+
 ### `create_mindmap`
 
 Generates a Markdown-formatted mind map synopsis from input content using a predefined prompt.
