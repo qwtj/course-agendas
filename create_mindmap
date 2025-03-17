@@ -7,7 +7,7 @@ fi
 
 filename="$1"
 content_description_file="prompts/create_mindmap.txt"
-synopsis_file="${filename}-mindmap.md"
+mindmap_file="${filename}-mindmap.md"
 
 if [ ! -f "$content_description_file" ]; then
   echo "Error: Content description file '$content_description_file' not found."
@@ -21,8 +21,8 @@ else
   exit 1
 fi
 
-echo "$(cat "$content_description_file")$content" | ask > "$synopsis_file"
+echo "$(cat "$content_description_file")\n#$1\n$content" | ask > "$mindmap_file"
 
-echo "Synopsis created: $synopsis_file"
+echo "Mindmap created: $mindmap_file"
 
 exit 0

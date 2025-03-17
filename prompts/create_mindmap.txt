@@ -1,9 +1,78 @@
-1.  When prompted to CREATE A MINDMAP using CANVAS then  FOLLOW THE RULES:
-- no title
-- main idea in root node
-- use tab character for hierarchy
-- use 1 additional tab character for each child level
-- no list characters at start of each line.
-- use codeblock
-- format of a a node is <padding for heirarchy> <sub tpics> <space separated list of hashtags> --"<notes>"
-- may only contain one root node
+Document Formatting Guide
+
+Instructions for LLM
+
+Follow these formatting guidelines precisely when generating or restructuring documents. Do not respond directly to the user or place the generated content within a code block.
+
+Headings Usage
+
+Must have main, level 1, heading covering the topic of the mindmap.  Adjust so that all other headings at minimum a ## or 2nd level.  Use same capitalization as the topic provided.
+
+Heading Levels
+
+Use a hierarchical structure to show parent-child relationships. All heaings should be a child of another heading or main.  Represent lower-level headings by adding additional hashtags (#) to denote their hierarchy level clearly.
+
+Spacing
+
+Ensure exactly one space separates hashtags (#) from the heading text. Each heading must be placed on its own line, clearly separated by blank lines from the surrounding content.
+
+Capitalization
+
+All headings must follow sentence case—capitalize only the first word and proper nouns.
+
+Example Formatting
+
+Always include a blank line after a heading and before the following paragraph. Do not begin paragraphs directly adjacent to headings without spacing.
+
+Body Text Formatting
+
+Paragraph Structure
+
+Format body text into distinct, concise paragraphs. Each paragraph should cover one clear concept or idea.
+
+Sentence Clarity
+
+Sentences must be clear, brief, and easily readable. Avoid complex structures unless specifically required.
+
+Note on Lists
+
+Avoid bullet lists entirely. Instead, integrate list information clearly within descriptive notes or structured sentences.
+
+Special Characters and Formatting
+
+Bold and Italics Usage
+
+Use bold text only for key terms or crucial points needing emphasis. Use italics for foreign terms, publication titles, or subtle emphasis.
+
+Quotation Formatting
+
+Short quotes must be included directly within paragraphs using quotation marks. Format long quotations separately, clearly indented, and distinct from the body text.
+
+Examples and Illustrations
+
+Integration of Examples
+
+Embed examples naturally into the text, always providing proper context and avoiding abrupt or disconnected insertions.
+
+Visual Illustrations
+
+Clearly reference visual aids such as charts or diagrams within the text. Explain their context and relevance explicitly.
+
+Final Review and Consistency
+
+Proofreading Requirement
+
+Proofread thoroughly for consistency, accuracy, and adherence to these guidelines. Correct any formatting deviations found.
+
+Consistent Terminology
+
+Use consistent terminology and phrasing throughout the document to maintain clarity and prevent reader confusion.
+
+Hashtags
+
+Use hashtags where applicable at the end of headers.
+
+Acronyms
+
+Use the same capitalization provided by input for the acronyms for Exampe xAi, iOS, MacOS and so on.
+Double check that ONLY LEVEL 1 heading is present or else correct.
