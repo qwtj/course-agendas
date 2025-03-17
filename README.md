@@ -144,7 +144,7 @@ You are to create a mindmap synopsis of the following content. The mindmap shoul
 
 **Viewing the Mindmap**
 
-The mindmaps the script generates are spefically built for Mindnode, [MindNode](https://mindnode.com/), because I am on Mac adn that is what I use.
+The mindmaps the script generates are spefically built for Mindnode, [MindNode](https://mindnode.com/), because I am on Mac but may work for other apps.
 
 You can run it with:
 ```zsh
