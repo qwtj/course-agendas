@@ -72,6 +72,50 @@ Here's a high-level overview of the topics covered:
 
 Feel free to browse the repository and explore the topics that interest you. The markdown files are designed to be easily readable and searchable.  The synopsis files provide a condensed overview, and the mind maps offer a visual representation of the key concepts.
 
+### `create_mindmap`
+
+Generates a Markdown-formatted mind map synopsis from input content using a predefined prompt.
+
+**Usage:**
+
+```bash
+create_mindmap <filename> < <input_content>
+```
+
+*   `<filename>`:  The base filename to use for the output file. The script will append `-mindmap.md` to this.
+*   `<input_content>`: The content that you would like the script to create a mindmap of.  This should be piped in using `<`.
+
+**Prerequisites:**
+
+*   `ask`:  This script relies on the `ask` command-line tool. Ensure it is installed and available in your `$PATH`.
+*   A `prompts/create_mindmap.txt` file exists containing the prompt to be used for mindmap generation.
+
+**How it Works:**
+
+1.  The script takes a filename as an argument.
+2.  It reads content from standard input (`stdin`).
+3.  It prepends the content of `prompts/create_mindmap.txt` (the prompt) to the input content.
+4.  It pipes the combined prompt and content to the `ask` command.
+5.  The output of the `ask` command (the generated synopsis) is saved to a file named `<filename>-mindmap.md`.
+6.  A success message is printed to the console.
+
+**Example:**
+
+```bash
+create_mindmap "my_document" < my_document.txt
+```
+
+This command will read the content of `my_document.txt`, combine it with the prompt defined in `prompts/create_mindmap.txt`, send it to `ask`, and save the resulting mind map to `my_document-mindmap.md`.
+
+**Updating create_mindmap.sh**:
+1. Place create_mindmap.sh and update create_mindmap.txt in prompts directory to reflect update.
+2.  Use it
+
+**Example create_mindmap.txt**:
+```
+You are to create a mindmap synopsis of the following content. The mindmap should use markdown. The root node should be called Synopsis.
+```
+
 ## Contributing
 
 This is primarily a personal knowledge repository. However, if you find any errors or have suggestions for improvement, feel free to submit a pull request.
