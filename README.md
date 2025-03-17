@@ -142,6 +142,24 @@ This command will read the content of `my_document.txt`, combine it with the pro
 You are to create a mindmap synopsis of the following content. The mindmap should use markdown. The root node should be called Synopsis.
 ```
 
+### create_synopsis
+
+1.  Ensure `ask` command is available in your environment.
+2.  Create a file named `prompts/content-description.txt` containing the prompt for the `ask` command.
+3.  Execute the script with the desired output filename as an argument, piping the content to be summarized via standard input.
+
+    ```bash
+    ./generate_synopsis.sh output_file < input_file.txt
+    ```
+
+    or
+
+    ```bash
+    cat input_file.txt | ./generate_synopsis.sh output_file
+    ```
+
+    This will create a file named `output_file-synopsis.md` containing the generated synopsis.
+
 ## Contributing
 
 This is primarily a personal knowledge repository. However, if you find any errors or have suggestions for improvement, feel free to submit a pull request.
