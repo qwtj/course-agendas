@@ -142,6 +142,22 @@ This command will read the content of `my_document.txt`, combine it with the pro
 You are to create a mindmap synopsis of the following content. The mindmap should use markdown. The root node should be called Synopsis.
 ```
 
+**Viewing the Mindmap**
+
+The mindmaps the script generates are spefically built for Mindnode, [MindNode](https://mindnode.com/), because I am on Mac adn that is what I use.
+
+You can run it with:
+```zsh
+open -a /Applicaitons/Mindnode.app <your mindmap file>
+```
+
+or
+
+```zsh
+cat <your mindmap file> | pbcopy
+# now manually open MindNode app and paste the output into new mindnode fiile.
+```
+
 ### create_synopsis
 
 1.  Ensure `ask` command is available in your environment.
