@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 
+import os
 import subprocess 
 import sys
 import time
 
 def ask_and_fill(agenda_outline, prompt_file):
-    with open(prompt_file, 'r') as f:
-        prompt = f.read().strip()
+    with open(prompt_file, 'r') as f_in:
+        prompt = f_in.read().strip()
 
     filled_agenda = ""
     lines = agenda_outline.splitlines()
@@ -16,26 +17,18 @@ def ask_and_fill(agenda_outline, prompt_file):
         stripped_line = line.strip()
 
         if stripped_line.startswith("#"):
-            print(line);
             level = stripped_line.count("#")
             text = stripped_line.strip("# ").strip()
             heading_stack = heading_stack[:level - 1]
             heading_stack.append(text)
-            prompt_text = f"{prompt}{sys.argv[1]}\n{line}"
+            print(" > ".join(heading_stack))
+            prompt_text = f"{prompt}{sys.argv[1]}\n{"|".join(heading_stack)}"
             response = subprocess.run(['ask', prompt_text], capture_output=True, text=True).stdout.strip()
-            filled_agenda += response + "\n\n"
+            f_out.write(response + "\n\n")
+            f_out.flush()
+            os.fsync(f_out.fileno()) 
+            time.sleep(4)
 
-        elif stripped_line.startswith("*"):
-            print(line);
-            context = " ".join(heading_stack)
-            text = stripped_line.lstrip("* ").strip()
-            prompt_text = f"{prompt}{sys.argv[1]}\n{line}"
-            response = subprocess.run(['ask', prompt_text], capture_output=True, text=True).stdout.strip()
-            filled_agenda += response + "\n\n"
-
-        time.sleep(3)
-
-    return filled_agenda
 
 if __name__ == "__main__":
     if len(sys.argv) < 1:
@@ -53,7 +46,6 @@ if __name__ == "__main__":
 
     prompt_file = './prompts/create-anki-cards.txt' if len(sys.argv) < 3 else sys.argv[3]
 
-    filled_agenda = ask_and_fill(agenda_file, prompt_file)
+    with open(output_file, 'w') as f_out:
+        ask_and_fill(agenda_file, prompt_file)
 
-    with open(output_file, 'w') as f:
-        f.write(filled_agenda)
