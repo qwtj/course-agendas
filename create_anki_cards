@@ -2,6 +2,7 @@
 
 import subprocess 
 import sys
+import time
 
 def ask_and_fill(agenda_outline, prompt_file):
     with open(prompt_file, 'r') as f:
@@ -20,15 +21,19 @@ def ask_and_fill(agenda_outline, prompt_file):
             text = stripped_line.strip("# ").strip()
             heading_stack = heading_stack[:level - 1]
             heading_stack.append(text)
-            response = subprocess.run(['ask', prompt], capture_output=True, text=True).stdout.strip()
+            prompt_text = f"{prompt}{sys.argv[1]}\n{line}"
+            response = subprocess.run(['ask', prompt_text], capture_output=True, text=True).stdout.strip()
             filled_agenda += response + "\n\n"
 
         elif stripped_line.startswith("*"):
             print(line);
             context = " ".join(heading_stack)
             text = stripped_line.lstrip("* ").strip()
-            response = subprocess.run(['ask', prompt], capture_output=True, text=True).stdout.strip()
+            prompt_text = f"{prompt}{sys.argv[1]}\n{line}"
+            response = subprocess.run(['ask', prompt_text], capture_output=True, text=True).stdout.strip()
             filled_agenda += response + "\n\n"
+
+        time.sleep(3)
 
     return filled_agenda
 
