@@ -1,0 +1,742 @@
+#separator:Tab
+#html:false
+#tags:iOS Swift Fundamentals
+#columns:NoteType	Field1	Field2
+#deck:iOS Development
+#notetype column:1
+NoteType	Field1	Field2
+Basic	What is Swift?	A powerful and intuitive programming language for Apple platforms.
+Basic	What is the purpose of a variable?	To store data that can be changed during program execution.
+Basic	What is the purpose of a constant?	To store data that cannot be changed after it's initialized.
+Basic	What keyword is used to declare a variable in Swift?	var
+Basic	What keyword is used to declare a constant in Swift?	let
+Cloze	Use {{c1::var}} to declare a variable in Swift.	Variables can change their values.
+Cloze	Use {{c1::let}} to declare a constant in Swift.	Constants cannot change their values after initialization.
+Basic	What is type inference in Swift?	The ability of the compiler to automatically deduce the data type of a variable or constant.
+Basic	What is an optional in Swift?	A type that can hold either a value or no value (nil).
+Basic	How do you unwrap an optional safely in Swift?	Using optional binding (if let) or guard let.
+Cloze	An {{c1::optional}} is a type that can hold either a value or no value (nil).	Important for safe coding
+Basic	What is the purpose of an array in Swift?	To store an ordered collection of values of the same type.
+Basic	What is the purpose of a dictionary in Swift?	To store a collection of key-value pairs.
+Basic	How do you create a new empty array of integers in Swift?	`var myArray: [Int] = []`
+
+#separator:Tab
+#html:false
+#tags:Swift Fundamentals, iOS Development, Syntax
+#columns:NoteType	Field1	Field2	Field3
+#deck:iOS Development
+#notetype column:1
+NoteType	Field1	Field2	Field3
+Basic	What keyword is used to declare a constant in Swift?	let	Constants cannot be changed after initialization.
+Basic	What keyword is used to declare a variable in Swift?	var	Variables can be changed after initialization.
+Basic	What does "Optional" mean in Swift?	A type that can hold a value or nil.	Optionals prevent null pointer exceptions.
+Basic	How do you unwrap an optional in Swift?	Using "if let" or "guard let" for safe unwrapping, or force unwrapping with "!".	Force unwrapping should be used with caution.
+Cloze	Use the keyword {{c1::let}} to declare constants in Swift.	Constants are immutable.	
+Cloze	Use the keyword {{c1::var}} to declare variables in Swift.	Variables are mutable.
+Cloze	In Swift, an {{c1::Optional}} is a type that can hold a value or nil.	Optionals handle the absence of a value.
+Cloze	Use "{{c1::if let}}" or "{{c2::guard let}}" for safe optional unwrapping.	Avoid force unwrapping when possible.
+
+#separator:Tab
+#html:false
+#tags:iOS Swift Variables
+#columns:NoteType	Field1	Field2
+#deck:iOS Development::Swift Fundamentals
+#notetype column:1
+NoteType	Field1	Field2
+Basic	What keyword is used to declare a variable in Swift?	`var`
+Basic	What keyword is used to declare a constant in Swift?	`let`
+Basic	Name three common data types in Swift.	Int, String, Bool
+Basic	What is the difference between `var` and `let`?	`var` is mutable (can be changed), `let` is immutable (cannot be changed).
+Cloze	A variable declared with `{{c1::var}}` can have its value changed after initialization.	Mutability in Swift
+Cloze	A constant declared with `{{c1::let}}` cannot have its value changed after initialization.	Immutability in Swift
+Basic	How do you declare an optional String in Swift?	`var myString: String?`
+Basic	What does it mean for a variable to be "optional"?	It can hold either a value or `nil`.
+Cloze	In Swift, `{{c1::nil}}` represents the absence of a value for an optional variable.	Optionals in Swift
+Basic	What is type inference in Swift?	The compiler automatically infers the data type of a variable based on its initial value.
+
+#separator:Tab
+#html:false
+#tags:iOS Swift ControlFlow
+#columns:NoteType	Field1	Field2
+#deck:iOS Development
+#notetype column:1
+NoteType	Field1	Field2
+Basic	What keyword is used to start an `if` statement in Swift?	`if`
+Basic	What keyword is used to define an `else` block in Swift?	`else`
+Basic	What keyword begins the `else if` part of a conditional statement?	`else if`
+Basic	What is the purpose of a `for-in` loop?	To iterate over a sequence, such as an array or range.
+Basic	How do you specify a range of numbers in a `for-in` loop in Swift?	Using the `...` or `..<` operators.
+Basic	What keyword is used to initiate a `while` loop?	`while`
+Basic	What's the key difference between `while` and `repeat-while` loops?	`repeat-while` executes the code block at least once.
+Cloze	The `{{c1::if}}` statement executes code based on a condition.	Conditional Execution
+Cloze	A `{{c1::for-in}}` loop iterates over a sequence of items.	Sequence Iteration
+Cloze	The `{{c1::while}}` loop continues as long as a condition is `{{c1::true}}`.	Loop Condition
+
+#separator:Tab
+#html:false
+#tags:Swift Functions iOS Development
+#columns:NoteType	Field1	Field2	Field3
+#deck:iOS Development
+#notetype column:1
+NoteType	Field1	Field2	Field3
+Basic	What keyword is used to declare a function in Swift?	func	
+Basic	What is the return type indicated by '-> Void'?	No return value (Void or ())	
+Cloze	A function {{c1::parameter}} allows you to pass values into a function.	
+Cloze	The return type of a function is defined using the {{c1::->}} operator.	
+Basic	What is the purpose of using argument labels in function definitions?	To provide clarity and context when calling the function.	
+Basic	Can a function have multiple return values in Swift? If so, how?	Yes, using tuples.	
+Cloze	A function that calls itself is known as a {{c1::recursive}} function.	
+Basic	What is the difference between a parameter and an argument?	Parameter: Variable in function definition. Argument: Actual value passed when calling.
+
+#separator:Tab
+#html:false
+#tags:Swift, Data Structures, Arrays
+#columns:NoteType	Field1	Field2
+#deck:iOS Dev::Swift Data Structures
+#notetype column:1
+NoteType	Field1	Field2
+Basic	What is an Array in Swift?	An ordered collection of values of the same type.
+Basic	How do you declare an empty array of integers in Swift?	`var numbers: [Int] = []`
+Basic	How do you append an element to an array in Swift?	Using the `append()` method (e.g., `numbers.append(5)`)
+Cloze	Arrays in Swift are {{c1::value}} types.	They are copied when passed around.
+Cloze	Use the `{{c1::count}}` property to find the number of elements in an array.	Helps determine the size of array.
+Basic	How do you access an element at a specific index in an array?	Using subscript syntax (e.g., `numbers[0]`)
+Basic	What happens if you try to access an index that is out of bounds in an array?	A runtime error (crash) will occur.
+Cloze	The `{{c1::insert}}` method adds a new item at the specified index.	Used to add elements inside of the array.
+Basic	How do you remove an element from an array at a specific index?	Using the `remove(at:)` method.
+
+NoteType	Field1	Field2	Field3
+#separator:Tab
+#html:false
+#tags:iOS Swift Arrays
+#columns:NoteType	Field1	Field2	Field3
+#deck:iOS Development
+
+Basic	What is an Array in Swift?	An ordered collection of values of the same type.	
+Basic	How do you declare an empty Array of Strings in Swift?	`var myArray: [String] = []`	
+Basic	How do you add an element to the end of an Array?	Using the `append()` method.	
+Basic	How do you access an element at a specific index in an Array?	Using the index number inside square brackets (e.g., `myArray[0]`).	
+Basic	What happens if you try to access an index that is out of bounds in an Array?	It will cause a runtime error.	
+Basic	How do you get the number of elements in an Array?	Using the `count` property.	
+Basic	How do you remove an element from an Array at a specific index?	Using the `remove(at:)` method.	
+Basic	How do you insert an element into an Array at a specific index?	Using the `insert(_:at:)` method.	
+Cloze	Arrays in Swift are {{c1::value}} types.	Meaning when you pass them to a function they are copied.	
+Cloze	Use the `{{c1::append(_:)}}` method to add a single element to the end of an Array.	
+Cloze	Use the `{{c1::insert(_:at:)}}` method to insert a new item into the array at the specified index.
+
+#separator:Tab
+#html:false
+#tags:Swift Dictionaries iOS Development
+#columns:NoteType	Field1	Field2	Field3
+#deck:iOS Development
+#notetype column:1
+NoteType	Field1	Field2	Field3
+Basic	What is a Dictionary in Swift?	A collection type that stores associations between keys of the same type and values of the same type.	Dictionaries use key-value pairs.
+Basic	How do you declare a Dictionary in Swift?	`var myDict: [KeyType: ValueType] = [:]` or `var myDict = [KeyType: ValueType]()`	
+Basic	How do you access a value in a Swift Dictionary?	Using its associated key: `myDict[key]`	Be mindful of optionals.
+Basic	How do you add a new key-value pair to a Swift Dictionary?	`myDict[newKey] = newValue`	Existing keys will have their values overwritten.
+Basic	How do you remove a key-value pair from a Swift Dictionary?	`myDict.removeValue(forKey: keyToRemove)` or `myDict[keyToRemove] = nil`	
+Cloze	A Swift Dictionary stores data in {{c1::key-value}} pairs.	Key is associated with value.	
+Cloze	Use {{c1::`myDict[key]`}} to access a value in `myDict` using its key.	Returns an optional.
+Cloze	`myDict.{{c1::removeValue(forKey: keyToRemove)}}` is used to remove a key-value pair.	Removes the value based on the key.
+Basic	What is the return type when accessing a Dictionary value using a key?	Optional	Because the key might not exist
+Basic	How do you iterate over the key-value pairs in a Swift Dictionary?	Using a `for` loop: `for (key, value) in myDict { ... }`	Access keys and values individually.
+
+#separator:Tab
+#html:false
+#tags:iOS Swift Data Structures Sets
+#columns:NoteType	Field1	Field2	Field3
+#deck:iOS Development
+#notetype column:1
+NoteType	Field1	Field2	Field3
+Basic	What is a Set in Swift?	An unordered collection of unique elements.	Sets are useful when you need to ensure that each item is only present once.
+Basic	How do you declare a Set in Swift?	`var mySet: Set<DataType> = []` or `var mySet = Set<DataType>()`	Replace DataType with the type of elements you want to store.
+Basic	How do you add an element to a Set?	Using the `insert()` method.	`mySet.insert(newValue)`
+Basic	How do you remove an element from a Set?	Using the `remove()` method.	`mySet.remove(valueToRemove)` returns `nil` if the value isn't in the set.
+Basic	How can you check if a Set contains a specific element?	Using the `contains()` method.	`mySet.contains(element)` returns a Bool.
+Cloze	A Swift {{c1::Set}} is an unordered collection of unique elements.	Useful when uniqueness is required.	
+Cloze	Use the {{c1::insert()}} method to add elements to a Swift Set.	Ensures no duplicates.
+Cloze	Use the `{{c1::contains()}}` method to check if a Set contains a specific element.	Returns a Boolean value.
+Basic	How do you find the intersection of two sets in Swift?	Using the `intersection(_:)` method.	`set1.intersection(set2)` returns a new set containing only the elements present in both.
+Basic	How do you find the union of two sets in Swift?	Using the `union(_:)` method.	`set1.union(set2)` returns a new set containing all elements from both sets.
+Basic	How do you find the difference between two sets in Swift?	Using the `subtracting(_:)` method.	`set1.subtracting(set2)` returns a new set containing elements in set1 that are not in set2.
+Cloze	`set1.{{c1::intersection}}(set2)` returns a set with elements in both set1 and set2.	Set operation.
+Cloze	`set1.{{c1::union}}(set2)` returns a set with all elements from set1 and set2.	Set operation.
+Cloze	`set1.{{c1::subtracting}}(set2)` returns a set with elements in set1 but not in set2.	Set operation.
+
+#separator:Tab
+#html:false
+#tags:iOS Swift OOP
+#columns:NoteType	Field1	Field2	Field3
+#deck:iOS Development
+#notetype column:1
+NoteType	Field1	Field2	Field3
+Basic	What are the four pillars of OOP?	Encapsulation, Inheritance, Polymorphism, Abstraction	These principles guide effective object-oriented design.
+Basic	Define Encapsulation.	Bundling data and methods that operate on that data within a class; hiding internal state.	Encapsulation promotes data integrity.
+Basic	Define Inheritance.	A mechanism where a new class inherits properties and behaviors from an existing class.	Avoid deep inheritance hierarchies.
+Basic	Define Polymorphism.	The ability of an object to take on many forms; using a single interface to represent different types.	Polymorphism improves code flexibility.
+Basic	Define Abstraction.	Simplifying complex reality by modeling classes based on essential properties and behaviors.	Abstraction hides unnecessary details.
+Cloze	{{c1::Encapsulation}} is bundling data and methods within a class, hiding internal state.	Ensures data integrity by controlling access.	
+Cloze	{{c1::Inheritance}} allows a new class to inherit properties and behaviors from an existing class.	Promotes code reuse.
+Cloze	{{c1::Polymorphism}} is the ability of an object to take on many forms.	Enhances code flexibility.
+Cloze	{{c1::Abstraction}} simplifies complex reality, modeling classes based on essential properties.	Hides unnecessary implementation details.
+Basic	What is the purpose of a class in OOP?	A blueprint for creating objects, defining attributes and methods.	Classes are the foundation of OOP.
+
+#separator:Tab
+#html:false
+#tags:iOS Development Swift OOP Classes Objects
+#columns:NoteType	Field1	Field2	Field3
+#deck:iOS Development
+#notetype column:1
+NoteType	Field1	Field2	Field3
+Basic	What is a class in Swift?	A blueprint for creating objects; it defines properties and methods.	Classes are fundamental building blocks in OOP.
+Basic	What is an object in Swift?	An instance of a class, representing a specific entity with its own data and behavior.	Objects have state (properties) and behavior (methods).
+Basic	What is a property in Swift?	A characteristic or attribute of a class or object, holding data.	Properties can be variables (var) or constants (let).
+Basic	What is a method in Swift?	A function associated with a class or object, defining its behavior.	Methods operate on the object's data.
+Basic	How do you create an instance of a class in Swift?	Using the class name followed by parentheses: `let myObject = MyClass()`	This allocates memory and initializes the object.
+Cloze	A {{c1::class}} is a blueprint for creating objects.	Defines properties and methods.	
+Cloze	An {{c1::object}} is an instance of a class.	Represents a specific entity.
+Cloze	{{c1::Properties}} are characteristics or attributes of a class or object.	Hold data.
+Cloze	{{c1::Methods}} are functions associated with a class or object.	Define behavior.
+
+#separator:Tab
+#html:false
+#tags:iOS Swift OOP Classes
+#columns:NoteType	Field1	Field2	Field3
+#deck:iOS Development
+#notetype column:1
+NoteType	Field1	Field2	Field3
+Basic	What keyword is used to define a class in Swift?	class	class MyClass { }
+Basic	What is an object in OOP?	An instance of a class.	Objects have state and behavior.
+Basic	What is a property in a class?	A variable associated with an object.	Properties store data about the object.
+Basic	What is a method in a class?	A function associated with an object.	Methods define the behavior of the object.
+Basic	How do you create an instance of a class (an object) in Swift?	Using the class name followed by parentheses: `let myObject = MyClass()`	This calls the class's initializer.
+Cloze	A {{c1::class}} is a blueprint for creating objects.	Defines the structure and behavior of objects.
+Cloze	An {{c1::object}} is an instance of a class.	It is a concrete entity created from a class.
+Cloze	{{c1::Properties}} store data about an object.	They are variables associated with an object.
+Cloze	{{c1::Methods}} define the behavior of an object.	They are functions associated with an object.
+
+#separator:Tab
+#html:false
+#tags:iOS Swift OOP Classes Instances
+#columns:NoteType	Field1	Field2
+#deck:iOS Development
+#notetype column:1
+NoteType	Field1	Field2
+Basic	What is an object in Swift?	An instance of a class.
+Basic	How do you create an instance of a class in Swift?	Using the class name followed by parentheses: `ClassName()`
+Basic	What is the process of creating an object called?	Instantiation.
+Cloze	Creating an instance of a class is called {{c1::instantiation}}.	
+Cloze	An object is an {{c1::instance}} of a class.	
+Basic	What is an initializer in Swift classes?	A special method to set up an object for use.
+Basic	What is the default initializer if a class doesn't define one?	A memberwise initializer (if all properties have default values).
+Cloze	The default initializer is a {{c1::memberwise}} initializer.	
+Basic	How do you access properties and methods of an object?	Using dot notation: `objectName.propertyName` or `objectName.methodName()`
+Cloze	Properties and methods are accessed using {{c1::dot notation}}.
+
+#separator:Tab
+#html:false
+#tags:iOS Swift OOP Inheritance
+#columns:NoteType	Field1	Field2
+#deck:iOS Dev
+#notetype column:1
+NoteType	Field1	Field2
+Basic	What is inheritance in OOP?	A mechanism where a new class (subclass/child) inherits properties and methods from an existing class (superclass/parent).
+Basic	What is a superclass (parent class)?	The class whose properties and methods are inherited by another class.
+Basic	What is a subclass (child class)?	A class that inherits properties and methods from another class.
+Basic	What keyword is used to indicate inheritance in Swift?	`:` (colon) after the subclass name, followed by the superclass name.
+Basic	Can a Swift class inherit from multiple superclasses?	No, Swift supports single inheritance only.
+Cloze	In inheritance, the {{c1::subclass}} inherits properties and methods from the {{c2::superclass}}.
+Cloze	Use the {{c1::colon}} (:) to denote inheritance in Swift, placing the {{c2::superclass}} name after it.
+
+#separator:Tab
+#html:false
+#tags:iOS Swift OOP Structures Enumerations
+#columns:NoteType	Field1	Field2	Field3
+#deck:iOS Development
+#notetype column:1
+NoteType	Field1	Field2	Field3
+Basic	What is the primary difference between a struct and a class in Swift?	Structs are value types, while classes are reference types.	Consider memory management.
+Basic	Are structures in Swift value or reference types?	Value types.	Changes to a copy do not affect the original.
+Basic	Are enumerations in Swift value or reference types?	Value types.	Like structs, they are copied on assignment.
+Basic	What is a value type?	A type whose value is copied when it is assigned to a new variable or constant, or when it is passed to a function.	Structs and enums are value types.
+Basic	What is a reference type?	A type whose value, when assigned to a variable, constant, or passed to a function, creates a reference to the original. Changes to the reference affect the original object.	Classes are reference types.
+Cloze	In Swift, {{c1::structs}} are value types, ensuring data integrity through copying.	Describes a fundamental property of structs.	Think about immutability.
+Cloze	{{c1::Enumerations}} in Swift can have associated values, adding more context to each case.	Describes a powerful feature of enums.	Consider error handling with associated values.
+Cloze	Unlike classes, structs do not support {{c1::inheritance}}.	A key difference between structs and classes in Swift.	Consider the impact on code reusability.
+
+#separator:Tab
+#html:false
+#tags:iOS Swift Structures
+#columns:NoteType	Field1	Field2
+#deck:iOS Development
+#notetype column:1
+NoteType	Field1	Field2
+Basic	What keyword is used to define a structure in Swift?	`struct`
+Basic	Are structures value types or reference types in Swift?	Value types
+Cloze	Structures in Swift do not support {{c1::inheritance}}.	
+Cloze	Structures are passed by {{c1::value}} in Swift.	This means a copy is created when passed to a function or assigned to a new variable.
+Basic	Can structures conform to protocols in Swift?	Yes
+Basic	What is the purpose of a mutating function within a structure?	To modify properties of the structure (since structures are immutable by default).
+Cloze	Use the keyword `{{c1::mutating}}` to indicate a function can change a structure's properties.	
+Basic	Can structures have stored properties?	Yes
+Basic	Can structures have computed properties?	Yes
+Cloze	A structure's stored properties are part of its {{c1::value}}.
+
+#separator:Tab
+#html:false
+#tags:iOS Swift Enumerations
+#columns:NoteType	Field1	Field2	Field3
+#deck:iOS Development
+#notetype column:1
+NoteType	Field1	Field2	Field3
+Basic	What keyword is used to define an enumeration in Swift?	enum	Enumerations are value types.
+Basic	What does 'case' represent within a Swift enumeration?	A possible value or state.	Enumerations can have associated values.
+Basic	Can enumerations have methods and computed properties?	Yes	These enhance their functionality beyond simple value representation.
+Cloze	In Swift, an enumeration is defined using the keyword `{{c1::enum}}`.	Used to define a custom data type.	
+Cloze	Each possible value within an enumeration is represented by a `{{c1::case}}`.	Examples are `case north`, `case south`.
+Cloze	Enumerations in Swift can have associated `{{c1::values}}`, providing additional information for each case.	For example, `case result(Int)`.
+Cloze	Unlike classes, enumerations in Swift are `{{c1::value}}` types.	This means they are copied when passed around.
+Basic	What is the purpose of associated values in Swift enumerations?	To provide additional context-specific data for each case.	Example: `case success(String)` where String is the success message.
+Basic	How do you iterate through all cases of an enumeration?	By conforming to the `CaseIterable` protocol.	`enum MyEnum: CaseIterable { ... }` then `MyEnum.allCases`
+
+#separator:Tab
+#html:false
+#tags:iOS Swift Protocols
+#columns:NoteType	Field1	Field2
+#deck:iOS Development
+#notetype column:1
+NoteType	Field1	Field2
+Basic	What is a protocol in Swift?	A blueprint of methods, properties, and other requirements that suit a particular task or piece of functionality.
+Basic	How do you define a protocol in Swift?	Using the `protocol` keyword followed by the protocol name.
+Cloze	A type {{c1::conforms}} to a protocol when it satisfies the requirements defined by that protocol.	Defining Protocol Conformance
+Cloze	What keyword is used to indicate that a type adopts a protocol?	{{c1:::}}
+Basic	Can a class, struct, or enum conform to multiple protocols?	Yes, Swift supports multiple protocol conformance.
+Basic	What is protocol inheritance in Swift?	A protocol can inherit from one or more other protocols, adding further requirements on top of those it inherits.
+Cloze	Protocols can include {{c1::associated types}} that provide a placeholder name for a type used as part of the protocol's declaration.	Associated Types in Protocols
+Basic	What are the benefits of using protocols in Swift?	Achieving polymorphism, defining interfaces, and enabling code reuse.
+Cloze	A protocol extension can provide a {{c1::default implementation}} for any conforming type.	Extending Protocols
+Basic	Can protocols be used as types?	Yes, protocols can be used as types, enabling polymorphism and dynamic dispatch.
+
+#separator:Tab
+#html:false
+#tags:iOS Development UIKit
+#columns:NoteType	Field1	Field2	Field3
+#deck:iOS Development
+#notetype column:1
+NoteType	Field1	Field2	Field3
+Basic	What is UIKit?	UIKit is a framework that provides the basic building blocks for iOS apps.	UIKit handles user interface elements, event handling, and drawing.
+Basic	What is a UIView?	UIView is the base class for all user interface elements in UIKit.	Views manage a rectangular area on the screen.
+Basic	What is a UIViewController?	UIViewController manages a view hierarchy and handles user interaction.	Controllers respond to user actions and update the view.
+Basic	What is the view hierarchy?	The arrangement of views and subviews in a tree structure.	The root view is managed by the view controller.
+Basic	What is an IBOutlet?	An outlet is a property in your code that references a UI element in your storyboard/XIB.	Allows you to manipulate UI elements from your code.
+Basic	What is an IBAction?	An action is a method in your code that is triggered by a user interaction with a UI element.	Handles events like button taps or slider changes.
+Cloze	{{c1::UIKit}} is a framework for building iOS user interfaces.	Provides classes for views, controls, and event handling.	
+Cloze	A {{c1::UIView}} is the base class for all visual elements in UIKit.	Represents a rectangular area on the screen.
+Cloze	A {{c1::UIViewController}} manages a view and its interaction with the user.	Connects the user interface to the app's logic.
+Cloze	{{c1::IBOutlet}} connects a property in your code to a UI element in Interface Builder.	Allows direct manipulation of UI elements.
+Cloze	{{c1::IBAction}} connects a UI element event to a method in your code.	Handles events like button presses or gestures.
+
+NoteType	Field1	Field2	Field3
+#separator:Tab
+#html:false
+#tags:iOS Development UIKit Setup
+#columns:NoteType	Field1	Field2	Field3
+#deck:iOS Development
+#notetype column:1
+Basic	What IDE is primarily used for iOS development?	Xcode	Xcode is the primary IDE for iOS development.
+Basic	What programming language is commonly used with UIKit?	Swift	Swift is the modern and preferred language. Objective-C is also used, but less common for new projects.
+Basic	What is Cocoa Touch?	The UI layer in iOS	Cocoa Touch provides the frameworks for building the user interface and handling user interaction in iOS apps.
+Cloze	{{c1::Xcode}} is the primary IDE for iOS development.	Fill in the IDE for iOS development.	
+Cloze	{{c1::Swift}} is the modern programming language used with UIKit.	Fill in the main programming Language	
+Cloze	{{c1::Cocoa Touch}} provides the frameworks for building the UI.	Fill in the framework for building UI.
+Basic	What is the iOS simulator used for?	Testing apps on various iOS devices	The iOS simulator allows developers to test their apps on different simulated devices without needing physical hardware.
+Cloze	The iOS simulator allows testing on different simulated {{c1::devices}}.	Complete the sentence about testing.	
+Basic	What is a .xcodeproj file?	An Xcode project file	The file containing all the information about your project in Xcode.
+Basic	What is the purpose of the "Build and Run" command in Xcode?	To compile and execute the app	It compiles the code and then runs the application on the chosen simulator or connected device.
+
+#separator:Tab
+#html:false
+#tags:iOS Development Xcode Installation
+#columns:NoteType	Field1	Field2
+#deck:iOS Development
+#notetype column:1
+NoteType	Field1	Field2
+Basic	What is Xcode?	The integrated development environment (IDE) for macOS, used for developing software for Apple platforms.
+Basic	What operating system is required to run Xcode?	macOS
+Basic	Where can Xcode be downloaded?	From the Mac App Store or the Apple Developer website.
+Cloze	To install Xcode, you typically need to download it from the {{c1::Mac App Store}}.	Installation Process
+Cloze	Xcode is essential for developing applications for {{c1::iOS}}, {{c2::macOS}}, {{c3::watchOS}}, and {{c4::tvOS}}.	Platforms using Xcode
+Basic	After downloading Xcode, what is the next step?	Drag the Xcode application into the Applications folder.
+Basic	Where is the best place to download Xcode from?	Mac App Store
+
+#separator:Tab
+#html:false
+#tags:iOS Development UIKit InterfaceBuilder
+#columns:NoteType	Field1	Field2
+#deck:iOS Development
+#notetype column:1
+NoteType	Field1	Field2
+Basic	What is Interface Builder?	A visual tool within Xcode for designing user interfaces.
+Basic	What file type does Interface Builder primarily use?	`.xib` or `.storyboard` files.
+Basic	What is a Storyboard?	A visual representation of the app's UI, showing screens and transitions.
+Basic	What is an Outlet in Interface Builder?	A connection from a UI element to a property in your code (IBAction or IBoutlet).
+Basic	What is an Action in Interface Builder?	A connection from a UI element's event (like a button press) to a method in your code (IBAction or IBoutlet).
+Cloze	You can add UI elements to the view by {{c1::dragging}} them from the Xcode library.	Adding elements in Interface Builder.
+Cloze	The {{c1::Attributes Inspector}} lets you configure the properties of a selected UI element.	Configuring UI Elements.
+Cloze	Outlets are created by Control-dragging from a UI element to your {{c1::code}}.	Creating Outlets.
+
+NoteType	Field1	Field2	Field3
+Basic	What is UIKit?	A framework providing the basic building blocks for iOS apps' UI.	Used for creating and managing application interfaces.
+Cloze	{{c1::UIView}} is the base class for all UI elements in UIKit.	Foundation of visual components in iOS.	
+Basic	What is a UIViewController?	Manages a view hierarchy and handles user interaction.	Controls the presentation of content on the screen.
+Cloze	{{c1::UIStackView}} is a container view that arranges subviews in a stack.	Simplifies the layout of UI elements.	
+Basic	What are Auto Layout constraints?	Rules that define how UI elements should be positioned and sized.	Ensures UI adapts to different screen sizes.
+Cloze	{{c1::IBOutlets}} are used to connect UI elements in Interface Builder to code.	Allows you to programmatically interact with UI elements.
+Basic	What are IBActions?	Methods that respond to user interactions (e.g., button taps).	Triggers code execution when a UI event occurs.
+Cloze	The {{c1::viewDidLoad()}} method is called after the view is loaded into memory.	A good place to perform initial setup of the view.	
+Basic	What is the purpose of the Main Storyboard?	Visually design and lay out the app's UI.	Central hub for creating and managing the user interface.
+
+#separator:Tab
+#html:false
+#tags:iOS Development UIKit Simple UI
+#columns:NoteType	Field1	Field2	Field3
+#deck:iOS Development
+#notetype column:1
+
+#separator:Tab
+#html:false
+#tags:iOS, UIKit, View Controller
+#columns:NoteType	Field1	Field2
+#deck:iOS Development
+#notetype column:1
+NoteType	Field1	Field2
+Basic	What is the primary purpose of a View Controller in UIKit?	To manage a view hierarchy and respond to user interactions.
+Cloze	A {{c1::View Controller}} is responsible for managing a specific area of the screen.	
+Basic	What is the lifecycle of a View Controller?	Initialization, loading the view, appearing, disappearing, and deallocation.
+Cloze	`{{c1::viewDidLoad}}` is called after the view controller's view is loaded into memory.	When should you perform initial setup of your view?
+Basic	How do you connect UI elements to a View Controller in Interface Builder?	Using Interface Builder, create outlets (IBOutlets) and actions (IBActions) connected to the view controller's code.
+Cloze	An {{c1::IBOutlet}} allows a view controller to access and manipulate UI elements.	How do you access UI elemnts in a view controller?
+Basic	What is the role of `IBAction` in a View Controller?	`IBAction` allows UI elements to trigger methods in the view controller when an event occurs (e.g., button tap).
+Cloze	An `{{c1::IBAction}}` connects UI events to methods in your View Controller.	What is the role of `IBAction` in a View Controller?
+Basic	What is the purpose of the `view` property of a View Controller?	The `view` property represents the root view managed by the view controller.
+Cloze	The `{{c1::view}}` property of a View Controller represents the root view managed by the controller.	What does the `view` property of a View Controller represent?
+
+#separator:Tab
+#html:false
+#tags:iOS, UIKit, User Input
+#columns:NoteType	Field1	Field2
+#deck:iOS Development
+#notetype column:1
+NoteType	Field1	Field2
+Basic	What is UIKit?	Apple's framework for building graphical, event-driven apps on iOS.
+Basic	What is the purpose of a `UIViewController`?	Manages a view hierarchy and responds to user interactions.
+Basic	What is a `UIView`?	The basic building block for UI in iOS, responsible for drawing content and handling touch events.
+Basic	What is the purpose of an `IBAction`?	Connects a UI element event (e.g., button tap) to a method in your code.
+Basic	What is the purpose of an `IBOutlet`?	Connects a UI element in Interface Builder to a property in your code.
+Cloze	An `{{c1::IBAction}}` connects a UI element event to a method.	Handling user interactions.
+Cloze	An `{{c1::IBOutlet}}` connects a UI element in Interface Builder to a {{c1::property}} in code.	Connecting UI to code.
+Basic	How can you change the text displayed in a `UILabel` programmatically?	By setting the `text` property of the `UILabel`.
+Basic	How do you add a `UIView` as a subview of another `UIView`?	Using the `addSubview(_:)` method.
+Cloze	You can change the text displayed in a UILabel programmatically by setting the `{{c1::text}}` property.	Changing UILabel text.
+Cloze	Use the `{{c1::addSubview(_:)}}` method to add a UIView as a subview of another UIView.	Adding subviews.
+
+NoteType	Field1	Field2	Field3
+Basic	What is Auto Layout?	A system for defining UI constraints to adapt to different screen sizes and orientations.	
+Basic	What is a constraint in Auto Layout?	A rule that defines the relationship between UI elements (e.g., distance, alignment, size).	
+Cloze	Auto Layout uses {{c1::constraints}} to define UI element relationships.	
+Cloze	Constraints can define relationships like {{c1::distance}}, {{c2::alignment}}, and {{c3::size}} between UI elements.	
+Basic	What does it mean to "add constraints" to a view?	To define rules that govern its position and size relative to other views or the superview.	
+Basic	What is a "superview" in the context of Auto Layout?	The parent view that contains and manages other subviews.	
+Cloze	A superview is the {{c1::parent view}} that contains other subviews.	
+Basic	What is the purpose of the "Update Frames" option in Interface Builder?	To adjust the position and size of views based on existing constraints.	
+Basic	What is a "leading constraint"?	A constraint that defines the position of a view's leading edge relative to another view.	
+Basic	What is a "trailing constraint"?	A constraint that defines the position of a view's trailing edge relative to another view.	
+Cloze	A leading constraint defines the position of a view's {{c1::leading edge}}.	
+Cloze	A trailing constraint defines the position of a view's {{c1::trailing edge}}.	
+Basic	What is a "height constraint"?	A constraint that defines the height of a view.	
+Basic	What is a "width constraint"?	A constraint that defines the width of a view.	
+#separator:Tab
+#html:false
+#tags:iOS Development Auto Layout
+#columns:NoteType	Field1	Field2	Field3
+#deck:iOS Development
+
+#separator:Tab
+#html:false
+#tags:iOS UIKit Navigation DataDisplay
+#columns:NoteType	Field1	Field2	Field3
+#deck:iOS Development
+#notetype column:1
+NoteType	Field1	Field2	Field3
+Basic	What is the primary purpose of a UINavigationController?	To manage a stack of view controllers, enabling hierarchical navigation.	Commonly used for drill-down navigation.
+Basic	What UI element is used to display data in a scrollable, grid-like layout?	UICollectionView	Offers more flexibility compared to UITableView.
+Basic	What is a storyboard segue?	A transition between two view controllers defined in the storyboard.	Can be triggered programmatically or via user interaction.
+Basic	What is the data source responsible for in a UITableView?	Providing the table view with the data to display (number of rows, cells, etc.).	Separates data from presentation.
+Basic	What is the delegate responsible for in a UITableView?	Handling user interactions (cell selection, editing, etc.) and customization.	Provides fine-grained control over the table view's behavior.
+Cloze	A {{c1::UINavigationController}} manages a stack of view controllers.	Used for hierarchical navigation.	
+Cloze	A {{c1::UICollectionView}} displays data in a scrollable, grid-like layout.	Offers more flexibility than UITableView.
+Cloze	A storyboard {{c1::segue}} defines a transition between two view controllers.	Can be triggered programmatically.
+Cloze	The {{c1::data source}} provides the table view with data to display.	Responsible for number of rows, cells, etc.
+Cloze	The {{c1::delegate}} handles user interactions and customization in a UITableView.	Provides fine-grained control.
+
+#separator:Tab
+#html:false
+#tags:iOS Development, UIKit, Navigation Controllers
+#columns:NoteType	Field1	Field2
+#deck:iOS Development
+#notetype column:1
+NoteType	Field1	Field2
+Basic	What is the primary purpose of a Navigation Controller in UIKit?	To manage hierarchical navigation between different view controllers.
+Basic	What UI element is typically managed by a Navigation Controller to allow backward navigation?	A Navigation Bar with a back button.
+Basic	How do you push a new view controller onto the navigation stack?	Using the `pushViewController(_:animated:)` method.
+Basic	How do you programmatically navigate back to the previous view controller?	Using the `popViewControllerAnimated(_:)` method.
+Cloze	A Navigation Controller manages a stack of {{c1::view controllers}}.
+Cloze	The `{{c1::pushViewController(_:animated:)}}` method adds a new view controller to the navigation stack.
+Cloze	The `{{c1::popViewControllerAnimated(_:)}}` method removes the top view controller from the navigation stack.
+
+#separator:Tab
+#html:false
+#tags:iOS UIKit TableViews
+#columns:NoteType	Field1	Field2	Field3
+#deck:iOS Development
+#notetype column:1
+NoteType	Field1	Field2	Field3
+Basic	What is a UITableView used for in iOS development?	Displaying data in a scrollable list format.	Used to present data such as contacts, settings, or search results.
+Basic	What is a UITableViewCell?	A single row in a UITableView.	Each cell displays a specific piece of data.
+Basic	What is the data source responsible for in a UITableView?	Providing the data to be displayed.	It tells the table view how many rows to display and configures each cell.
+Basic	What is the delegate responsible for in a UITableView?	Handling user interactions with the table view.	It responds to events such as cell selection or editing.
+Cloze	The {{c1::dataSource}} provides the data to be displayed in a UITableView.	Essential for populating the table view.	
+Cloze	The {{c1::delegate}} handles user interactions with the UITableView.	Manages events such as cell selection.
+Cloze	UITableViewCell is a single {{c1::row}} in a UITableView.	Displays a specific piece of data.
+Basic	What method is used to provide the number of rows in a section?	`tableView(_:numberOfRowsInSection:)`	Returns the number of rows.
+Basic	What method is used to configure a cell for display?	`tableView(_:cellForRowAt:)`	Configures a UITableViewCell with data.
+Cloze	`tableView(_:{{c1::numberOfRowsInSection}}:)` is used to provide the number of rows in a section.	Implement this delegate method.
+Cloze	`tableView(_:{{c1::cellForRowAt}}:)` is used to configure a cell for display.	Essential for cell customization.
+Basic	How do you register a custom UITableViewCell class?	Using `register(_:forCellReuseIdentifier:)`.	Registers the class or nib file for the cell.
+Cloze	Use `{{c1::register(_:forCellReuseIdentifier:)}}` to register a custom UITableViewCell class.	Important for using custom cells.
+
+#separator:Tab
+#html:false
+#tags:iOS Development UIKit Collection Views
+#columns:NoteType	Field1	Field2	Field3
+#deck:iOS Development
+#notetype column:1
+NoteType	Field1	Field2	Field3
+Basic	What is a UICollectionView used for in iOS?	Displaying an ordered collection of data in a flexible and customizable layout.	
+Basic	What is a UICollectionViewCell?	The basic building block of a UICollectionView, used to display individual items.	
+Basic	What is a UICollectionViewLayout?	Defines the visual arrangement of items in a UICollectionView.	
+Basic	Name three common UICollectionViewLayout classes.	UICollectionViewFlowLayout, UICollectionViewGridLayout, UICollectionViewCompositionalLayout.	
+Basic	What is the purpose of `dequeueReusableCell(withReuseIdentifier:for:)`?	To efficiently reuse cells in a UICollectionView, preventing excessive memory allocation.	
+Cloze	{{c1::UICollectionViewDelegate}} provides methods for managing interactions with a UICollectionView, such as item selection and highlighting.	Purpose: Interaction Management	
+Cloze	{{c1::UICollectionViewDataSource}} provides methods for providing the data to display in a UICollectionView, such as number of items and cell configuration.	Purpose: Data Source	
+Cloze	The {{c1::UICollectionViewFlowLayout}} arranges items in a grid-like structure with optional headers and footers.	Typical Layout Style	
+Cloze	A custom {{c1::UICollectionViewLayout}} allows for highly customized and unique layouts beyond the standard grid or list.	Purpose: Customization	
+Basic	How do you register a custom UICollectionViewCell class?	collectionView.register(MyCustomCell.self, forCellWithReuseIdentifier: "MyCell")
+
+#separator:Tab
+#html:false
+#tags:iOS Development, CoreData
+#columns:NoteType	Field1	Field2	Field3
+#deck:iOS Development
+#notetype column:1
+NoteType	Field1	Field2	Field3
+Basic	What is Core Data?	A framework for managing the model layer objects in an application.	
+Basic	What is the main purpose of Core Data?	To persist data for offline use, manage complex relationships between data, and handle data efficiently.	
+Basic	What is an Entity in Core Data?	A description of the data you want to store, analogous to a table in a relational database.	
+Basic	What is an Attribute in Core Data?	A property of an entity, representing a specific piece of data, such as a name or date.	
+Basic	What is a Relationship in Core Data?	A connection between two entities, defining how they are related (e.g., one-to-many, many-to-many).	
+Cloze	A Core Data {{c1::Entity}} is similar to a table in a relational database.	Describes a data structure.	
+Cloze	Core Data primarily manages the {{c1::model}} layer objects in an application.	Focuses on data management.	
+Cloze	An {{c1::Attribute}} in Core Data represents a specific piece of data for an entity.	Example: name, date.
+
+#separator:Tab
+#html:false
+#tags:iOS Networking Basics
+#columns:NoteType	Field1	Field2	Field3
+#deck:iOS Development
+#notetype column:1
+NoteType	Field1	Field2	Field3
+Basic	What is URLSession used for in iOS?	Performing network requests	
+Basic	What are the three main types of URLSession tasks?	Data tasks, Upload tasks, Download tasks	
+Basic	What is a data task in URLSession?	Retrieves data in memory (e.g., JSON)	
+Basic	What is an upload task in URLSession?	Sends data to a server (e.g., uploading a file)	
+Basic	What is a download task in URLSession?	Downloads a file to disk in the background	
+Cloze	{{c1::URLSession}} is the foundation for networking tasks in iOS.	Core class for making network requests.	
+Cloze	Data tasks retrieve data {{c1::directly}} into memory.	Data task details.	
+Cloze	Use {{c1::upload}} tasks to send file data to a server.	Upload task purpose.	
+Cloze	{{c1::Download}} tasks are ideal for large files, supporting background downloads.	Download task use case.	
+Basic	What is the difference between synchronous and asynchronous network requests?	Synchronous blocks the main thread, asynchronous does not	
+Basic	What is JSONSerialization used for?	Converting JSON data to Swift data structures and vice versa	
+Basic	What is the purpose of a completion handler in asynchronous network requests?	To handle the result of the request once it's completed	
+Cloze	Asynchronous requests utilize {{c1::completion handlers}} to return data when available.	Completion handler definition.	
+Basic	What is URLCache used for?	To cache responses to URL requests, improving performance and reducing network usage	
+Basic	What are common HTTP methods used with URLSession?	GET, POST, PUT, DELETE
+
+#separator:Tab
+#html:false
+#tags:iOS Development Networking URLSession
+#columns:NoteType	Field1	Field2
+#deck:iOS Development::Networking::URLSession
+#notetype column:1
+NoteType	Field1	Field2
+Basic	What is URLSession in iOS?	A powerful API for transferring data between an app and web services.
+Basic	What are the primary tasks URLSession supports?	Downloading data, uploading data, and making HTTP requests.
+Basic	What is a URLSessionConfiguration?	An object that configures the behavior of a URLSession.
+Cloze	`URLSession` is the primary API for transferring data between an app and {{c1::web services}}.
+Cloze	A `{{c1::URLSessionConfiguration}}` object configures the behavior of a `URLSession`.
+Cloze	`URLSession` supports tasks such as downloading and {{c1::uploading}} data.
+Basic	Name the three types of URLSessionConfiguration objects	default, ephemeral, and background.
+Basic	What does a 'default' URLSessionConfiguration do?	Uses persistent disk-based storage for caches, cookies, and credentials.
+Basic	What does an 'ephemeral' URLSessionConfiguration do?	Does not persist any data to disk. All session-related data is stored in RAM.
+Basic	What does a 'background' URLSessionConfiguration do?	Allows tasks to continue in the background, even when the app is suspended or terminated.
+Cloze	A 'default' `URLSessionConfiguration` uses persistent {{c1::disk-based}} storage.
+Cloze	An '{{c1::ephemeral}}' `URLSessionConfiguration` does not persist data to disk.
+Cloze	A 'background' `URLSessionConfiguration` allows tasks to continue in the {{c1::background}}.
+Basic	What is a URLSessionTask?	An abstract class representing a single transfer of data.
+Basic	What are the three concrete subclasses of URLSessionTask?	URLSessionDataTask, URLSessionUploadTask, and URLSessionDownloadTask.
+
+#separator:Tab
+#html:false
+#tags: iOS Development, Asynchronous Programming
+#columns:NoteType	Field1	Field2	Field3
+#deck:iOS Development
+#notetype column:1
+NoteType	Field1	Field2	Field3
+Basic	What is asynchronous programming?	A programming model that allows multiple tasks to run concurrently without blocking the main thread.	Asynchronous programming is essential for maintaining a responsive UI.
+Basic	What is the main benefit of asynchronous programming in iOS?	It prevents the UI from freezing by offloading long-running tasks to background threads.	This ensures a smooth user experience.
+Cloze	{{c1::DispatchQueues}} are used in iOS for managing concurrent execution of tasks.	Define how code should be executed concurrently or serially.	
+Cloze	`{{c1::DispatchQueue.global(qos: .background).async` executes a task in the background.	A global queue with a background priority.	
+Basic	What is the purpose of `DispatchQueue.main.async`?	Executes a task on the main thread, typically for updating the UI.	Only the main thread can safely update UI elements.
+Basic	Explain the role of `completion handlers` in asynchronous tasks.	Functions that are executed after an asynchronous task completes, often used to handle results or errors.	Completion handlers enable callbacks upon task completion.
+Cloze	`{{c1::URLSession}}` in iOS is used for making network requests asynchronously.	Provides an API for downloading and uploading data.	
+Basic	What is the difference between synchronous and asynchronous execution?	Synchronous execution blocks the current thread until a task completes, while asynchronous execution allows the thread to continue processing other tasks.	Asynchronous prevents UI freezes.
+
+#separator:Tab
+#html:false
+#tags:iOS Development DataPersistence CoreData
+#columns:NoteType	Field1	Field2
+#deck:iOS Development::Data Persistence
+#notetype column:1
+NoteType	Field1	Field2
+Basic	What are the main options for data persistence in iOS?	Core Data, UserDefaults, File System, Realm, SQLite
+Cloze	{{c1::Core Data}} is a framework for managing the model layer objects in an application.	Data Persistence
+Basic	What is the purpose of Core Data?	To manage the model layer objects in an application; provides object lifecycle management, object graph management, and persistence.
+Cloze	{{c1::UserDefaults}} is used for storing small amounts of data such as user preferences.	Data Persistence
+Basic	When should you use UserDefaults?	For storing small amounts of data like user preferences, app settings, or simple state.
+Cloze	The {{c1::File System}} can be used to store files of any format in the app's sandbox.	Data Persistence
+Basic	When would you choose to use the File System for data persistence?	For storing files like images, documents, or other binary data.
+Cloze	{{c1::Realm}} is a mobile database used as an alternative to Core Data and SQLite.	Data Persistence
+Basic	What is Realm, and what are its advantages?	A mobile database solution that is faster and easier to use than Core Data and SQLite. It is cross-platform.
+Cloze	{{c1::SQLite}} is a C-language library that provides a lightweight disk-based database that doesn’t require a separate server process and allows accessing the database using a nonstandard variant of the SQL query language.	Data Persistence
+Basic	What is SQLite?	A lightweight, disk-based database that doesn't require a separate server process. It's accessed via SQL.
+
+NoteType	Field1	Field2	Field3
+#separator:Tab
+#html:false
+#tags:iOS Development UserDefaults
+#columns:NoteType	Field1	Field2	Field3
+#deck:iOS Development
+#notetype column:1
+Basic	What is UserDefaults used for in iOS?	Storing small amounts of data like user preferences or settings.	Think of it as lightweight storage.
+Basic	Is UserDefaults suitable for storing sensitive data?	No. UserDefaults is not encrypted and should not be used for storing sensitive information like passwords.	Consider Keychain Services for sensitive data.
+Cloze	UserDefaults stores data as {{c1::key-value pairs}}.	Think of it like a dictionary where you can access data via keys.	
+Cloze	The `UserDefaults.standard` instance provides access to the {{c1::default}} user defaults database.	This is the most common way to access UserDefaults.	
+Basic	How do you save a string to UserDefaults?	`UserDefaults.standard.set("your string", forKey: "myStringKey")`	Remember to synchronize changes!
+Basic	How do you retrieve a string from UserDefaults?	`UserDefaults.standard.string(forKey: "myStringKey")`	Returns an optional String.
+Cloze	UserDefaults automatically saves changes periodically, but you can force synchronization using {{c1::`synchronize()`}}.	`UserDefaults.standard.synchronize()`
+Basic	What happens if you try to retrieve a key that doesn't exist in UserDefaults?	It returns the default value for the type you are requesting (e.g., `nil` for String, `0` for Int, `false` for Bool).	Be prepared to handle optional values.
+Basic	Name a limitation of UserDefaults.	It is not designed for storing large amounts of data. Large data should be stored in Core Data, Realm, or files.	UserDefaults is optimized for small data.
+Cloze	UserDefaults data persists {{c1::across app launches}}.	This means data is saved even after the user closes the app.
+
+NoteType	Field1	Field2	Field3
+#separator:Tab
+#html:false
+#tags:iOS CoreData
+#columns:NoteType	Field1	Field2	Field3
+#deck:iOS Development
+#notetype column:1
+Basic	What is Core Data?	A framework for managing the model layer objects in an application.	It provides generalized and automated solutions to common tasks associated with object life-cycle management and object graph persistence.
+Cloze	Core Data is a framework for managing the {{c1::model}} layer objects in an application.	Helps manage app data.	
+Basic	What is a managed object context (MOC)?	An object space for managed objects.	It tracks changes to objects.
+Cloze	A Managed Object Context is an object space for {{c1::managed objects}}.	Tracks object changes.	
+Basic	What is a persistent store coordinator (PSC)?	An intermediary between the managed object context and the persistent store.	It manages persistent stores.
+Cloze	A Persistent Store Coordinator is an intermediary between the managed object context and the {{c1::persistent store}}.	Manages data storage.
+Basic	What is an entity in Core Data?	A description of the data you want to store.	Like a class in a programming language.
+Cloze	An entity in Core Data describes the {{c1::data}} you want to store.	Defines data structure.	
+Basic	What is an attribute in Core Data?	A piece of data associated with an entity.	Like a property of a class.
+Cloze	An attribute in Core Data is a piece of data associated with an {{c1::entity}}.	Represents a data element.	
+Basic	What are relationships in Core Data?	Connections between entities.	Represent how entities are related to each other.
+Cloze	Relationships in Core Data are {{c1::connections}} between entities.	Connects entities together.	
+Basic	What is a fetch request?	A request to retrieve data from the persistent store.	Used to query the database.
+Cloze	A Fetch Request is a request to {{c1::retrieve data}} from the persistent store.	Queries the database.	
+Basic	What is the purpose of the NSManagedObjectModel?	It defines the schema for your Core Data store.	Contains all the entity definitions for your application.
+Cloze	The NSManagedObjectModel defines the {{c1::schema}} for your Core Data store.	Defines data structure.
+
+NoteType	Field1	Field2	Field3
+#separator:Tab
+#html:false
+#tags:iOS, Realm, DataPersistence
+#columns:NoteType	Field1	Field2	Field3
+#deck:iOS Development::Advanced iOS::Realm
+Basic	What is Realm?	A mobile database alternative to Core Data and SQLite.	Used for its speed and ease of use.
+Basic	Is Realm open source?	Yes	Realm is open source and cross platform
+Cloze	Realm supports {{c1::automatic}} schema migrations.	Reducing boilerplate code.	
+Cloze	Realm uses {{c1::zero-copy}} architecture.	For efficient data access.	
+Basic	What are the benefits of using Realm in iOS development?	Faster development, easier data access, and simpler migrations.	Compared to other solutions like Core Data.
+Cloze	Realm stores data in a {{c1::binary}} format.	For optimized performance.	
+Basic	Can Realm be used with SwiftUI?	Yes	Realm provides native support for SwiftUI.
+Cloze	Objects in Realm must inherit from {{c1::Object}}.	To be persistent in the database.	
+Basic	What does "CRUD" stand for in the context of Realm?	Create, Read, Update, Delete.	Basic database operations.
+
+#separator:Tab
+#html:false
+#tags:iOS Development Advanced Testing
+#columns:NoteType	Field1	Field2	Field3
+#deck:iOS Development
+#notetype column:1
+NoteType	Field1	Field2	Field3
+Basic	What is UI Testing in iOS?	Automated testing of the app's user interface.	Ensures UI elements function correctly.
+Basic	What is Unit Testing in iOS?	Testing individual units of code (functions, methods).	Verifies code logic in isolation.
+Basic	What does XCTest do?	Framework for writing unit and UI tests in Xcode.	Provides tools and APIs for test creation and execution.
+Basic	What is Test Driven Development (TDD)?	Development process where tests are written before the code.	Leads to cleaner, more testable code.
+Cloze	{{c1::XCTest}} is the framework used for testing in Xcode.	Core testing framework.	
+Cloze	UI Testing automates interactions with the {{c1::user interface}}.	Simulates user actions.
+Cloze	Unit tests verify the {{c1::logic}} of individual code components.	Focuses on code functionality.
+Basic	What is code coverage?	Percentage of code executed by tests.	Helps identify untested areas.
+Basic	What are mocks in unit testing?	Objects that simulate the behavior of real dependencies.	Isolates the unit under test.
+Cloze	{{c1::Mocks}} help to isolate the unit under test by simulating dependencies.	Reduces external factors in testing.
+Basic	What is continuous integration (CI)?	Automated process of building, testing, and integrating code changes.	Ensures code quality and early detection of issues.
+Cloze	Continuous Integration automates the {{c1::build}}, {{c2::test}} and {{c3::integration}} of code changes.	Improves software quality.
+
+#separator:Tab
+#html:false
+#tags:iOS Development, Unit Testing
+#columns:NoteType	Field1	Field2	Field3
+#deck:iOS Development::Unit Testing
+#notetype column:1
+NoteType	Field1	Field2	Field3
+Basic	What is Unit Testing?	Testing individual components or functions of an application in isolation.	Helps ensure code quality and prevent regressions.
+Basic	Why is Unit Testing important in iOS Development?	To ensure individual parts of your app work correctly, leading to a more stable and reliable application.	It can also save time in the long run by catching bugs early.
+Basic	What is a "test case" in Unit Testing?	A single unit of testing, focusing on a specific input and expected output.	Each test case should verify a particular aspect of the code being tested.
+Basic	What are the common phases of a Unit Test?	Arrange, Act, Assert (AAA).	Arrange sets up the conditions, Act executes the code under test, and Assert verifies the results.
+Cloze	The three phases of a Unit Test are: {{c1::Arrange}}, {{c2::Act}}, and {{c3::Assert}}.	These are the key steps to writing effective unit tests.	
+Cloze	Unit Testing involves testing individual {{c1::components}} or {{c2::functions}} of an application in isolation.	This allows you to pinpoint errors more easily.
+Basic	What is XCTest?	Apple's framework for writing unit and UI tests in Xcode.	It provides classes and macros for defining tests and assertions.
+Basic	What is the purpose of `XCTAssertEqual` in XCTest?	Asserts that two values are equal.	Used to verify that the actual result of a function matches the expected result.
+Basic	What is the purpose of `XCTAssertNil` in XCTest?	Asserts that a value is nil.	Useful for testing error conditions or optional values.
+Cloze	`{{c1::XCTAssertEqual}}` in XCTest is used to assert that two values are equal.	This is a common way to verify expected outputs.
+Basic	What is a test target in Xcode?	A separate target in your Xcode project dedicated to containing unit tests.	Keeps your test code separate from your application code.
+Basic	What is UI Testing?	Automated testing of the app's user interface.	
+Basic	What framework is commonly used for UI Testing in iOS?	XCUITest.	
+Basic	What does XCUITest allow you to do?	Interact with UI elements programmatically, simulating user actions.	
+Cloze	UI Testing automates testing of the app's {{c1::user interface}}.	Important for regression testing.	#tags:UI Testing
+Cloze	{{c1::XCUITest}} is a framework commonly used for UI Testing in iOS.	Developed by Apple.	#tags:UI Testing
+Cloze	UI Testing simulates {{c1::user actions}} programmatically.	Like taps and swipes.	#tags:UI Testing
+Basic	Name the XCUITest class that represents the application being tested.	XCUIApplication	
+Basic	What is the purpose of the XCUIApplication class?	Launches, terminates, and monitors the app under test.	
+Basic	How do you access UI elements in XCUITest?	Using accessibility identifiers or other UI element properties.	
+Cloze	{{c1::XCUIApplication}} represents the application being tested in XCUITest.	Essential for starting the test.	#tags:UI Testing
+Cloze	Accessibility identifiers help to uniquely {{c1::identify}} UI elements in tests.	 Makes tests more robust.	#tags:UI Testing
+Basic	What is a common way to add accessibility identifiers to UI elements in code?	Using the `accessibilityIdentifier` property.
+
