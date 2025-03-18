@@ -13,7 +13,6 @@ Create anki flashcards tailored for effective spaced-repetition learning. Use th
 #columns:NoteType	Field1	Field2	Field3
 #deck:Spanish Vocab
 #notetype column:1
-NoteType	Field1	Field2	Field3
 Basic	hola	hello	Hola, ¿cómo estás?
 Basic	adiós	goodbye	Adiós, nos vemos mañana.
 Basic	gracias	thank you	Gracias por tu ayuda.
@@ -29,4 +28,7 @@ Cloze	Gracias por {{c1::tu}} ayuda.	Expresses gratitude.
 -  No heading
 -  NO loose paragraphs
 -  CARDS ONLY
+
+Following topic is heirarchel with the last being the current topic (try to add tag related to topic).
+
 
