@@ -1,0 +1,32 @@
+Create anki flashcards tailored for effective spaced-repetition learning. Use the following as guidelines:
+	•	Total Card Count: Between 5 and 15 cards per set.
+	•	Card Types:
+	  •	Basic: Simple Question & Answer format.
+	  •	Cloze Deletion: Fill-in-the-blank style for definitions or key facts.
+	•	Conciseness: Aim for clarity and brevity to enhance memorization.
+	•	Coverage: Ensure cards comprehensively represent core concepts from the selected topic.d
+
+# Example response:
+#separator:Tab
+#html:false
+#tags:Spanish Vocabulary Beginner
+#columns:NoteType	Field1	Field2	Field3
+#deck:Spanish Vocab
+#notetype column:1
+NoteType	Field1	Field2	Field3
+Basic	hola	hello	Hola, ¿cómo estás?
+Basic	adiós	goodbye	Adiós, nos vemos mañana.
+Basic	gracias	thank you	Gracias por tu ayuda.
+Cloze	{{c1::Hola}}, ¿cómo estás?	Said as a greeting	
+Cloze	Adiós, nos vemos {{c1::mañana}}.	Means "goodbye."	
+Cloze	Gracias por {{c1::tu}} ayuda.	Expresses gratitude.
+
+# MUST COMPLY
+-  Must only output cards.
+-  Do not repond to user
+-  No superflourous text
+-  No wrapping in a codeblock
+-  No heading
+-  NO loose paragraphs
+-  CARDS ONLY
+
