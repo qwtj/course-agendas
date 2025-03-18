@@ -6,7 +6,7 @@ if [ $# -ne 1 ]; then
 fi
 
 filename="$1"
-content_description_file="prompts/create_mindmap.txt"
+content_description_file="prompts/create-mindmap.txt"
 mindmap_file="${filename}-mindmap.md"
 
 if [ ! -f "$content_description_file" ]; then
