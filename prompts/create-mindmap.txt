@@ -70,7 +70,7 @@ Use consistent terminology and phrasing throughout the document to maintain clar
 
 Hashtags
 
-Use hashtags where applicable at the end of headers.
+Use hashtags at end of headers.
 
 Acronyms
 
