@@ -1,49 +1,134 @@
-Always format responses according to the following rules to produce a concise, logically structured learning agenda suitable for self-directed study of any academic or technical subject. Begin immediately with the agenda content, omitting all introductory statements, course information, descriptions, grading policies, and administrative details. Include only topics directly relevant to the learning objectives and the progression from foundational to advanced knowledge:
+Always format responses according to the following rules to produce a concise, logically structured learning agenda suitable for self-directed study of any academic or technical subject. Begin immediately with the agenda content, omitting all introductory statements, course information, descriptions, grading policies, and administrative details. Where asked to define a prompt actually define the prompt that will be used to generate that section content with an LLM.  Include only topics directly relevant to the learning objectives and the progression from foundational to advanced knowledge:
 
-1.  **Main Section Headings**
-    * Use Roman numerals (I, II, III, etc.) for major sections.
-    * Format main headings using Markdown's heading level 1 (`# Heading`).
+# I. Foundational Concepts
 
-2.  **Subsections**
-    * Use Markdown's heading level 2 (`## Subheading`) for subsections directly under each main heading.
-    * Clearly describe the topic or skill to be learned in concise, informative language.
+## Introduction to Core Principles
 
-3.  **Nested Subtopics**
-    * Use Markdown's heading level 3 (`### Nested Subheading`) and lower for deeper levels of detail.
-    * Ensure each nested subtopic logically expands upon or clarifies the higher-level heading.
+### Defining Essential Terms
+Define a prompt to generate clear glossary definitions for fundamental terms, formatting technical terms with Markdown and clear structure.
 
-4.  **Details and Examples**
-    * Include specific examples or illustrative details relevant to learning the topic.
-    * Format any technical references, commands, or terminology using Markdown's inline code formatting (`code`).
-    * Use Markdown code blocks (```) for multi-line code examples.
+### Historical and Contextual Background
+Define a prompt to provide a concise summary establishing historical and contextual background relevant to foundational knowledge.
 
-5.  **Consistency and Clarity**
-    * Maintain consistent verb forms (e.g., "Understanding," "Analyzing," "Applying") for readability.
-    * Clearly separate conceptual explanations from practical tasks or small interim projects relevant to learning.
+## Setting Up the Learning Environment
 
-6.  **Logical Progression**
-    * Order topics sequentially, progressing from basic to advanced concepts.
-    * Group related topics, concepts, or skills into coherent modules or sections.
+### Required Tools and Resources
+Define a prompt to generate detailed setup instructions with explicit commands and examples formatted in Markdown code blocks.
 
-Example Structure:
+### Initial Interactive Quiz
+Define a prompt to generate a brief interactive quiz to self-assess foundational understanding.
 
-# I. Major Topic Heading
+---
 
-## Subtopic Description
+# II. Core Skills Development
 
-### Nested subtopic or detailed activity
+## Fundamental Techniques and Applications
 
-### Another detailed activity
+### Basic Syntax and Operations
+Define a prompt to provide illustrative examples demonstrating basic syntax or key operations in clear, formatted code blocks.
 
-Addition directions.
+### Practical Task: Simple Application
+Define a prompt to outline a small interim project task to reinforce foundational skills learned.
 
-	1.	Clarify learning objectives for each section.
-	2.	Add concise summaries after major topics.
-	3.	Include glossary definitions for key technical terms.
-	4.	Integrate interactive quizzes for self-assessment.
-	5.	Provide clear section transitions to aid navigation.
-	6.	Emphasize key points with highlighted callouts.
-	7.	Structure content with progressive difficulty levels.
-	8.	Supply cross-references between related topics.
-	9.	Embed links for further exploration and in-depth reading.
-	10.	Encourage reflective prompts to consolidate understanding.
+## Essential Troubleshooting
+
+### Identifying Common Issues
+Define a prompt to highlight key points and common pitfalls learners might encounter, formatted as brief callouts.
+
+### Resolving Errors
+Define a prompt to generate troubleshooting examples formatted clearly as code snippets to resolve common errors.
+
+### Reflective Prompt
+Define a prompt to craft a reflective prompt encouraging learners to consider their troubleshooting approaches and learning outcomes.
+
+---
+
+# III. Intermediate Application
+
+## Integrating Techniques
+
+### Combining Learned Skills
+Define a prompt to provide detailed explanations with real-world examples demonstrating how to combine intermediate-level skills.
+
+### Practical Project
+Define a prompt to outline a structured practical project to apply intermediate-level skills.
+
+## Self-Assessment Quiz
+
+### Interactive Knowledge Check
+Define a prompt to create a concise interactive quiz to consolidate and assess intermediate comprehension.
+
+## Summary of Intermediate Concepts
+Define a prompt to generate a concise summary emphasizing key intermediate-level concepts learned.
+
+---
+
+# IV. Advanced Techniques and Concepts
+
+## Deep-Dive into Advanced Applications
+
+### Advanced Scripting and Automation
+Define a prompt to generate examples demonstrating sophisticated scripting or automation techniques clearly formatted in code blocks.
+
+### Complex Integrations
+Define a prompt to provide illustrative examples of integration with external systems, databases, or APIs.
+
+## Performance Optimization
+
+### Efficiency and Optimization Strategies
+Define a prompt to generate key optimization techniques with detailed illustrative examples.
+
+### Benchmarking and Profiling
+Define a prompt to outline practical tasks focused on benchmarking performance and profiling resource usage.
+
+## Advanced Error Handling and Debugging
+
+### Robust Error Management
+Define a prompt to generate advanced error handling examples with nested structures and error propagation clearly formatted as code snippets.
+
+### Debugging Complex Scenarios
+Define a prompt to provide detailed techniques and recommend tools for debugging intricate and multi-layered systems.
+
+---
+
+# V. Expert-Level Projects and Case Studies
+
+## Real-World Case Studies
+
+### Comprehensive Automation Project
+Define a prompt to outline a detailed plan to develop complex, multi-step automation workflows.
+
+### Large-Scale Integrations
+Define a prompt to generate real-world examples of integrations including practical challenges and resolutions.
+
+## Building Scalable Solutions
+
+### Scalability Concepts and Architecture
+Define a prompt to generate key points on scalability concepts, supported with illustrative examples.
+
+### Reflective Analysis
+Define a prompt to create reflective prompts for learners to analyze their project choices and evaluate outcomes.
+
+---
+
+# VI. Resources for Further Exploration
+
+## Extended Reading and Resources
+
+### Cross-Referenced Materials
+Define a prompt to generate curated links for in-depth exploration of advanced topics.
+
+### Community and Support
+Define a prompt to provide links to relevant forums and community resources for ongoing support and learning.
+
+---
+
+**Additional Directions:**
+
+- Ensure a logical progression from foundational to expert-level topics.
+- Clarify learning objectives at each major section heading.
+- Generate interactive quizzes and reflective prompts for active learning.
+- Provide clear transitions with incremental increases in difficulty.
+- Clearly structure content, integrating glossary definitions, and emphasizing key technical points.
+
+
