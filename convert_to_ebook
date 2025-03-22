@@ -2,56 +2,25 @@
 
 import subprocess
 import sys
+import re
 
 def ask_and_fill(agenda_outline):
-    """
-    Takes an agenda outline as a string, uses 'ask <prompt>' to fill in the body,
-    and returns the filled agenda, with context-aware prompts.
-    Handles headings and bullet points.
-    """
     filled_agenda = ""
-    lines = agenda_outline.splitlines()
-    heading_stack = []  # Store the current hierarchy of headings
-
-    for line in lines:
-        line = line.strip() #remove leading/trailing whitespace.
-        if line.startswith("#"):
-            level = line.count("#")
-            text = line.strip("# ").strip()
-            heading_stack = heading_stack[:level - 1]  # Adjust stack for new level
-            heading_stack.append(text)
-            prompt = f"Elaborate on the topic: {text}"
-            response = subprocess.run(['ask', prompt], capture_output=True, text=True).stdout.strip()
-            filled_agenda += line + "\n" + response + "\n\n"
-
-        elif line.startswith("##") or line.startswith("###"):
-            level = line.count("#")
-            text = line.strip("# ").strip()
-            heading_stack = heading_stack[:level - 1]  # Adjust stack for new level
-            heading_stack.append(text)
-            context = " ".join(heading_stack[:-1])  # Context is the parent headings
-            prompt = f"Within the context of {context}, elaborate on the subtopic: {text}"
-            response = subprocess.run(['ask', prompt], capture_output=True, text=True).stdout.strip()
-            filled_agenda += line + "\n" + response + "\n\n"
-
-        elif line.strip(r'/^ \{0,\}/').startswith("*"):  # Handle bullet points
-            context = " ".join(heading_stack)  # Use the current heading context
-            text = line.strip(r'/^ \{0,\}\* /').strip()
-            prompt = f"Within the context of {context}, elaborate on the bullet point: {text}"
-            response = subprocess.run(['ask', prompt], capture_output=True, text=True).stdout.strip()
-            filled_agenda += line + "\n" + response + "\n\n"
-
-        else:
-            filled_agenda += line + "\n"
-
+    # Split the outline into paragraphs based on empty newlines
+    entries = re.split(r'\n\s*\n', agenda_outline.strip())
+    for entry in entries:
+        entry = entry.strip()
+        if not entry:
+            continue
+        prompt = f"Do not respond to user. Use strict foramtting in markdown using this header as top most parent and completing the body based on the quoted prompt: {entry}"
+        response = subprocess.run(['ask', prompt], capture_output=True, text=True).stdout.strip()
+        filled_agenda +=  response + "\n\n"
     return filled_agenda
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
-        # Agenda outline is provided as a command-line argument
         agenda_outline = sys.argv[1]
     else:
-        # Agenda outline is read from stdin (pipe)
         agenda_outline = sys.stdin.read()
 
     filled_agenda = ask_and_fill(agenda_outline)
