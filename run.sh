@@ -6,15 +6,16 @@ filename="$1"
 
 last_successful=""
 
+echo "Hit Enter if not piping in file..."
 while IFS= read -r topic_body; do
   # [[ -z "$topic_name" ]] && continue  # Skip empty lines
 
   echo "Processing: ${topic_name:-$filename}"
 
   if [ -n "$filename" ]; then
-    ask "$(cat "$input_file") Topic ${topic_name}${topic_body}" < /dev/null > $filename
+    ask -s "$(cat "$input_file") Topic ${topic_name}${topic_body}" < /dev/null > $filename
   else 
-    ask "$(cat "$input_file") Topic ${topic_name}${topic_body}" < /dev/null > output.md
+    ask -s "$(cat "$input_file") Topic ${topic_name}${topic_body}" < /dev/null > output.md
   fi
 
   if [[ ! -s "./${topic_name}.md" || ! -s "./${filename}" ]]; then
