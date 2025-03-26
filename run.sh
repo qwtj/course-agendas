@@ -22,7 +22,7 @@ while IFS= read -r topic_body; do
 
   echo "Finished Processing ${topic_name:-$filename}"
 
-  if [[ ! -s "./${topic_name}.md" || ! -s "./${filename}" ]]; then
+  if [[ ! -s "./${topic_name}.md" && ! -s "./${filename}" ]]; then
       echo "Empty output detected. Exiting..."
       echo "Last successful topic: ${last_successful:-$filename}"
       return 1
