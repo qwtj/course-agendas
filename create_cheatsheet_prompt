@@ -1,0 +1,73 @@
+#!/usr/bin/env zsh
+
+TOPIC=`cat $1`
+
+cat <<EOF
+Create an interactive one-page cheatsheet using HTML, CSS, and JavaScript, with tiles based on the following document headings. Use the prompt under each heading to generate the detailed content for the modal popup. Follow these specifications:
+
+Content:Use the following document headings as subtopics for the cheatsheet tiles:
+
+$TOPIC
+
+Each heading becomes a tile with a micro-heading (emoji + title), concise base content (1–2 lines, summarizing the topic), and a 'More' button.
+Use the prompt under each heading to generate the detailed content (50–100 words) for the modal popup.
+Data Structure:Store all subtopic data in a JSON array, where each object contains:title: The heading title (e.g., 'Overview of Neural Networks').
+emoji: An appropriate emoji for the heading.
+shortDesc: A 1–2 line summary of the subtopic for the tile.
+longDesc: The detailed content (50–100 words) generated from the prompt use markdown for content under the heading.
+Use JavaScript to dynamically generate tiles and modals from the JSON data.  Use markdown decoding for modal content.
+Layout:Use a 3-column masonry layout (column-count: 3, break-inside: avoid) with no overlapping tiles.
+Tiles have variable heights (70px–100px) based on content, with some spanning all columns (class .wide, apply to every 5th tile).
+Introduce vertical staggering and asymmetry—no uniform rows or columns.
+Fit within 8.5x11 inches (width: 8.5in; height: 11in), with overflow-y: auto for scrolling if needed.
+Design:Use 4 distinct visual styles for tiles, cycling through them:.shadowed (white background, shadow).
+.dashed (dashed border, light gray background).
+.highlight (yellow background).
+.floating (rotated 1deg, orange background).
+Add playful emojis to headings for a developer zine vibe.
+Style 'More' buttons (small, gray, clickable) and modals (centered, 400px wide, scrollable, with 'Close' button).
+Interactivity:Use JavaScript to dynamically create tiles and modals from the JSON data.
+'More' buttons open modals via JavaScript (using data-modal attributes
+Modals are fixed, centered (top: 50%; left: 50%; transform: translate(-50%, -50%)), with a dark overlay (rgba(0,0,0,0.5)).
+'Close' buttons dismiss modals.
+Output:Provide complete HTML with inline CSS and JavaScript.
+The HTML should be minimal, containing only a container for the cheatsheet and an overlay for modals.
+Use JavaScript to loop through the JSON data, create tiles, and append them to the container.
+Ensure scannability (10-second glance) for tiles, with modals for depth.
+Target screen/dashboard use; modals hidden in print.
+EOF
+
+#cat <<EOF
+#Create an interactive 8.5x11-inch one-page cheatsheet on Neural Networks using HTML, CSS, and JavaScript, with tiles based on the following document headings. Use the prompt under each heading to generate the detailed content for the modal popup. Follow these specifications:
+#
+#Content:Use the following document headings as subtopics for the cheatsheet tiles:
+#
+#$TOPIC
+#
+#Each heading becomes a tile with a micro-heading (emoji + title), concise base content (1–2 lines, summarizing the topic), and a 'More' button.
+#Use the prompt under each heading to generate the detailed content (50–100 words) for the modal popup.
+#Data Structure:Store all subtopic data in a JSON array, where each object contains:title: The heading title (e.g., 'Overview of Neural Networks').
+#emoji: An appropriate emoji for the heading.
+#shortDesc: A 1–2 line summary of the subtopic for the tile.
+#longDesc: The detailed content (50–100 words) generated from the prompt under the heading.
+#Use JavaScript to dynamically generate tiles and modals from the JSON data.
+#Layout:Use a 3-column masonry layout (column-count: 3, break-inside: avoid) with no overlapping tiles.
+#Tiles have variable heights (70px–100px) based on content, with some spanning all columns (class .wide, apply to every 5th tile).
+#Introduce vertical staggering and asymmetry—no uniform rows or columns.
+#Fit within 8.5x11 inches (width: 8.5in; height: 11in), with overflow-y: auto for scrolling if needed.
+#Design:Use 4 distinct visual styles for tiles, cycling through them:.shadowed (white background, shadow).
+#.dashed (dashed border, light gray background).
+#.highlight (yellow background).
+#.floating (rotated 1deg, orange background).
+#Add playful emojis to headings for a developer zine vibe.
+#Style 'More' buttons (small, gray, clickable) and modals (centered, 400px wide, scrollable, with 'Close' button).
+#Interactivity:Use JavaScript to dynamically create tiles and modals from the JSON data.
+#'More' buttons open modals via JavaScript (using data-modal attributes).
+#Modals are fixed, centered (top: 50%; left: 50%; transform: translate(-50%, -50%)), with a dark overlay (rgba(0,0,0,0.5)).
+#'Close' buttons dismiss modals.
+#Output:Provide complete HTML with inline CSS and JavaScript.
+#The HTML should be minimal, containing only a container for the cheatsheet and an overlay for modals.
+#Use JavaScript to loop through the JSON data, create tiles, and append them to the container.
+#Ensure scannability (10-second glance) for tiles, with modals for depth.
+#Target screen/dashboard use; modals hidden in print.
+#EOF
