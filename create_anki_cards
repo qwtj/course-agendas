@@ -23,7 +23,7 @@ def ask_and_fill(agenda_outline, prompt_file):
             heading_stack.append(text)
             print(" > ".join(heading_stack))
             prompt_text = f"{prompt}{sys.argv[1]}\n{"|".join(heading_stack)}"
-            response = subprocess.run(['ask', prompt_text], capture_output=True, text=True).stdout.strip()
+            response = subprocess.run(['ask-google-gemini', '-s', prompt_text], capture_output=True, text=True).stdout.strip()
             f_out.write(response + "\n\n")
             f_out.flush()
             os.fsync(f_out.fileno()) 

@@ -21,7 +21,7 @@ else
   exit 1
 fi
 
-echo "$(cat "$content_description_file")$content" | ask > "$synopsis_file"
+echo "$(cat "$content_description_file")$content" | ask-google-gemini > "$synopsis_file"
 
 echo "Synopsis created: $synopsis_file"
 

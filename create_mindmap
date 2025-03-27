@@ -21,7 +21,7 @@ else
   exit 1
 fi
 
-echo "$(cat "$content_description_file")\n#$1\n$content" | ask > "$mindmap_file"
+echo "$(cat "$content_description_file")\n#$1\n$content" | ask-google-gemini -s > "$mindmap_file"
 
 echo "Mindmap created: $mindmap_file"
 
