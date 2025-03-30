@@ -3898,3 +3898,2511 @@ func main() {
 This client request will likely fail with a "context deadline exceeded" error because the 1-second timeout is shorter than the server's 3-second delay.
 
 **Summary of Context:** The `context` package is essential for writing robust concurrent and networked Go applications. It provides a standard mechanism for propagating cancellation signals, deadlines, and request-scoped values through the call chain, ensuring that resources can be released and work can be stopped promptly when needed. Its integration into the standard library, especially `net/http`, makes it fundamental for server and client programming.
+
+# XIII. Advanced Concurrency Patterns
+
+Beyond basic goroutines and channels, Go enables several powerful patterns for structuring concurrent code.
+
+## Pipelines
+
+A pipeline consists of a series of *stages*, where each stage is a goroutine (or set of goroutines) connected by channels. Each stage receives values from an upstream channel, performs some processing, and sends the results to a downstream channel.
+
+This pattern allows for modular and concurrent processing of data streams.
+
+```
+package main
+
+import (
+ "fmt"
+ "sync"
+)
+
+// Stage 1: Generates numbers
+func generator(done <-chan struct{}, nums ...int) <-chan int {
+ out := make(chan int)
+ go func() {
+  defer close(out) // Close the output channel when done
+  for _, n := range nums {
+   select {
+   case out <- n:
+   case <-done: // Allow early exit if pipeline is cancelled
+    return
+   }
+  }
+ }()
+ return out
+}
+
+// Stage 2: Squares numbers
+func square(done <-chan struct{}, in <-chan int) <-chan int {
+ out := make(chan int)
+ go func() {
+  defer close(out)
+  for n := range in { // Reads until 'in' is closed
+   select {
+   case out <- n * n:
+   case <-done:
+    return
+   }
+  }
+ }()
+ return out
+}
+
+// Stage 3 (Optional): Prints numbers (or could do further processing)
+func printer(done <-chan struct{}, in <-chan int) {
+ for n := range in {
+  select {
+  case <-done:
+   return
+  default:
+   fmt.Println("Pipeline Result:", n)
+  }
+ }
+}
+
+func main() {
+ fmt.Println("--- Simple Pipeline ---")
+ done := make(chan struct{}) // Channel to signal cancellation
+ defer close(done)           // Ensure done is closed on exit
+
+ // Set up the pipeline
+ genChan := generator(done, 1, 2, 3, 4, 5)
+ sqChan := square(done, genChan)
+
+ // Consume the final output
+ printer(done, sqChan)
+
+ fmt.Println("Pipeline finished.")
+}
+```
+
+## Fan-Out, Fan-In
+
+These patterns are often used within pipelines to distribute work across multiple goroutines for parallel processing and then merge the results back together.
+
+* **Fan-Out:** A single input channel is read by multiple goroutines (workers) to distribute the workload.
+
+* **Fan-In:** Multiple input channels (typically results from fan-out workers) are combined into a single output channel.
+
+⠀
+```
+package main
+
+import (
+ "fmt"
+ "sync"
+ "time"
+)
+
+// --- Pipeline stages (generator and printer are same as before) ---
+func generator(done <-chan struct{}, nums ...int) <-chan int {
+ out := make(chan int)
+ go func() {
+  defer close(out)
+  for _, n := range nums {
+   select {
+   case out <- n:
+   case <-done:
+    return
+   }
+  }
+ }()
+ return out
+}
+
+func printer(done <-chan struct{}, in <-chan int) {
+ for n := range in {
+  select {
+  case <-done:
+   return
+  default:
+   fmt.Println("Result:", n)
+  }
+ }
+}
+
+// --- Fan-Out / Fan-In Stage ---
+
+// worker function for the fan-out stage (e.g., squaring)
+func squareWorker(done <-chan struct{}, id int, in <-chan int, out chan<- int) {
+ fmt.Printf("Worker %d started\n", id)
+ for n := range in {
+  // Simulate some work
+  time.Sleep(50 * time.Millisecond)
+  select {
+  case out <- n * n:
+   fmt.Printf("Worker %d processed %d -> %d\n", id, n, n*n)
+  case <-done:
+   fmt.Printf("Worker %d cancelled\n", id)
+   return
+  }
+ }
+ fmt.Printf("Worker %d finished\n", id)
+}
+
+// fanIn merges multiple channels into one
+func fanIn(done <-chan struct{}, channels ...<-chan int) <-chan int {
+ var wg sync.WaitGroup
+ out := make(chan int)
+
+ // Start a goroutine for each input channel
+ output := func(c <-chan int) {
+  defer wg.Done()
+  for n := range c {
+   select {
+   case out <- n:
+   case <-done:
+    return
+   }
+  }
+ }
+
+ wg.Add(len(channels))
+ for _, c := range channels {
+  go output(c)
+ }
+
+ // Start a goroutine to close 'out' once all input channels are drained and processed
+ go func() {
+  wg.Wait()
+  close(out)
+ }()
+
+ return out
+}
+
+// squareFanOutFanIn implements the squaring stage using fan-out/fan-in
+func squareFanOutFanIn(done <-chan struct{}, in <-chan int, numWorkers int) <-chan int {
+ // Create channels for workers' outputs
+ workerOutputs := make([]<-chan int, numWorkers)
+ intermediateOut := make(chan int) // Single channel for all workers to write to
+
+ // Fan-out: Start workers
+ for i := 0; i < numWorkers; i++ {
+  go squareWorker(done, i+1, in, intermediateOut) // All workers read from 'in', write to 'intermediateOut'
+ }
+
+    // Need a way to close intermediateOut once all workers are done *reading* from 'in'
+    // This is tricky because 'in' might close before workers finish processing buffered items.
+    // A simpler approach for fan-in is to give each worker its own output channel.
+
+    // --- Alternative Fan-Out/Fan-In Implementation ---
+    // Give each worker its own output channel
+    workerOutChans := make([]chan int, numWorkers)
+    for i := 0; i < numWorkers; i++ {
+        workerOutChans[i] = make(chan int)
+        go squareWorker(done, i+1, in, workerOutChans[i])
+    }
+
+    // Convert []chan int to []<-chan int for fanIn
+    readOnlyChans := make([]<-chan int, numWorkers)
+    for i, ch := range workerOutChans {
+        readOnlyChans[i] = ch
+    }
+
+ // Fan-in: Merge results from all worker output channels
+ return fanIn(done, readOnlyChans...)
+}
+
+func main() {
+ fmt.Println("--- Fan-Out / Fan-In Pipeline ---")
+ done := make(chan struct{})
+ defer close(done)
+
+ // Setup pipeline
+ numbers := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+ genChan := generator(done, numbers...)
+
+ // Use fan-out/fan-in for squaring stage with 3 workers
+ numWorkers := 3
+ sqChan := squareFanOutFanIn(done, genChan, numWorkers)
+
+ // Consume the final output
+ printer(done, sqChan)
+
+ fmt.Println("Fan-Out/Fan-In Pipeline finished.")
+}
+```
+
+This pattern distributes the `square` operation across `numWorkers` goroutines, potentially speeding up processing if the operation is CPU-bound and multiple cores are available. `fanIn` ensures all results are collected before the final output channel is closed.
+
+## Using `sync.RWMutex`
+
+A `sync.RWMutex` (Read-Write Mutex) is a specialized mutex that allows multiple *readers* to hold the lock simultaneously, but only a single *writer*. This is beneficial when data is read much more frequently than it's written.
+
+* `mu.RLock()` / `mu.RUnlock()`: Acquire/release a read lock. Multiple goroutines can hold a read lock concurrently.
+
+* `mu.Lock()` / `mu.Unlock()`: Acquire/release a write lock. Only one goroutine can hold a write lock, and it excludes all readers and other writers.
+
+⠀
+```
+package main
+
+import (
+ "fmt"
+ "sync"
+ "time"
+)
+
+type Config struct {
+ mu   sync.RWMutex // Use RWMutex
+ data map[string]string
+}
+
+// Get reads configuration (uses read lock)
+func (c *Config) Get(key string) (string, bool) {
+ c.mu.RLock() // Acquire read lock
+ defer c.mu.RUnlock() // Release read lock
+ val, ok := c.data[key]
+ return val, ok
+}
+
+// Set updates configuration (uses write lock)
+func (c *Config) Set(key, value string) {
+ c.mu.Lock() // Acquire write lock (exclusive)
+ defer c.mu.Unlock() // Release write lock
+ if c.data == nil {
+  c.data = make(map[string]string)
+ }
+ c.data[key] = value
+}
+
+func main() {
+ config := &Config{}
+ var wg sync.WaitGroup
+
+ // Simulate multiple readers and occasional writers
+ numReaders := 10
+ numWriters := 2
+
+ // Start writers
+ for i := 0; i < numWriters; i++ {
+  wg.Add(1)
+  go func(id int) {
+   defer wg.Done()
+   key := fmt.Sprintf("key-%d", id)
+   value := fmt.Sprintf("value-%d", id)
+   fmt.Printf("Writer %d: Setting %s = %s\n", id, key, value)
+   config.Set(key, value)
+   time.Sleep(100 * time.Millisecond)
+  }(i)
+ }
+
+ // Start readers
+ for i := 0; i < numReaders; i++ {
+  wg.Add(1)
+  go func(id int) {
+   defer wg.Done()
+   // Readers try to read keys set by writers (and potentially non-existent ones)
+   keyToRead := fmt.Sprintf("key-%d", id%numWriters)
+   time.Sleep(time.Duration(50+id*10) * time.Millisecond) // Stagger reads slightly
+   val, ok := config.Get(keyToRead)
+   if ok {
+    fmt.Printf("Reader %d: Got %s = %s\n", id, keyToRead, val)
+   } else {
+    fmt.Printf("Reader %d: Key %s not found\n", id, keyToRead)
+   }
+  }(i)
+ }
+
+ wg.Wait()
+ fmt.Println("All goroutines finished.")
+}
+```
+
+Using `RWMutex` can improve performance over a standard `Mutex` if the lock contention is primarily due to readers.
+
+## Atomic Operations (`sync/atomic`)
+
+The `sync/atomic` package provides low-level atomic memory primitives useful for simple operations like incrementing counters or compare-and-swap, without the overhead of mutexes. These are often faster but more limited in scope than mutexes.
+
+Common functions:
+
+* `atomic.AddInt64`, `atomic.AddUint64`, etc.: Atomically add a value.
+
+* `atomic.LoadInt64`, `atomic.LoadPointer`, etc.: Atomically read a value.
+
+* `atomic.StoreInt64`, `atomic.StorePointer`, etc.: Atomically write a value.
+
+* `atomic.CompareAndSwapInt64`, etc. (CAS): Atomically compare a value and, if equal, swap it with a new value.
+
+⠀
+```
+package main
+
+import (
+ "fmt"
+ "sync"
+ "sync/atomic" // Import atomic package
+)
+
+func main() {
+ var counter int64 // Use int64 or uint64 for atomic operations
+ var wg sync.WaitGroup
+
+ numIncrements := 1000
+ wg.Add(numIncrements)
+
+ for i := 0; i < numIncrements; i++ {
+  go func() {
+   defer wg.Done()
+   // Atomically increment the counter
+   atomic.AddInt64(&counter, 1)
+  }()
+ }
+
+ wg.Wait()
+
+ // Atomically read the final value
+ finalValue := atomic.LoadInt64(&counter)
+ fmt.Println("Final atomic counter value:", finalValue) // Output: Final atomic counter value: 1000
+}
+```
+
+Atomic operations are safe for concurrent use without locks *for the specific operation they perform*. They are building blocks for more complex concurrent data structures.
+
+## Race Detection
+
+A data race occurs when two or more goroutines access the same memory location concurrently, and at least one of the accesses is a write, without proper synchronization. Data races lead to unpredictable behavior.
+
+Go provides a built-in race detector. Enable it using the `-race` flag during testing, building, or running:
+
+* `go test -race ./...`
+
+* `go run -race main.go`
+
+* `go build -race -o myapp main.go`
+
+⠀
+If the race detector finds a potential data race during execution, it prints a detailed report, including stack traces of the conflicting accesses.
+
+**Example of code with a race condition:**
+
+```
+package main
+
+import (
+ "fmt"
+ "time"
+)
+
+func main() {
+ counter := 0 // Shared variable accessed without synchronization
+
+ // Goroutine 1 increments
+ go func() {
+  counter++ // Race condition: Read and write
+ }()
+
+ // Goroutine 2 also increments
+ go func() {
+  counter++ // Race condition: Read and write
+ }()
+
+ // Give goroutines time to run (not a reliable synchronization method!)
+ time.Sleep(100 * time.Millisecond)
+ fmt.Println("Final counter (potentially incorrect due to race):", counter)
+}
+```
+
+Running `go run -race main.go` on the above code will likely produce a race report:
+
+```
+==================
+WARNING: DATA RACE
+Read at 0x00c0000180b8 by goroutine 7:
+  main.main.func2()
+      /path/to/your/race_example.go:18 +0x34
+
+Previous write at 0x00c0000180b8 by goroutine 6:
+  main.main.func1()
+      /path/to/your/race_example.go:13 +0x3c
+
+Goroutine 7 (running) created at:
+  main.main()
+      /path/to/your/race_example.go:17 +0x6c
+
+Goroutine 6 (running) created at:
+  main.main()
+      /path/to/your/race_example.go:12 +0x48
+==================
+Final counter (potentially incorrect due to race): 2
+Found 1 data race(s)
+exit status 66
+```
+
+The race detector is an invaluable tool for finding concurrency bugs. It's recommended to run tests with `-race` enabled regularly, especially in CI/CD pipelines. Note that it increases execution time and memory usage, so it's typically not used in production builds unless actively debugging a race condition.
+
+**Summary of Advanced Concurrency Patterns:** This section explored more sophisticated concurrency techniques in Go. Pipelines structure data processing stages. Fan-out/fan-in patterns parallelize work within pipeline stages. `sync.RWMutex` offers optimized locking for read-heavy workloads. `sync/atomic` provides low-level, lock-free operations for simple concurrent updates. Finally, the race detector (`-race` flag) is a critical tool for identifying data races in concurrent code.
+
+# XIV. Standard Library Deep Dives
+
+Go's standard library is extensive and provides robust foundations for many common programming tasks. This section explores some key packages in more detail.
+
+## Building HTTP Clients and Servers (`net/http`)
+
+The `net/http` package provides client and server implementations for HTTP/1.1, HTTP/2, and HTTP/3.
+
+### HTTP Server Basics
+
+* **Handlers:** Handle incoming requests. The most common way is to use functions matching the `http.HandlerFunc` type: `func(w http.ResponseWriter, r *http.Request)`.
+
+* **`http.ResponseWriter`**: An interface used by an HTTP handler to construct an HTTP response (setting headers, status code, writing the response body).
+
+* **`*http.Request`**: A struct representing the incoming HTTP request (method, URL, headers, body, context, etc.).
+
+* **Routing:** `http.HandleFunc` registers a handler function for a given path pattern. `http.ListenAndServe` starts the server.
+
+⠀
+```
+package main
+
+import (
+ "fmt"
+ "log"
+ "net/http"
+ "time"
+)
+
+// Simple handler for the root path
+func handleRoot(w http.ResponseWriter, r *http.Request) {
+ log.Printf("Received request for %s from %s", r.URL.Path, r.RemoteAddr)
+ // Set a header
+ w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+ // Set status code (optional, defaults to 200 OK if not set before writing)
+ w.WriteHeader(http.StatusOK)
+ // Write the body
+ fmt.Fprintf(w, "Hello from the Go server!")
+}
+
+// Handler for another path
+func handleData(w http.ResponseWriter, r *http.Request) {
+ log.Printf("Received request for %s", r.URL.Path)
+ // Example using request context (see Section XII)
+ ctx := r.Context()
+ select {
+ case <-time.After(1 * time.Second): // Simulate work
+  fmt.Fprintf(w, "Data processed for path: %s", r.URL.Path)
+ case <-ctx.Done():
+  log.Printf("Request context cancelled/timed out for %s", r.URL.Path)
+  http.Error(w, "Request cancelled or timed out", http.StatusRequestTimeout)
+ }
+}
+
+func main() {
+ // Register handlers for specific paths
+ http.HandleFunc("/", handleRoot)
+ http.HandleFunc("/data", handleData)
+
+ log.Println("Starting HTTP server on :8080...")
+
+ // Start the server using the default ServeMux
+ // ListenAndServe blocks until the server stops (e.g., due to an error)
+ err := http.ListenAndServe(":8080", nil) // nil uses DefaultServeMux
+ if err != nil {
+  log.Fatalf("Server failed to start: %v", err)
+ }
+}
+```
+
+* **Advanced Server Configuration:** For more control (timeouts, TLS, custom routing), use `http.Server` struct and `server.ListenAndServe()` or `server.ListenAndServeTLS()`.
+
+⠀
+### HTTP Client Basics
+
+* **`http.Get`**, **`http.Post`**, **`http.PostForm`**: Simple functions for common requests.
+
+* **`http.Client`**: For more control (setting headers, timeouts, managing cookies, redirects).
+
+* **`http.NewRequestWithContext`**: Creates requests that respect context cancellation/deadlines.
+
+* **Response Handling:** Read the response body (`resp.Body`, which is an `io.ReadCloser`) and remember to close it (`defer resp.Body.Close()`).
+
+⠀
+```
+package main
+
+import (
+ "context"
+ "fmt"
+ "io"
+ "log"
+ "net/http"
+ "net/url"
+ "strings"
+ "time"
+)
+
+func main() {
+ // --- Simple GET ---
+ fmt.Println("--- Simple GET ---")
+ respGet, err := http.Get("https://httpbin.org/get")
+ if err != nil {
+  log.Printf("GET request failed: %v", err)
+ } else {
+  defer respGet.Body.Close()
+  body, _ := io.ReadAll(respGet.Body)
+  fmt.Printf("GET Status: %s\nGET Body:\n%s\n", respGet.Status, string(body))
+ }
+
+ // --- Simple POST ---
+ fmt.Println("\n--- Simple POST ---")
+ respPost, err := http.Post("https://httpbin.org/post", "application/json", strings.NewReader(`{"name":"Go User"}`))
+ if err != nil {
+  log.Printf("POST request failed: %v", err)
+ } else {
+  defer respPost.Body.Close()
+  body, _ := io.ReadAll(respPost.Body)
+  fmt.Printf("POST Status: %s\nPOST Body:\n%s\n", respPost.Status, string(body))
+ }
+
+ // --- Using http.Client with Context and Headers ---
+ fmt.Println("\n--- Client POST with Context/Headers ---")
+ client := &http.Client{Timeout: 5 * time.Second} // Set client-level timeout
+ ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second) // Request-specific timeout (shorter)
+ defer cancel()
+
+ // Create form data
+ formData := url.Values{}
+ formData.Set("item", "widget")
+ formData.Set("quantity", "10")
+
+ req, err := http.NewRequestWithContext(ctx, "POST", "https://httpbin.org/post", strings.NewReader(formData.Encode()))
+ if err != nil {
+  log.Fatalf("Failed to create request: %v", err)
+ }
+ // Set headers
+ req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+ req.Header.Add("X-Custom-Header", "GoClient")
+ req.Header.Add("User-Agent", "MyGoApp/1.0")
+
+ respClient, err := client.Do(req)
+ if err != nil {
+  log.Printf("Client POST request failed: %v", err) // Might fail due to context timeout
+ } else {
+  defer respClient.Body.Close()
+  body, _ := io.ReadAll(respClient.Body)
+  fmt.Printf("Client POST Status: %s\nClient POST Body:\n%s\n", respClient.Status, string(body))
+ }
+}
+```
+
+## Working with JSON (`encoding/json`), XML, etc.
+
+The `encoding` package contains subpackages for handling standard data formats. `encoding/json` is widely used.
+
+* **Marshalling (Encoding):** Converting a Go data structure (struct, map, slice, etc.) into JSON bytes. Use `json.Marshal()` or `json.MarshalIndent()` for pretty-printing.
+
+* **Unmarshalling (Decoding):** Parsing JSON bytes into a Go data structure. Use `json.Unmarshal()`.
+
+* **Struct Tags:** Use struct field tags (`json:"fieldName,omitempty,string"`) to control field names in JSON, omit empty fields, or encode/decode numbers as strings.
+
+* **`json.Encoder`** / **`json.Decoder`**: Useful for streaming JSON to/from `io.Writer`/`io.Reader` (like files or network connections).
+
+⠀
+```
+package main
+
+import (
+ "encoding/json"
+ "encoding/xml" // Example for XML
+ "fmt"
+ "log"
+ "os"
+)
+
+type Product struct {
+ ID       int      `json:"id" xml:"id,attr"` // Use struct tags for JSON and XML
+ Name     string   `json:"name" xml:"name"`
+ Category string   `json:"category,omitempty" xml:"category,omitempty"` // Omit if empty
+ Price    float64  `json:"price,string" xml:"price"` // Encode/decode price as string in JSON
+ Tags     []string `json:"tags" xml:"tags>tag"`
+}
+
+func main() {
+ p := Product{
+  ID:    101,
+  Name:  "Widget Pro",
+  Price: 99.95,
+  Tags:  []string{"tech", "gadget"},
+  // Category is omitted because it's empty
+ }
+
+ // --- JSON Marshaling ---
+ fmt.Println("--- JSON ---")
+ jsonData, err := json.MarshalIndent(p, "", "  ") // Marshal with indentation
+ if err != nil {
+  log.Fatalf("JSON Marshal error: %v", err)
+ }
+ fmt.Println("JSON Output:")
+ fmt.Println(string(jsonData))
+ /* Output:
+ {
+   "id": 101,
+   "name": "Widget Pro",
+   "price": "99.95",
+   "tags": [
+     "tech",
+     "gadget"
+   ]
+ }
+ */
+
+ // --- JSON Unmarshaling ---
+ var p2 Product
+ err = json.Unmarshal(jsonData, &p2)
+ if err != nil {
+  log.Fatalf("JSON Unmarshal error: %v", err)
+ }
+ fmt.Printf("Unmarshaled Product (JSON): %+v\n", p2)
+ // Output: Unmarshaled Product (JSON): {ID:101 Name:Widget Pro Category: Price:99.95 Tags:[tech gadget]}
+
+ // --- XML Marshaling ---
+ fmt.Println("\n--- XML ---")
+ xmlData, err := xml.MarshalIndent(p, "", "  ")
+ if err != nil {
+  log.Fatalf("XML Marshal error: %v", err)
+ }
+ fmt.Println("XML Output:")
+ // Add XML header for proper display
+ fmt.Println(xml.Header + string(xmlData))
+ /* Output:
+ <?xml version="1.0" encoding="UTF-8"?>
+ <Product id="101">
+   <name>Widget Pro</name>
+   <price>99.95</price>
+   <tags>
+     <tag>tech</tag>
+     <tag>gadget</tag>
+   </tags>
+ </Product>
+ */
+
+ // --- XML Unmarshaling ---
+ var p3 Product
+ err = xml.Unmarshal(xmlData, &p3)
+ if err != nil {
+  log.Fatalf("XML Unmarshal error: %v", err)
+ }
+ fmt.Printf("Unmarshaled Product (XML): %+v\n", p3)
+ // Output: Unmarshaled Product (XML): {ID:101 Name:Widget Pro Category: Price:99.95 Tags:[tech gadget]}
+
+ // --- Streaming JSON Encoder ---
+ fmt.Println("\n--- JSON Stream Encoder ---")
+ encoder := json.NewEncoder(os.Stdout) // Encode directly to standard output
+ encoder.SetIndent("", "  ")
+ fmt.Println("Encoding product to stdout:")
+ err = encoder.Encode(p)
+ if err != nil {
+  log.Printf("JSON Encoder error: %v", err)
+ }
+}
+```
+
+Other packages like `encoding/xml`, `encoding/csv`, `encoding/gob` work similarly for different formats.
+
+## Database Interaction (`database/sql`)
+
+The `database/sql` package provides a generic interface around SQL (or SQL-like) databases. It must be used *with* a specific database driver package (e.g., `github.com/lib/pq` for PostgreSQL, `github.com/go-sql-driver/mysql` for MySQL).
+
+* **Driver Registration:** Drivers register themselves using a blank import (`import _ "driver/package"`).
+
+* **Connecting:** `sql.Open("driverName", "dataSourceName")` returns a `*sql.DB` handle (represents a pool of connections, safe for concurrent use).
+
+* **Executing Queries:**
+
+  * `db.QueryContext(ctx, query, args...)`: For `SELECT` queries that return rows. Returns `*sql.Rows`.
+
+  * `db.QueryRowContext(ctx, query, args...)`: For `SELECT` queries expected to return at most one row. Returns `*sql.Row`.
+
+  * `db.ExecContext(ctx, query, args...)`: For `INSERT`, `UPDATE`, `DELETE` statements that don't return rows. Returns `sql.Result`.
+
+* **Processing Rows:** Iterate over `*sql.Rows` using `rows.Next()`. Use `rows.Scan()` to copy column data into variables. Always check `rows.Err()` after the loop and `defer rows.Close()`. `*sql.Row` has a similar `Scan()` method.
+
+* **Transactions:** Use `db.BeginTx()` to start a transaction, then use the `*sql.Tx` object's `QueryContext`, `ExecContext`, etc. methods. Commit with `tx.Commit()` or rollback with `tx.Rollback()`.
+
+* **Prepared Statements:** Use `db.PrepareContext()` for queries executed multiple times for efficiency and security (prevents SQL injection).
+
+⠀
+```
+package main
+
+import (
+ "context"
+ "database/sql" // Generic SQL interface
+ "fmt"
+ "log"
+ "time"
+
+ _ "github.com/mattn/go-sqlite3" // SQLite driver (registers itself)
+ // Use appropriate driver for your DB:
+ // _ "github.com/lib/pq" // PostgreSQL
+ // _ "github.com/go-sql-driver/mysql" // MySQL
+)
+
+type User struct {
+ ID   int
+ Name string
+ Age  int
+}
+
+func main() {
+ // NOTE: Using SQLite here for a self-contained example.
+ // Replace "sqlite3", ":memory:" with your actual driver and DSN.
+ db, err := sql.Open("sqlite3", ":memory:") // In-memory SQLite DB
+ if err != nil {
+  log.Fatalf("Failed to open database: %v", err)
+ }
+ defer db.Close()
+
+ // Check connection
+ ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+ defer cancel()
+ err = db.PingContext(ctx)
+ if err != nil {
+  log.Fatalf("Failed to connect to database: %v", err)
+ }
+ fmt.Println("Database connection successful!")
+
+ // --- Create Table (ExecContext) ---
+ createTableSQL := `CREATE TABLE users (
+        id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+        name TEXT,
+        age INTEGER
+    );`
+ _, err = db.ExecContext(ctx, createTableSQL)
+ if err != nil {
+  log.Fatalf("Failed to create table: %v", err)
+ }
+ fmt.Println("Table 'users' created.")
+
+ // --- Insert Data (ExecContext) ---
+ insertSQL := `INSERT INTO users(name, age) VALUES (?, ?)` // Use placeholders
+ res, err := db.ExecContext(ctx, insertSQL, "Alice", 30)
+ if err != nil {
+  log.Fatalf("Failed to insert Alice: %v", err)
+ }
+ aliceID, _ := res.LastInsertId() // Get ID of inserted row (driver dependent)
+ fmt.Printf("Inserted Alice with ID: %d\n", aliceID)
+
+ _, err = db.ExecContext(ctx, insertSQL, "Bob", 25)
+ if err != nil {
+  log.Fatalf("Failed to insert Bob: %v", err)
+ }
+ fmt.Println("Inserted Bob.")
+
+ // --- Query Single Row (QueryRowContext) ---
+ var user User
+ queryRowSQL := `SELECT id, name, age FROM users WHERE id = ?`
+ row := db.QueryRowContext(ctx, queryRowSQL, aliceID)
+ err = row.Scan(&user.ID, &user.Name, &user.Age) // Scan results into struct fields
+ if err != nil {
+  if err == sql.ErrNoRows {
+   fmt.Println("User not found.")
+  } else {
+   log.Fatalf("Failed to query single row: %v", err)
+  }
+ } else {
+  fmt.Printf("Queried single user: %+v\n", user)
+ }
+
+ // --- Query Multiple Rows (QueryContext) ---
+ queryRowsSQL := `SELECT id, name, age FROM users WHERE age > ? ORDER BY name`
+ rows, err := db.QueryContext(ctx, queryRowsSQL, 20)
+ if err != nil {
+  log.Fatalf("Failed to query multiple rows: %v", err)
+ }
+ defer rows.Close() // IMPORTANT: Close rows when done
+
+ fmt.Println("Users older than 20:")
+ for rows.Next() { // Iterate through result rows
+  var u User
+  err := rows.Scan(&u.ID, &u.Name, &u.Age)
+  if err != nil {
+   log.Printf("Error scanning row: %v", err)
+   continue // Or handle more seriously
+  }
+  fmt.Printf("  - %+v\n", u)
+ }
+ // Check for errors during iteration
+ if err = rows.Err(); err != nil {
+  log.Fatalf("Error iterating rows: %v", err)
+ }
+}
+```
+
+## Advanced `os` Package Usage
+
+Beyond basic file I/O, the `os` package provides access to other operating system functionalities.
+
+* **Environment Variables:**
+
+  * `os.Getenv(key string) string`: Gets the value of an environment variable (returns empty string if not set).
+
+  * `os.LookupEnv(key string) (string, bool)`: Gets value and a boolean indicating if it was set.
+
+  * `os.Setenv(key, value string) error`: Sets an environment variable.
+
+* **File System Operations:**
+
+  * `os.Stat(name string) (FileInfo, error)`: Gets file metadata (size, mod time, permissions, is dir?).
+
+  * `os.Mkdir(name string, perm FileMode)`, `os.MkdirAll(path string, perm FileMode)`: Create directories.
+
+  * `os.Remove(name string)`, `os.RemoveAll(path string)`: Remove file or directory.
+
+  * `os.Rename(oldpath, newpath string) error`: Rename/move file.
+
+  * `os.Chmod(name string, mode FileMode) error`, `os.Chown(name string, uid, gid int) error`: Change permissions/ownership.
+
+* **Working Directory:**
+
+  * `os.Getwd() (string, error)`: Get current working directory.
+
+  * `os.Chdir(dir string) error`: Change working directory.
+
+* **Signals:** `os/signal` package allows handling OS signals (e.g., SIGINT, SIGTERM).
+
+⠀
+```
+package main
+
+import (
+ "fmt"
+ "log"
+ "os"
+ "os/signal"
+ "syscall"
+ "time"
+)
+
+func main() {
+ // --- Environment Variables ---
+ fmt.Println("--- Environment ---")
+ os.Setenv("MY_APP_VAR", "my_value")
+ val := os.Getenv("MY_APP_VAR")
+ fmt.Println("MY_APP_VAR:", val)
+ pathVal, found := os.LookupEnv("PATH")
+ fmt.Printf("PATH found: %t (value length: %d)\n", found, len(pathVal))
+ nonExistent := os.Getenv("NON_EXISTENT_VAR")
+ fmt.Printf("NON_EXISTENT_VAR: '%s'\n", nonExistent)
+
+ // --- File System ---
+ fmt.Println("\n--- File System ---")
+ fileName := "os_info.txt"
+ err := os.WriteFile(fileName, []byte("info"), 0644)
+ if err != nil { log.Fatal(err) }
+
+ fileInfo, err := os.Stat(fileName)
+ if err != nil {
+  log.Fatal(err)
+ }
+ fmt.Printf("File: %s, Size: %d, ModTime: %s, IsDir: %t, Mode: %s\n",
+  fileInfo.Name(), fileInfo.Size(), fileInfo.ModTime().Format(time.RFC3339),
+  fileInfo.IsDir(), fileInfo.Mode())
+ os.Remove(fileName) // Cleanup
+
+ // --- Signals ---
+ fmt.Println("\n--- Signals ---")
+ // Set up channel on which to send signal notifications.
+ sigs := make(chan os.Signal, 1)
+ // Notify this channel for SIGINT (Ctrl+C) and SIGTERM
+ signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+
+ // Goroutine to wait for signals
+ go func() {
+  sig := <-sigs // Block until a signal is received
+  fmt.Println("\nReceived signal:", sig)
+  // Perform cleanup here...
+  fmt.Println("Exiting gracefully...")
+  os.Exit(0) // Exit after cleanup
+ }()
+
+ fmt.Println("Running... Press Ctrl+C to trigger signal handler.")
+ // Keep main goroutine alive to allow signal handling
+ select {} // Block forever (until signal handler exits)
+}
+```
+
+## Cryptography (`crypto/...`)
+
+Go's `crypto` package and its subpackages (`crypto/aes`, `crypto/rand`, `crypto/sha256`, `crypto/tls`, etc.) provide implementations of various cryptographic primitives.
+
+* **Hashing:** `crypto/sha256`, `crypto/md5`, `hash` interface. Used for checksums, password storage (with salts).
+
+* **Random Numbers:** `crypto/rand` provides cryptographically secure random number generation (use this for keys, nonces, etc., instead of `math/rand`).
+
+* **Symmetric Encryption:** `crypto/aes`, `crypto/cipher`. Requires careful handling of keys, nonces/IVs, and cipher modes (e.g., GCM, CTR).
+
+* **Asymmetric Encryption/Signatures:** `crypto/rsa`, `crypto/ecdsa`. Used for public-key cryptography, digital signatures.
+
+* **TLS:** `crypto/tls` provides TLS/SSL connections (used by `net/http` for HTTPS).
+
+⠀
+**Note:** Cryptography is complex and easy to misuse. Always consult security best practices and consider using higher-level libraries or protocols when possible, rather than implementing primitives directly unless you have expertise.
+
+```
+package main
+
+import (
+ "crypto/rand" // Cryptographically secure random numbers
+ "crypto/sha256"
+ "encoding/hex" // For printing byte slices nicely
+ "fmt"
+ "log"
+)
+
+func main() {
+ // --- Hashing (SHA-256) ---
+ fmt.Println("--- Hashing ---")
+ dataToHash := []byte("this is secret data")
+ hash := sha256.Sum256(dataToHash) // Returns [32]byte array
+
+ fmt.Printf("Data: %s\n", string(dataToHash))
+ // Print hash as hexadecimal string
+ fmt.Printf("SHA-256 Hash: %x\n", hash)
+ // Or use hex encoding
+ hashString := hex.EncodeToString(hash[:]) // Convert array slice to string
+ fmt.Printf("SHA-256 Hash (string): %s\n", hashString)
+
+ // --- Secure Random Numbers ---
+ fmt.Println("\n--- Secure Random ---")
+ // Generate 16 random bytes (e.g., for an AES key or nonce)
+ key := make([]byte, 16)
+ _, err := rand.Read(key) // Fill the byte slice with random data
+ if err != nil {
+  log.Fatalf("Failed to generate random bytes: %v", err)
+ }
+ fmt.Printf("Generated %d random bytes: %x\n", len(key), key)
+
+ // Symmetric/Asymmetric examples are more involved and omitted for brevity
+ // but would typically involve packages like crypto/aes, crypto/cipher, crypto/rsa.
+}
+```
+
+**Summary of Standard Library Deep Dives:** This section provided a glimpse into the capabilities of key Go standard library packages: `net/http` for web clients/servers, `encoding/json` (and others) for data serialization, `database/sql` for database interaction, `os` for OS-level operations, and `crypto` for cryptographic functions. Mastering these packages is essential for building real-world Go applications.
+
+# XV. Build System and Tooling
+
+Beyond basic `go build` and `go run`, the Go toolchain offers powerful features for customizing builds, generating code, and analyzing source code for potential issues.
+
+## Advanced `go build` Flags
+
+The `go build` command accepts various flags to modify the build process and the resulting binary. Two particularly useful ones are `-ldflags` and `-tags`.
+
+### `-ldflags` (Linker Flags)
+
+This flag passes arguments directly to the Go linker, allowing you to manipulate the final executable. A common use case is embedding build-time information (like version numbers or commit hashes) into variables within your Go program.
+
+**Example:** Embedding a version string.
+
+1. **`In your Go code (e.g., main.go):`** Declare a package-level string variable that will hold the version.
+
+```
+package main
+
+import "fmt"
+
+// This variable will be set by the linker.
+// It must be a package-level string variable.
+var AppVersion string = "development" // Default value
+
+func main() {
+ fmt.Printf("Application Version: %s\n", AppVersion)
+}
+```
+
+2. **During the build:** Use `-ldflags` with the `-X` option to set the variable's value. The format is `-X 'packagepath.VariableName=value'`.
+
+```
+# Get current git commit hash (example)
+GIT_COMMIT=$(git rev-parse --short HEAD)
+# Define the version string
+VERSION="1.2.3-${GIT_COMMIT}"
+# Build, setting the AppVersion variable in the main package
+go build -ldflags="-X 'main.AppVersion=${VERSION}'" -o myapp main.go
+```
+
+3. **Run the compiled application:**
+
+```
+./myapp
+# Output might be: Application Version: 1.2.3-a1b2c3d
+```
+
+⠀
+Other `-ldflags` uses include `-s -w` to strip debugging information and the symbol table, reducing binary size (but making debugging harder).
+
+### `-tags` (Build Tags / Build Constraints)
+
+Build tags allow conditional compilation based on tags provided during the build. This is useful for creating different versions of your application (e.g., with/without debugging features, for specific platforms, enabling experimental code).
+
+**Example:** Including debug logging only when a "debug" tag is present.
+
+1. **`In a Go file (e.g., debug_log.go):`** Add a build constraint comment at the top. This file will *only* be included if the `debug` tag is provided.
+
+```
+//go:build debug
+// +build debug
+
+package mypackage
+
+import "log"
+
+func DebugLog(format string, v ...interface{}) {
+ log.Printf("[DEBUG] "+format, v...)
+}
+```
+
+1. *```(Note: Both //go:build and // +build formats are shown; //go:build is the modern syntax preferred since Go 1.17).```*
+
+2. **`In another file (e.g., release_log.go):`** Provide the default implementation when the tag is *not* present.
+
+```
+//go:build !debug
+// +build !debug
+
+package mypackage
+
+// Empty implementation when not in debug mode
+func DebugLog(format string, v ...interface{}) {}
+```
+
+3. **In your main code:** Call `mypackage.DebugLog` unconditionally.
+
+```
+package main
+
+import (
+ "fmt"
+ "myproject/mypackage" // Assuming mypackage is in myproject/mypackage
+)
+
+func main() {
+ fmt.Println("Application started.")
+ mypackage.DebugLog("This is a debug message. Var=%d", 42)
+ fmt.Println("Application finished.")
+}
+```
+
+4. **Build:**
+
+   * **Release build (no debug logs):** `go build -o myapp_release`
+
+   * **Debug build (includes debug logs):** `go build -tags debug -o myapp_debug`
+
+⠀
+Running `myapp_release` will not print the debug message, while `myapp_debug` will. Tags can also be combined (e.g., `-tags "debug,linux"`).
+
+## Cross-Compilation
+
+Go makes cross-compiling (building an executable for a different operating system or architecture than the one you're building on) remarkably easy. You typically just need to set the `GOOS` (target OS) and `GOARCH` (target architecture) environment variables before running `go build`.
+
+**Example:** Building a Linux executable from macOS.
+
+```
+# On macOS (or Windows/Linux)
+# Set target OS and architecture
+export GOOS=linux
+export GOARCH=amd64
+
+# Build the application
+go build -o myapp_linux main.go
+
+# Unset variables if needed afterwards
+unset GOOS
+unset GOARCH
+
+# Check the file type (on Linux/macOS)
+file myapp_linux
+# Output: myapp_linux: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), statically linked, Go BuildID=..., not stripped
+```
+
+Common `GOOS` values: `linux`, `windows`, `darwin` (macOS), `js` (for WebAssembly). Common `GOARCH` values: `amd64`, `arm64`, `386`, `wasm`.
+
+You can list supported combinations using `go tool dist list`. Note that if your code uses `cgo`, cross-compilation becomes significantly more complex as it requires a C cross-compiler toolchain for the target platform.
+
+## Using `go generate` for Code Generation
+
+`go generate` is a tool that scans Go source files for special comments starting with `//go:generate` and executes the commands found in those comments. It's *not* part of the standard `go build` process; you must run `go generate ./...` explicitly.
+
+It's commonly used for:
+
+* Generating code from templates (e.g., `stringer` for `iota` constants).
+
+* Embedding static assets into binaries.
+
+* Generating mocks or protocol buffer code.
+
+⠀
+**Example:** Using `stringer` to generate `String()` methods for constants.
+
+1. **`Install stringer:`** `go install golang.org/x/tools/cmd/stringer@latest`
+
+2. **`Define constants (e.g., pills.go):`**
+
+```
+package pills
+
+//go:generate stringer -type=Pill
+type Pill int
+
+const (
+ Placebo Pill = iota
+ Aspirin
+ Ibuprofen
+ Paracetamol
+ Acetaminophen = Paracetamol // Alias
+)
+```
+
+2. The `//go:generate stringer -type=Pill` comment tells `go generate` to run the `stringer` command for the `Pill` type in this file.
+
+3. **`Run go generate:`**
+
+```
+cd path/to/pills
+go generate
+```
+
+3. This creates a new file, typically `pill_string.go`, containing the generated `String()` method for the `Pill` type.
+
+4. **Use the generated method:**
+
+```
+package main
+
+import (
+ "fmt"
+ "myproject/pills" // Assuming pills package is here
+)
+
+func main() {
+ fmt.Println(pills.Aspirin)    // Output: Aspirin
+ fmt.Println(pills.Paracetamol) // Output: Paracetamol
+}
+```go generate` automates repetitive code generation tasks, keeping your source code cleaner.
+```
+
+⠀
+## Static Analysis Tools (`go vet`, Linters)
+
+Static analysis tools examine source code without running it to find potential bugs, style issues, and suspicious constructs.
+
+### `go vet`
+
+`go vet` is a built-in tool that reports likely mistakes in Go programs. It checks for things like:
+
+* Unreachable code.
+
+* Incorrect use of `printf` format specifiers.
+
+* Passing non-pointer values to methods expecting pointers for interface satisfaction.
+
+* Shadowed variables.
+
+* Incorrect build tags.
+
+* And many other common errors.
+
+⠀
+Run it using `go vet ./...` from your module root. It's highly recommended to include `go vet` in your CI/CD pipeline.
+
+```
+go vet ./...
+```
+
+### Linters (`staticcheck`, `golangci-lint`)
+
+Linters provide more extensive checks, including style enforcement, complexity analysis, and detection of more subtle potential bugs beyond what `go vet` covers.
+
+* **`staticcheck`**: A popular, advanced static analysis tool focusing on correctness and finding subtle bugs. (Part of the `honnef.co/go/tools` suite).
+
+* **`golangci-lint`**: A fast meta-linter that runs many different linters concurrently (including `staticcheck`, `go vet`, style checkers like `golint`, `gofmt`, complexity checkers, etc.). It's highly configurable and widely used in Go projects.
+
+⠀
+**`Installation (Example for golangci-lint):`** Check the official `golangci-lint` repository for the latest recommended installation method (often involves downloading a binary or using `go install`).
+
+**`Usage (Example for golangci-lint):`**
+
+```
+# Run with default configuration in the current directory and subdirectories
+golangci-lint run ./...
+
+# Run with a specific configuration file
+golangci-lint run --config .golangci.yml ./...
+```
+
+Integrating `go vet` and a comprehensive linter like `golangci-lint` into your development workflow and CI process significantly improves code quality and helps catch errors early.
+
+**Summary of Build System and Tooling:** This section explored advanced features of the Go toolchain. `-ldflags` allows embedding build-time data, while `-tags` enables conditional compilation. Go provides simple cross-compilation via `GOOS` and `GOARCH`. `go generate` automates code generation tasks. Static analysis tools like the built-in `go vet` and external linters (`staticcheck`, `golangci-lint`) are crucial for finding potential bugs and ensuring code quality.
+
+# XVI. Modules and Dependency Management
+
+Go modules are the standard way to manage dependencies in Go projects since version 1.11. They define project dependencies, versions, and enable reproducible builds. This section covers more advanced concepts beyond basic `go get` and `go mod tidy`.
+
+## Advanced `go.mod` and `go.sum` Concepts
+
+### `go.mod` Directives
+
+The `go.mod` file is the heart of a module. Key directives include:
+
+* **`module`**: Defines the module path (e.g., `module github.com/myuser/myproject`). This is how other projects import packages from this module.
+
+* **`go`**: Specifies the minimum Go version required for this module (e.g., `go 1.18`). This influences language features and some tooling behavior.
+
+* **`require`**: Lists the direct dependencies required by your module, along with their minimum required versions.
+
+```
+require (
+    github.com/gin-gonic/gin v1.7.7
+    golang.org/x/text v0.3.7 // Indirect dependency might also appear here
+)
+```
+
+* Dependencies marked with `// indirect` are not used directly by your module's code but are needed by your direct dependencies. `go mod tidy` often cleans these up or adds them as necessary.
+
+* **`exclude`**: Specifies versions of a dependency that should *not* be used during version selection. Useful if a specific version has a known critical bug.
+
+```
+exclude github.com/some/dependency v1.2.4 // Exclude buggy version
+```
+
+* **`replace`**: Replaces the required module path/version with a different one. This is crucial for working with local forks or unpublished versions (see below).
+
+```
+replace github.com/some/dependency v1.2.3 => ../local-fork/dependency
+// or
+replace github.com/some/dependency v1.2.3 => github.com/myfork/dependency v1.2.3-myfix
+```
+
+* **`retract`**: (Go 1.16+) Allows module authors to indicate that specific published versions should not be used (e.g., due to security issues or severe bugs), without breaking builds that already depend on them (unlike `exclude`). It provides a rationale.
+
+```
+retract [v1.0.0, v1.0.5] // Retract versions 1.0.0 through 1.0.5
+```
+
+⠀
+### Understanding `go.sum`
+
+The `go.sum` file contains the expected cryptographic checksums (hashes) of the content of specific module versions. It's automatically maintained by Go commands (`go get`, `go mod tidy`, `go build`, etc.).
+
+* **Purpose:** Ensures the integrity and authenticity of your dependencies. When Go downloads a module, it calculates its checksum and compares it against the entry in `go.sum`. A mismatch indicates the downloaded code might have been tampered with or is different from what was originally used, causing a build error.
+
+* **Format:** Each line contains the module path, version (or version + `/go.mod`), and the hash (typically `h1:` prefix for SHA-256).
+
+```
+github.com/gin-contrib/sse v0.0.0-20190301062529-5545eab63299 h1:3APUEB72XcQ02+f6S3+Kq8z5y2c3hFakLDE40a1hJOk=
+github.com/gin-contrib/sse v0.0.0-20190301062529-5545eab63299/go.mod h1:10FcqAbn/4N4g5hU9wURQg30hOq6jFH3mk6Fj7fXzY0=
+github.com/gin-gonic/gin v1.7.7 h1:4hT0n+lvmfLEh749x6dw+76fQ9N7qQhfKCUUE5N+6/A=
+github.com/gin-gonic/gin v1.7.7/go.mod h1:Nr3wrLM+dfXk6L3G9HXDR9625GFA7QAR+ftvtERlm50=
+...
+```
+
+* **`Committing go.sum:`** Always commit your `go.sum` file to version control along with `go.mod`. This ensures that other developers and CI systems use the exact same verified dependencies.
+
+⠀
+### Dependency Resolution
+
+Go uses a *Minimal Version Selection* (MVS) algorithm. When resolving dependencies, Go tries to use the *oldest* allowed version of each module that satisfies the requirements of all modules in the build list. This promotes stability and avoids unnecessary upgrades. `go get -u` (upgrade) or `go get github.com/some/dependency@latest` explicitly requests newer versions.
+
+## Vendoring Dependencies
+
+Vendoring is the process of copying the source code of your dependencies directly into your project, usually under a `vendor` directory.
+
+* **Why Vendor?**
+
+  * **Reproducible Builds:** Guarantees that the build uses the exact code you checked in, independent of upstream changes or availability (e.g., module proxy outages, deleted repositories/tags).
+
+  * **Offline Builds:** Allows building the project without network access to download dependencies.
+
+  * **Compliance/Auditing:** Some organizations require all source code used in a build to be stored locally.
+
+* **How to Vendor:**
+
+  1. Ensure your dependencies are correctly listed in `go.mod`. Run `go mod tidy` if needed.
+
+  2. Run the command:
+
+```
+go mod vendor
+```
+
+	2. This creates a `vendor` directory containing the source code of all dependencies needed for the build. It also creates `vendor/modules.txt` listing the vendored packages.
+
+* **Building with Vendor:**
+
+  * By default (Go 1.14+), if a `vendor` directory exists, `go build` and other commands will automatically use it *if* the `go` version in `go.mod` is 1.14 or higher.
+
+  * You can explicitly force using the vendor directory with the `-mod=vendor` flag: `go build -mod=vendor`.
+
+  * You can explicitly ignore the vendor directory with `-mod=mod`.
+
+* **Committing Vendor:** If you choose to vendor, commit the entire `vendor` directory to your version control system. Be aware this can significantly increase repository size.
+
+⠀
+## Working with Private Modules
+
+If your project depends on modules hosted in private repositories (e.g., private GitHub repos, internal GitLab/Bitbucket instances), the Go tools need configuration to access them.
+
+* **`Setting GOPRIVATE:`** The primary mechanism is the `GOPRIVATE` environment variable. It specifies a comma-separated list of glob patterns matching module paths that should be considered private. Go tools will bypass the public checksum database (`sum.golang.org`) and public module proxy (`proxy.golang.org`) for these modules, attempting to fetch them directly using version control tools (like `git`).
+
+```
+# Example: Modules hosted on internal git server and private GitHub org
+export GOPRIVATE="*.internal.corp.com,github.com/my-private-org/*"
+```
+
+* **Authentication:** Go uses your underlying version control system's authentication (e.g., SSH keys for `git@`, HTTPS credentials via `.netrc` or credential helpers). Ensure your `git` (or other VCS) is configured to access the private repositories.
+
+  * **HTTPS:** Often requires configuring `git` to use a personal access token instead of passwords, especially with 2FA. You might need to configure a credential helper or use token-based authentication in the URL (less secure).
+
+  * **SSH:** Generally preferred. Ensure your SSH key is added to your private repository host and your local SSH agent is running.
+
+* **`GONOPROXY`**, **`GONOSUMDB`**: For more granular control, you can set `GONOPROXY` (bypass proxy) and `GONOSUMDB` (bypass checksum DB) separately, using the same glob pattern format as `GOPRIVATE`. `GOPRIVATE` effectively sets both.
+
+* **`Configuring Git for insteadOf:`** If your private modules use HTTPS but your local Git setup prefers SSH (or vice-versa), you can configure Git to rewrite URLs:
+
+```
+# Example: Force SSH for your private org
+git config --global url."git@github.com:my-private-org/".insteadOf "https://github.com/my-private-org/"
+```
+
+⠀
+## Replacing Dependencies Locally
+
+The `replace` directive in `go.mod` is essential for development workflows where you need to use a local, modified version of a dependency instead of the published one.
+
+* **Scenario:** You find a bug in `github.com/some/dependency`, clone it locally to `../local-fork/dependency`, fix the bug, and want to test your main project using your fixed version *before* contributing the fix upstream or publishing your fork.
+
+* **`Using replace:`** Add a `replace` directive to your main project's `go.mod`:
+
+```
+module myproject
+
+go 1.19
+
+require (
+    github.com/some/dependency v1.2.3
+)
+
+// Replace the required version with your local copy
+replace github.com/some/dependency v1.2.3 => ../local-fork/dependency
+```
+
+	* The path on the right (`../local-fork/dependency`) is relative to the root of *your* module (`myproject`).
+
+	* The version on the left (`v1.2.3`) must match a version specified (directly or indirectly) in your `require` block or one of its dependencies. If you're unsure, `go mod edit -replace=github.com/some/dependency=../local-fork/dependency` might help determine the correct version to replace.
+
+* **Effect:** When you run `go build`, `go test`, etc., the Go toolchain will use the code from your local directory (`../local-fork/dependency`) instead of downloading the `v1.2.3` tag from the original repository.
+
+* **Important:** `replace` directives using local file paths are ignored when *other* modules depend on *your* module. They are only for local development within the specific module where the `replace` directive exists. Remember to remove the `replace` directive before publishing your module or when you switch back to using the official version.
+
+⠀
+**Summary of Modules and Dependency Management:** Go modules provide robust dependency management via `go.mod` (defining requirements, replacements, exclusions) and `go.sum` (ensuring integrity). `go mod vendor` allows creating self-contained builds. `GOPRIVATE` and related variables configure access to private repositories. The `replace` directive is crucial for local development and testing against modified dependencies.
+
+# XVII. Generics (Go 1.18+)
+
+Introduced in Go 1.18, generics (also known as type parameters) allow writing code that can work with multiple types without sacrificing type safety. This reduces code duplication for common operations on different kinds of data (e.g., functions operating on slices of integers or floats, data structures holding different types).
+
+## Defining Functions and Types with Type Parameters
+
+Generics introduce the concept of *type parameters*, specified in square brackets `[]` after the function or type name but before the regular parameter list or struct definition.
+
+### Generic Functions
+
+A function can declare type parameters that represent arbitrary types satisfying certain constraints.
+
+```
+package main
+
+import "fmt"
+
+// Generic function 'PrintSlice' takes a slice of any type 'T'.
+// [T any] declares a type parameter 'T' with the constraint 'any'
+// (meaning T can be any type).
+func PrintSlice[T any](s []T) {
+ fmt.Print("[")
+ for i, v := range s {
+  if i > 0 {
+   fmt.Print(", ")
+  }
+  fmt.Print(v) // Works because fmt.Print accepts interface{}
+ }
+ fmt.Println("]")
+}
+
+// Generic function 'IndexOf' finds the index of an element in a slice.
+// It requires the type 'T' to be comparable.
+func IndexOf[T comparable](s []T, target T) int {
+ for i, v := range s {
+  // The '==' operator is allowed because T is constrained to 'comparable'
+  if v == target {
+   return i
+  }
+ }
+ return -1 // Not found
+}
+
+func main() {
+ intSlice := []int{10, 20, 30}
+ stringSlice := []string{"a", "b", "c"}
+ floatSlice := []float64{1.1, 2.2, 3.3}
+
+ fmt.Print("Int Slice: ")
+ PrintSlice(intSlice) // Compiler infers T is int
+
+ fmt.Print("String Slice: ")
+ PrintSlice(stringSlice) // Compiler infers T is string
+
+ fmt.Print("Float Slice: ")
+ PrintSlice(floatSlice) // Compiler infers T is float64
+
+ fmt.Println("\nFinding indices:")
+ fmt.Println("Index of 20 in intSlice:", IndexOf(intSlice, 20))     // Output: 1
+ fmt.Println("Index of \"c\" in stringSlice:", IndexOf(stringSlice, "c")) // Output: 2
+ fmt.Println("Index of 99 in intSlice:", IndexOf(intSlice, 99))     // Output: -1
+}
+```
+
+Type parameters (like `T` above) act as placeholders for actual types provided by the caller (often inferred by the compiler, like `int` or `string` in the `PrintSlice` calls).
+
+### Generic Types
+
+Types (like structs or interfaces) can also have type parameters.
+
+```
+package main
+
+import "fmt"
+
+// Generic struct 'Stack' can hold elements of any type 'T'.
+type Stack[T any] struct {
+ elements []T
+}
+
+// Push adds an element to the stack (method on generic type)
+func (s *Stack[T]) Push(elem T) {
+ s.elements = append(s.elements, elem)
+}
+
+// Pop removes and returns the top element, plus a boolean indicating success.
+func (s *Stack[T]) Pop() (T, bool) {
+ if len(s.elements) == 0 {
+  var zero T // Get the zero value for type T
+  return zero, false
+ }
+ lastIndex := len(s.elements) - 1
+ elem := s.elements[lastIndex]
+ s.elements = s.elements[:lastIndex] // Remove last element
+ return elem, true
+}
+
+// IsEmpty checks if the stack is empty.
+func (s *Stack[T]) IsEmpty() bool {
+ return len(s.elements) == 0
+}
+
+func main() {
+ // Create a Stack that holds integers
+ intStack := Stack[int]{} // Explicitly provide type argument 'int'
+ intStack.Push(10)
+ intStack.Push(20)
+ fmt.Println("Int Stack:", intStack.elements)
+
+ val, ok := intStack.Pop()
+ if ok {
+  fmt.Println("Popped int:", val) // Output: 20
+ }
+ fmt.Println("Int Stack after pop:", intStack.elements)
+
+ // Create a Stack that holds strings
+ stringStack := Stack[string]{}
+ stringStack.Push("hello")
+ stringStack.Push("world")
+ fmt.Println("\nString Stack:", stringStack.elements)
+
+ valStr, ok := stringStack.Pop()
+ if ok {
+  fmt.Println("Popped string:", valStr) // Output: world
+ }
+}
+```
+
+When creating an instance of a generic type (like `Stack[int]`), you must provide the actual type arguments.
+
+## Understanding Constraints
+
+Type parameters usually need *constraints* to specify what kinds of types are allowed and what operations can be performed on values of those types. Constraints are defined using interfaces.
+
+* **`any`** Constraint: The built-in `any` constraint (an alias for `interface{}`) allows *any* type, offering no specific operations beyond what `interface{}` allows.
+
+* **`comparable`** Constraint: The built-in `comparable` constraint allows any type whose values can be compared using `==` and `!=`. This includes basic types (booleans, numbers, strings, pointers, channels) and structs/arrays whose elements are comparable. Slices, maps, and functions are *not* comparable.
+
+* **Custom Interface Constraints:** You define an interface that lists the required methods or supported operations for the type parameter.
+
+⠀
+```
+package main
+
+import "fmt"
+
+// Define an interface constraint 'Number'
+// It embeds constraints from Signed and Unsigned integer types, plus Float types
+// (Using union elements | requires Go 1.18+)
+// Note: The standard library 'constraints' package provides Signed, Unsigned, Float, etc.
+// but defining explicitly here for demonstration.
+type Number interface {
+ ~int | ~int8 | ~int16 | ~int32 | ~int64 | // ~ allows underlying types
+ ~uint | ~uint8 | ~uint16 | ~uint32 | ~uint64 | ~uintptr |
+ ~float32 | ~float64
+}
+
+// Generic function 'SumNumbers' works with any type satisfying the Number constraint.
+// This allows using arithmetic operators like '+'.
+func SumNumbers[T Number](nums []T) T {
+ var total T // Zero value for type T
+ for _, num := range nums {
+  total = total + num // '+' is allowed because T is constrained to Number types
+ }
+ return total
+}
+
+// Constraint requiring a String() method
+type Stringer interface {
+ String() string
+}
+
+func PrintString[T Stringer](val T) {
+ fmt.Println("String value:", val.String()) // .String() is allowed
+}
+
+// Example type implementing Stringer
+type Person struct {
+ Name string
+}
+func (p Person) String() string {
+ return "Person<" + p.Name + ">"
+}
+
+func main() {
+ intSlice := []int{1, 2, 3}
+ floatSlice := []float64{1.1, 2.2, 3.3}
+
+ fmt.Println("Sum ints:", SumNumbers(intSlice))     // Output: 6
+ fmt.Println("Sum floats:", SumNumbers(floatSlice)) // Output: 6.6
+
+ p := Person{Name: "Alice"}
+ PrintString(p) // Output: String value: Person<Alice>
+
+ // This would fail compilation because string doesn't implement Stringer
+ // PrintString("hello")
+}
+```
+
+The `~` syntax (e.g., `~int`) in constraints allows type parameters to match not just the exact type but also any type whose *underlying type* is `int`. This is useful when working with custom types based on built-ins (e.g., `type MyInt int`).
+
+## Common Use Cases and Best Practices
+
+* **Use Cases:**
+
+  * **Generic Data Structures:** Implementing stacks, queues, sets, trees, etc., that can hold elements of any specified type (e.g., `Stack[T]`).
+
+  * **Generic Functions on Slices/Maps:** Writing functions that operate on slices or maps of different element/key/value types (e.g., `Map`, `Filter`, `Reduce`, `Keys`, `Values`).
+
+  * **Reducing Boilerplate:** Eliminating the need to write nearly identical functions for different numeric types (e.g., `Min`, `Max`).
+
+* **Best Practices:**
+
+  * **Don't Overuse Generics:** If an interface provides a suitable abstraction (especially for behavior), prefer using interfaces. Generics are best when the implementation is identical across types, differing only in the type itself.
+
+  * **Use Clear Constraints:** Define constraints that accurately reflect the operations needed by your generic code. Use standard constraints like `comparable` or interfaces from `golang.org/x/exp/constraints` where appropriate.
+
+  * **Consider Code Generation:** For some complex scenarios, `go generate` might still be simpler or more performant than very complex generic code.
+
+  * **Start Simple:** Begin with generic functions before moving to complex generic types.
+
+  * **Readability:** While powerful, complex generic signatures can impact readability. Strive for clarity.
+
+⠀
+**Summary of Generics:** Generics, available since Go 1.18, allow writing type-safe code that operates on a variety of types using type parameters (`[T any]`). Constraints (like `comparable` or custom interfaces) define the requirements for these type parameters, enabling operations like comparison or method calls. Generics are particularly useful for data structures and functions operating on collections, reducing code duplication while maintaining static type safety. Use them judiciously, preferring interfaces when abstracting behavior rather than just type.
+
+# XVIII. Profiling and Optimization
+
+Writing correct code is the first priority, but sometimes performance matters. Go provides excellent built-in tools for profiling and identifying performance bottlenecks, primarily through the `pprof` tool and the `runtime/pprof` and `net/http/pprof` packages.
+
+**Philosophy:** Don't optimize prematurely. Write clear, correct code first. Only optimize when you have identified a *real* performance problem through measurement (profiling).
+
+## Using `pprof` for Profiling
+
+`pprof` is a tool for visualizing and analyzing profiling data. Go programs can generate `pprof`-compatible profiles in several ways.
+
+### 1. Generating Profiles from Tests
+
+The `go test` command has built-in flags to generate profiles during test execution. This is great for profiling specific functions or code paths covered by your tests.
+
+* **CPU Profile:** Measures where the program spends its CPU time.
+
+```
+# Run tests and generate cpu.prof
+go test -cpuprofile cpu.prof -bench=. ./...
+# (Often run with benchmarks to ensure code path is exercised sufficiently)
+```
+
+* **Memory Profile:** Samples memory allocations to show where memory is being allocated.
+
+```
+# Run tests and generate mem.prof (captures heap allocations at test exit)
+go test -memprofile mem.prof -bench=. ./...
+```
+
+* **Block Profile:** Records goroutine blocking events (e.g., waiting on channels, mutexes, network I/O). Requires setting the block profile rate first.
+
+```
+# In your test code (e.g., TestMain or test setup):
+# runtime.SetBlockProfileRate(1) # Record every blocking event (can be high overhead)
+
+# Run tests and generate block.prof
+go test -blockprofile block.prof ./...
+```
+
+* **Mutex Profile:** Records contention on mutexes. Requires setting the mutex profile rate.
+
+```
+# In your test code:
+# runtime.SetMutexProfileFraction(1) # Record every contended mutex (can be high overhead)
+
+# Run tests and generate mutex.prof
+go test -mutexprofile mutex.prof ./...
+```
+
+⠀
+### 2. Generating Profiles from Running Applications (`net/http/pprof`)
+
+For long-running applications like web servers, importing `net/http/pprof` registers handlers on the default ServeMux (or a specified mux) that expose profiling data over HTTP.
+
+```
+package main
+
+import (
+ "log"
+ "net/http"
+ _ "net/http/pprof" // Import for side-effect: registers handlers
+ "time"
+)
+
+func main() {
+ // Your application logic...
+ go func() {
+  for {
+   // Simulate some work
+   log.Println("Working...")
+   time.Sleep(2 * time.Second)
+  }
+ }()
+
+ log.Println("Starting pprof server on :6060")
+ // The pprof handlers are automatically registered on the DefaultServeMux
+ // Start an HTTP server (often on a different port than your main app)
+ err := http.ListenAndServe("localhost:6060", nil)
+ if err != nil {
+  log.Fatalf("Pprof server failed: %v", err)
+ }
+}
+```
+
+You can then access profiles via your browser (`http://localhost:6060/debug/pprof/`) or use the `go tool pprof` command to fetch and analyze them:
+
+```
+# Fetch a 30-second CPU profile
+go tool pprof http://localhost:6060/debug/pprof/profile?seconds=30
+
+# Fetch a heap profile
+go tool pprof http://localhost:6060/debug/pprof/heap
+
+# Fetch a 5-second trace
+curl -o trace.out http://localhost:6060/debug/pprof/trace?seconds=5
+go tool trace trace.out
+```
+
+### 3. Manual Profile Generation (`runtime/pprof`)
+
+You can programmatically start and stop profiles within your code using the `runtime/pprof` package. This gives fine-grained control over *when* profiling occurs.
+
+```
+package main
+
+import (
+ "fmt"
+ "log"
+ "os"
+ "runtime/pprof" // Import for manual profiling
+ "time"
+)
+
+func main() {
+ // --- CPU Profiling ---
+ fmt.Println("Starting CPU profile...")
+ fCpu, err := os.Create("manual_cpu.prof")
+ if err != nil {
+  log.Fatal("could not create CPU profile: ", err)
+ }
+ defer fCpu.Close() // error handling omitted for brevity
+ if err := pprof.StartCPUProfile(fCpu); err != nil {
+  log.Fatal("could not start CPU profile: ", err)
+ }
+ defer pprof.StopCPUProfile() // Stop profile when main returns
+
+ // Simulate CPU-intensive work
+ for i := 0; i < 100000; i++ {
+  _ = fmt.Sprintf("hello %d", i*i)
+ }
+ fmt.Println("CPU-intensive work done.")
+
+ // --- Memory Profiling ---
+ fmt.Println("\nWriting memory profile...")
+ fMem, err := os.Create("manual_mem.prof")
+ if err != nil {
+  log.Fatal("could not create memory profile: ", err)
+ }
+ defer fMem.Close() // error handling omitted for brevity
+ // runtime.GC() // Run GC before heap profile for potentially cleaner results
+ if err := pprof.WriteHeapProfile(fMem); err != nil {
+  log.Fatal("could not write memory profile: ", err)
+ }
+ fmt.Println("Memory profile written.")
+
+ time.Sleep(1 * time.Second) // Give profiles time to write
+}
+```
+
+## Interpreting Profiles (`go tool pprof`)
+
+Once you have a profile file (`cpu.prof`, `mem.prof`, etc.), you analyze it using `go tool pprof`.
+
+```
+# Start interactive pprof session for a CPU profile
+go tool pprof cpu.prof
+
+# Start interactive pprof session for a heap profile, comparing against a binary
+go tool pprof myapp mem.prof
+```
+
+Inside the `pprof` interactive terminal, common commands include:
+
+* **`top`**: Shows the functions consuming the most resources (CPU time, memory allocations) in descending order. Key columns:
+
+  * `flat`: Resource consumed by the function itself.
+
+  * `cum` (cumulative): Resource consumed by the function *and* all functions it called.
+
+* **`list FunctionName`**: Shows the source code for the specified function, annotated with resource consumption per line. Essential for pinpointing exact lines causing bottlenecks.
+
+* **`web`**: (Requires Graphviz installed: `brew install graphviz` or similar) Generates a visual graph (SVG) of the call stack, showing resource flow. Nodes are functions, edge thickness/color indicates resource usage. Opens in a web browser.
+
+* **`peek FunctionName`**: Shows callers and callees of a function.
+
+* **`disasm FunctionName`**: Shows disassembly of the function, annotated with resource usage.
+
+* **`help`**: Lists available commands.
+
+⠀
+**Interpreting CPU Profiles:** Look for functions with high `flat` cost – these are directly consuming CPU. High `cum` cost but low `flat` cost indicates a function calls other expensive functions. Use `list` on high-`flat` functions to see which lines are hot.
+
+**`Interpreting Memory Profiles (heap):`** `pprof` defaults to showing `inuse_space` (memory currently held). Other useful options:
+
+* `go tool pprof -sample_index=alloc_objects mem.prof`: Show functions allocating the most objects (regardless of size). Good for finding sources of GC pressure.
+
+* `go tool pprof -sample_index=alloc_space mem.prof`: Show functions allocating the most bytes in total (even if freed later). Look for functions allocating large amounts or numerous small objects unnecessarily. Use `list` to find the specific allocation sites.
+
+⠀
+**Interpreting Block Profiles:** Use `top` and `list` to find where goroutines spend the most time waiting (e.g., channel sends/receives, `sync.Mutex.Lock`). This helps identify concurrency bottlenecks.
+
+## Basic Optimization Techniques
+
+Once profiling identifies a bottleneck:
+
+1. **Algorithmic Changes:** Is there a fundamentally more efficient algorithm or data structure for the task? (e.g., using a map for lookups instead of iterating a slice). This often yields the biggest gains.
+
+2. **Reduce Memory Allocations:** Allocations put pressure on the garbage collector (GC).
+
+   * Reuse objects/buffers where possible (e.g., using `sync.Pool`, resetting structs/slices instead of reallocating).
+
+   * Use `make` with appropriate capacity for slices/maps to reduce reallocations during `append`.
+
+   * Avoid unnecessary string conversions or concatenations (use `strings.Builder`).
+
+   * Check for excessive allocations using the `alloc_objects` memory profile.
+
+3. **Concurrency Issues:**
+
+   * If block profiles show high contention on mutexes, consider:
+
+     * Using `sync.RWMutex` if reads are much more frequent than writes.
+
+     * Reducing the critical section (the code between `Lock` and `Unlock`).
+
+     * Sharding data across multiple locks.
+
+     * Using channel-based communication instead of shared memory with locks if appropriate.
+
+   * If goroutines are blocked on channels, check buffer sizes or communication patterns.
+
+4. **I/O Optimization:**
+
+   * Use buffered I/O (`bufio.Reader`, `bufio.Writer`) to reduce the number of system calls for file/network operations.
+
+   * Perform I/O concurrently if possible (e.g., fetching multiple URLs simultaneously using goroutines).
+
+5. **Compiler Optimizations:** Usually handled by Go, but be aware that things like interface calls have more overhead than direct calls, and bounds checks on slices/arrays can sometimes be eliminated by the compiler if it can prove safety. Check compiler optimization decisions with `go build -gcflags="-m"`.
+
+⠀
+**Remember:** Profile, identify the bottleneck, make a targeted change, and profile *again* to measure the impact. Don't guess.
+
+**Summary of Profiling and Optimization:** Go provides powerful profiling tools via `go test` flags, `net/http/pprof`, and `runtime/pprof`. The `go tool pprof` command is used to analyze CPU, memory, block, and mutex profiles, helping identify bottlenecks using commands like `top`, `list`, and `web`. Optimization should be data-driven, focusing first on algorithmic improvements, then reducing allocations, addressing concurrency bottlenecks, and optimizing I/O, always measuring the impact of changes.
+
+# XIX. Interfacing with C (`cgo`)
+
+Go provides a mechanism called `cgo` that allows Go packages to call C code and C code to call Go code. This is useful for leveraging existing C libraries, interacting directly with operating system APIs, or writing performance-critical sections in C. However, `cgo` introduces complexity and overhead.
+
+**Prerequisite:** Using `cgo` requires a C compiler (like GCC or Clang) to be installed on your system.
+
+## Calling C Code from Go
+
+To call C code from Go:
+
+1. **`Enable cgo:`** Add `import "C"` in your Go file. This import is special and does not refer to a real package; it signals to the Go compiler to enable `cgo` processing for this file.
+
+2. **Include C Code:** Write C code directly in a comment block immediately preceding the `import "C"` statement. This is called the *preamble*.
+
+3. **Reference C types/functions:** Use the `C.` pseudo-package to access C types (e.g., `C.int`, `C.char`), functions (e.g., `C.puts`), and variables defined in the preamble or linked C libraries.
+
+4. **Type Conversions:** Convert between Go and C types explicitly (e.g., `C.CString` to convert a Go string to `*C.char`, `C.int` to Go `int`). Remember to free memory allocated by C code (like the result of `C.CString`) using `C.free`.
+
+⠀
+**Example: Calling a simple C function**
+
+```
+package main
+
+/*
+#include <stdio.h>
+#include <stdlib.h> // For free()
+
+// A simple C function defined in the preamble
+void my_c_print(const char* msg) {
+    printf("C says: %s\n", msg);
+}
+*/
+import "C" // Enable cgo
+import (
+ "fmt"
+ "unsafe" // Needed for C.free
+)
+
+func main() {
+ fmt.Println("Go: Calling C function...")
+
+ // Convert Go string to C string (*C.char)
+ goMsg := "Hello from Go!"
+ cMsg := C.CString(goMsg)
+
+ // Ensure the C string memory is freed eventually
+ defer C.free(unsafe.Pointer(cMsg))
+
+ // Call the C function defined in the preamble
+ C.my_c_print(cMsg)
+
+ fmt.Println("Go: C function returned.")
+
+ // Example calling a standard C library function
+ cStdMsg := C.CString("Calling standard C puts")
+ defer C.free(unsafe.Pointer(cStdMsg))
+ C.puts(cStdMsg) // Call C.puts directly
+}
+```
+
+**Linking External C Libraries:**
+
+You can link against external C libraries using `#cgo` directives in the preamble comment.
+
+* `#cgo CFLAGS: -I/path/to/include`: Specifies C compiler flags (e.g., include paths).
+
+* `#cgo LDFLAGS: -L/path/to/lib -lmylib`: Specifies linker flags (e.g., library paths `-L`, library names `-l`).
+
+⠀
+```
+package main
+
+/*
+#cgo LDFLAGS: -lm // Link against the standard math library (libm)
+#include <math.h> // Include C math header
+
+double c_sqrt(double x) {
+    return sqrt(x); // Call the C sqrt function
+}
+*/
+import "C"
+import "fmt"
+
+func main() {
+ x := 16.0
+ goX := C.double(x) // Convert Go float64 to C.double
+ cSqrtResult := C.c_sqrt(goX)
+ goSqrtResult := float64(cSqrtResult) // Convert C.double back to Go float64
+
+ fmt.Printf("Go: C sqrt(%.1f) = %.1f\n", x, goSqrtResult) // Output: Go: C sqrt(16.0) = 4.0
+}
+```
+
+## Calling Go Code from C
+
+You can export Go functions so they can be called by C code.
+
+1. **Export Go Functions:** Use the special comment `//export FunctionName` immediately above the Go function definition.
+
+2. **Build as C Library:** Build your Go package using `go build -buildmode=c-archive` or `go build -buildmode=c-shared` to create a static (`.a`) or shared (`.so` / `.dylib` / `.dll`) C library and a corresponding C header file (`.h`).
+
+3. **Include Header in C:** Include the generated `.h` file in your C code.
+
+4. **Call Exported Functions:** Call the Go functions (prefixed as defined in the header, often related to the package name) from your C code.
+
+5. **Link:** Link your C application against the generated Go library (`.a` or `.so`/`.dylib`/`.dll`).
+
+⠀
+**Example:**
+
+**`Go Code (gopart/gopart.go):`**
+
+```
+package main // Must be main package for c-archive/c-shared
+
+import "C"
+import "fmt"
+
+//export GoAdd // Export the GoAdd function for C
+func GoAdd(a, b int) int {
+ fmt.Printf("Go (GoAdd): Received %d and %d\n", a, b)
+ return a + b
+}
+
+//export GoPrint // Export the GoPrint function for C
+func GoPrint(msg *C.char) {
+ goMsg := C.GoString(msg) // Convert C string to Go string
+ fmt.Printf("Go (GoPrint): Received '%s'\n", goMsg)
+}
+
+// Required main function for c-archive/c-shared build modes, but it's not called.
+func main() {}
+```
+
+**Build Go as C library:**
+
+```
+# Build as a static archive
+go build -buildmode=c-archive -o libgopart.a gopart.go
+# This creates libgopart.a and libgopart.h
+```
+
+**`C Code (main.c):`**
+
+```
+#include <stdio.h>
+#include "libgopart.h" // Include the generated header
+
+int main() {
+    printf("C: Calling Go functions...\n");
+
+    // Call exported Go function GoAdd
+    int sum = GoAdd(5, 3);
+    printf("C: GoAdd(5, 3) = %d\n", sum);
+
+    // Call exported Go function GoPrint
+    char* msg = "Hello from C!";
+    GoPrint(msg);
+
+    printf("C: Finished.\n");
+    return 0;
+}
+```
+
+**Compile and Link C code:**
+
+```
+# Compile C code and link against the Go static library
+gcc main.c -o c_app -L. -lgopart -lpthread # Link libgopart.a and pthreads (often needed by Go runtime)
+```
+
+**Run the C application:**
+
+```
+./c_app
+# Output:
+# C: Calling Go functions...
+# Go (GoAdd): Received 5 and 3
+# C: GoAdd(5, 3) = 8
+# Go (GoPrint): Received 'Hello from C!'
+# C: Finished.
+```
+
+## Understanding the Overhead and Implications
+
+While `cgo` enables interoperability, it comes with costs:
+
+* **Build Complexity:** Requires a C compiler, makes cross-compilation harder (needs C cross-compiler), and introduces platform dependencies.
+
+* **Call Overhead:** Calls between Go and C have non-trivial overhead compared to native Go-to-Go or C-to-C calls. This involves switching stacks, converting types, and managing goroutine scheduling. Avoid frequent C calls in tight loops.
+
+* **Pointer Passing Rules:** Passing pointers between Go and C requires care. Go pointers passed to C might become invalid if the Go garbage collector moves the underlying memory *unless* specific rules are followed (e.g., C code must not store Go pointers long-term). C pointers passed to Go must be managed carefully (especially memory allocation/deallocation). `unsafe.Pointer` is often involved.
+
+* **Debugging:** Debugging across the Go/C boundary can be more challenging.
+
+* **Deployment:** If using `c-shared`, the Go runtime needs to be available alongside the shared library. Static linking (`c-archive`) embeds the Go runtime but increases binary size.
+
+* **Loss of Go Tooling Benefits:** Tools like the race detector might have limited visibility into C code.
+
+⠀
+**`When to Use cgo:`**
+
+* Leveraging mature, complex C libraries where rewriting in Go is impractical (e.g., GUI toolkits, physics engines, specific hardware drivers).
+
+* Interacting directly with low-level OS APIs not exposed by the Go standard library.
+
+* Optimizing small, *truly* performance-critical sections where C might offer measurable benefits (after profiling confirms it's a bottleneck).
+
+⠀
+**`When to Avoid cgo:`**
+
+* If a pure Go alternative exists and performs adequately.
+
+* For simple functions where the call overhead outweighs any C performance benefit.
+
+* When simple cross-compilation and deployment are high priorities.
+
+⠀
+**Summary of Interfacing with C (cgo):** `cgo` allows calling C from Go (using `import "C"` and preamble) and Go from C (using `//export` and `-buildmode=c-archive/c-shared`). It enables using existing C libraries and OS APIs but introduces build complexity, call overhead, pointer management challenges, and hinders cross-compilation. Use `cgo` judiciously when its benefits clearly outweigh the costs, preferring pure Go solutions when feasible.
+
+# XX. WebAssembly (wasm)
+
+WebAssembly (Wasm) is a binary instruction format for a stack-based virtual machine. It's designed as a portable compilation target for programming languages, enabling deployment on the web for client and server applications, as well as other environments like IoT and edge computing. Go has official support for compiling to the `wasm` architecture.
+
+## Compiling Go Code to Wasm
+
+Compiling Go code to WebAssembly requires setting the `GOOS` and `GOARCH` environment variables.
+
+* **Target:** `js/wasm` (for running in web browsers via JavaScript interop)
+
+* **Command:**
+
+```
+GOOS=js GOARCH=wasm go build -o main.wasm main.go
+```
+
+	* `GOOS=js`: Specifies the target operating system environment as JavaScript.
+
+	* `GOARCH=wasm`: Specifies the target architecture as WebAssembly.
+
+	* `-o main.wasm`: Specifies the output file name (conventionally `.wasm`).
+
+	* `main.go`: Your Go source file(s) containing a `main` function.
+
+⠀
+**`Example main.go for Wasm:`**
+
+```
+package main
+
+import "fmt"
+
+func main() {
+ fmt.Println("Hello from Go (compiled to Wasm)!")
+ // Note: For browser environments, the program usually needs to yield
+ // control back to the JS event loop. Often done by selecting on a
+ // channel that never receives after setup. See syscall/js examples.
+ // select {} // Keep the program alive (for browser environments)
+}
+```
+
+The resulting `main.wasm` file contains the compiled Go code, including parts of the Go runtime (like the garbage collector), making Go Wasm files typically larger than those produced by languages like C or Rust.
+
+## Interacting with JavaScript (`syscall/js`)
+
+When targeting `js/wasm`, Go provides the `syscall/js` package to interact with the JavaScript environment where the Wasm module is running (typically a web browser).
+
+**Key Concepts:**
+
+* **`js.Value`**: Represents a JavaScript value (object, function, number, string, boolean, etc.) in Go.
+
+* **`js.Global()`**: Returns the JavaScript global object (`window` in browsers, `global` in Node.js).
+
+* **Accessing JS Properties:** Use methods on `js.Value`:
+
+  * `Get(propertyName string) js.Value`: Gets a property.
+
+  * `Set(propertyName string, value interface{})`: Sets a property (Go values are automatically converted).
+
+  * `Call(functionName string, args ...interface{}) js.Value`: Calls a method on a JS object.
+
+  * `Invoke(args ...interface{}) js.Value`: Calls a JS function (`js.Value` must represent a function).
+
+  * `Type() js.Type`: Returns the JS type (`TypeUndefined`, `TypeNull`, `TypeBoolean`, `TypeNumber`, `TypeString`, `TypeSymbol`, `TypeObject`, `TypeFunction`).
+
+  * `Int()`, `String()`, `Bool()`, `Float()`: Convert `js.Value` to Go basic types.
+
+* **Exposing Go Functions to JS:** Use `js.FuncOf` to wrap a Go function (`func(this js.Value, args []js.Value) interface{}`) into a JavaScript function (`js.Value`). Remember to release these functions using `.Release()` when they are no longer needed to prevent memory leaks.
+
+* **Running Go Wasm in HTML:** Requires helper JavaScript code (`wasm_exec.js` provided with your Go installation) to load and run the Wasm module.
+
+⠀
+**`Example: Calling JS alert and exposing a Go function`**
+
+**`Go Code (wasm_app.go):`**
+
+```
+package main
+
+import (
+ "fmt"
+ "syscall/js" // Import the JS interop package
+)
+
+// Go function to be called from JavaScript
+func add(this js.Value, args []js.Value) interface{} {
+ if len(args) != 2 {
+  return "Invalid number of arguments to add" // Return error string to JS
+ }
+ // Get arguments, converting js.Value to Go int
+ num1 := args[0].Int()
+ num2 := args[1].Int()
+ sum := num1 + num2
+ fmt.Printf("Go (add): Calculating %d + %d = %d\n", num1, num2, sum)
+ return sum // Return result (automatically converted to JS number)
+}
+
+// Go function to be called from JavaScript
+func greet(this js.Value, args []js.Value) interface{} {
+ if len(args) != 1 {
+  return js.Undefined() // Return JS undefined
+ }
+ name := args[0].String()
+ message := "Hello, " + name + "!"
+ fmt.Println("Go (greet):", message)
+
+ // Call back into JavaScript (e.g., update the DOM)
+ document := js.Global().Get("document")
+ outputDiv := document.Call("getElementById", "output")
+ outputDiv.Set("innerText", message) // Set div content
+
+ return nil // Return null to JS
+}
+
+func main() {
+ fmt.Println("Go Wasm Initialized.")
+
+ // Get the global JavaScript object (window)
+ window := js.Global()
+
+ // Call the JavaScript 'alert' function
+ window.Call("alert", "Go Wasm is ready!")
+
+ // Expose Go functions to JavaScript
+ js.Global().Set("goAdd", js.FuncOf(add))
+ js.Global().Set("goGreet", js.FuncOf(greet))
+
+ // Keep the Go program alive (essential for callbacks)
+ // Use a channel that never receives.
+ <-make(chan bool)
+
+ // Note: In a real app, you might release js.FuncOf resources if they
+ // are dynamically created and destroyed, e.g.:
+ // addFunc := js.FuncOf(add)
+ // js.Global().Set("goAdd", addFunc)
+ // ... later ...
+ // addFunc.Release()
+}
+```
+
+**Compile:**
+
+```
+GOOS=js GOARCH=wasm go build -o wasm_app.wasm wasm_app.go
+```
+
+**`HTML (index.html):`**
+
+```
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Go Wasm Example</title>
+    <script src="wasm_exec.js"></script> <script>
+        // Check if WebAssembly is supported
+        if (!WebAssembly.instantiateStreaming) {
+            WebAssembly.instantiateStreaming = async (resp, importObject) => {
+                const source = await (await resp).arrayBuffer();
+                return await WebAssembly.instantiate(source, importObject);
+            };
+        }
+
+        const go = new Go(); // Create Go instance
+
+        async function runWasm() {
+            console.log("Loading wasm_app.wasm...");
+            // Fetch and instantiate the Wasm module
+            const result = await WebAssembly.instantiateStreaming(fetch("wasm_app.wasm"), go.importObject);
+            console.log("Wasm loaded.");
+
+            // Run the Go program's main function
+            // Use a promise to wait for it to potentially finish (though ours blocks)
+            go.run(result.instance).catch(err => {
+                console.error("Go program exited:", err);
+            });
+            console.log("Go main started (async).");
+        }
+
+        runWasm();
+
+        // --- Functions to call Go from JS ---
+        function callGoAdd() {
+            const num1 = parseInt(document.getElementById('num1').value) || 0;
+            const num2 = parseInt(document.getElementById('num2').value) || 0;
+            if (typeof goAdd === 'function') {
+                const sum = goAdd(num1, num2); // Call the exported Go function
+                document.getElementById('output').innerText = `Go calculated: ${num1} + ${num2} = ${sum}`;
+            } else {
+                console.error("goAdd function not ready yet.");
+            }
+        }
+
+        function callGoGreet() {
+            const name = document.getElementById('name').value || "Wasm User";
+            if (typeof goGreet === 'function') {
+                goGreet(name); // Call the exported Go function
+            } else {
+                console.error("goGreet function not ready yet.");
+            }
+        }
+
+    </script>
+</head>
+<body>
+    <h1>Go WebAssembly Interaction</h1>
+
+    <div>
+        <input type="number" id="num1" value="5"> +
+        <input type="number" id="num2" value="3">
+        <button onclick="callGoAdd()">Add with Go</button>
+    </div>
+    <br>
+    <div>
+        <input type="text" id="name" placeholder="Enter name">
+        <button onclick="callGoGreet()">Greet with Go</button>
+    </div>
+
+    <h2>Output from Go:</h2>
+    <div id="output" style="border: 1px solid #ccc; padding: 10px; min-height: 30px;"></div>
+
+</body>
+</html>
+```
+
+**Setup:**
+
+1. Save the Go code as `wasm_app.go`.
+
+2. Save the HTML code as `index.html`.
+
+3. Copy `wasm_exec.js` from your Go installation's `misc/wasm` directory into the same directory as `index.html` and `wasm_app.wasm`.
+
+   * Find it: `cp "$(go env GOROOT)/misc/wasm/wasm_exec.js" .`
+
+4. Compile the Go code: `GOOS=js GOARCH=wasm go build -o wasm_app.wasm wasm_app.go`
+
+5. Serve the directory using a simple HTTP server (Wasm often needs to be served over HTTP/S due to security restrictions). Example using Go: `go run $(go env GOROOT)/src/net/http/server/server.go :8080` or Python: `python3 -m http.server 8080`.
+
+6. Open `http://localhost:8080` in your browser.
+
+⠀
+You should see the "Go Wasm is ready!" alert, be able to call the Go functions from the buttons, and see output in the console and the output div.
+
+**Limitations and Considerations:**
+
+* **Binary Size:** Go Wasm binaries include the runtime and GC, making them relatively large compared to Wasm from other languages. Tools like `tinygo` can produce smaller binaries but may have limitations.
+
+* **Performance:** While Wasm runs near-native speed, calls between JS and Go (`syscall/js`) have overhead. Frequent back-and-forth calls can impact performance.
+
+* **DOM Access:** Direct DOM manipulation via `syscall/js` can be verbose. Frameworks or libraries might abstract this.
+
+* **Blocking:** Go code running in the browser's main thread can block the UI if it performs long-running computations without yielding (e.g., using goroutines and `time.Sleep` or channels). The `select{}` pattern in `main` is common to prevent the Go program from exiting immediately.
+
+* **Debugging:** Debugging Wasm can be more challenging than standard Go or JS debugging. Browser dev tools offer some Wasm debugging capabilities.
+
+⠀
+**Summary of WebAssembly (wasm):** Go can be compiled to WebAssembly (`GOOS=js GOARCH=wasm`), allowing Go code to run in web browsers and other Wasm environments. The `syscall/js` package enables two-way interaction with JavaScript for tasks like DOM manipulation, calling JS APIs, and exposing Go functions to JS. While powerful, developers should be mindful of binary size, JS interop overhead, and managing execution flow within the browser's event loop.
+
+# XXI. Error Handling Strategies
+
+While Go's basic `if err != nil` pattern is fundamental, building robust, large-scale applications often requires more sophisticated error handling strategies. This involves adding context to errors, defining custom error types effectively, and establishing clear philosophies for how errors are treated across different layers of an application.
+
+## Advanced Error Wrapping Techniques
+
+Go 1.13 introduced better support for error wrapping, primarily through the `%w` verb in `fmt.Errorf` and the `errors.Is` and `errors.As` functions. Wrapping allows you to add contextual information to an error while preserving the original underlying error, enabling programmatic inspection of the error chain.
+
+* **`fmt.Errorf`** with **`%w`**: Creates a new error that wraps an existing one. The original error can be retrieved using `errors.Unwrap`.
+
+```
+package main
+
+import (
+ "errors"
+ "fmt"
+ "os"
+)
+
+func readFile(path string) ([]byte, error) {
+ data, err := os.ReadFile(path)
+ if err != nil {
+  // Wrap the error from os.ReadFile with more context
+  return nil, fmt.Errorf("failed to read file '%s': %w", path, err)
+ }
+ return data, nil
+}
+
+func main() {
+ _, err := readFile("non_existent.txt")
+ if err != nil {
+  fmt.Println("Error:", err) // Prints the wrapped error message
+
+  // Unwrap to get the original error (from os.ReadFile)
+  originalErr := errors.Unwrap(err)
+  fmt.Println("Original Error:", originalErr)
+
+  // Check if the original error was specifically os.ErrNotExist
+  if errors.Is(err, os.ErrNotExist) { // errors.Is checks the entire chain
+   fmt.Println("Specific check: File does not exist.")
+  }
+ }
+}
+```
+
+* Output:
+
+```
+Error: failed to read file 'non_existent.txt': open non_existent.txt: no such file or directory
+Original Error: open non_existent.txt: no such file or directory
+Specific check: File does not exist.
+```
+
+* **`errors.Is(err, target error)`**: Reports whether any error in `err`'s chain matches the `target` error value. Useful for checking against sentinel error values (like `io.EOF`, `sql.ErrNoRows`, or package-defined error variables like `var ErrPermission = errors.New("permission denied")`).
+
+* **`errors.As(err error, target interface{}) bool`**: Checks if any error in `err`'s chain matches the *type* of `target` (which must be a pointer to an interface or error type). If a match is found, it sets `target` to the matching error value and returns `true`. Useful for accessing fields or methods of custom error types within the chain.
+
+⠀
+## Defining Custom Error Types That Wrap Underlying Errors
+
+Often, you want custom error types not just to provide specific information but also to wrap the underlying cause. To make custom types work seamlessly with `errors.Is` and `errors.As`, they might need to implement specific methods:
+
+1. **`Error() string`**: Required by the `error` interface.
+
+2. **`Unwrap() error`**: (Optional) If your custom error wraps another error, implementing this method allows `errors.Is` and `errors.As` to examine the wrapped error chain.
+
+⠀
+```
+package main
+
+import (
+ "errors"
+ "fmt"
+ "os"
+)
+
+// Custom error type for database operations
+type DBError struct {
+ Query string
+ Err   error // The underlying error being wrapped
+}
+
+// Implement the error interface
+func (e *DBError) Error() string {
+ return fmt.Sprintf("database error executing query '%s': %v", e.Query, e.Err)
+}
+
+// Implement Unwrap to expose the underlying error
+func (e *DBError) Unwrap() error {
+ return e.Err
+}
+
+// Function simulating a DB query
+func queryUser(userID int) error {
+ query := fmt.Sprintf("SELECT name FROM users WHERE id = %d", userID)
+ // Simulate a low-level error (e.g., connection refused, which might be os specific)
+ // In a real scenario, this might come from a database driver.
+ underlyingErr := os.ErrPermission // Example underlying error
+
+ // Wrap the underlying error in our custom type
+ return &DBError{
+  Query: query,
+  Err:   underlyingErr,
+ }
+}
+
+func main() {
+ err := queryUser(123)
+ if err != nil {
+  fmt.Println("Query failed:")
+  fmt.Println("  Full error:", err) // Prints the DBError message
+
+  // Check if it's specifically a permission error using errors.Is
+  if errors.Is(err, os.ErrPermission) {
+   fmt.Println("  Reason: Permission denied (checked via errors.Is)")
+  }
+
+  // Get access to the DBError fields using errors.As
+  var dbErr *DBError
+  if errors.As(err, &dbErr) {
+   fmt.Println("  Query:", dbErr.Query)
+   fmt.Println("  Wrapped error from DBError:", dbErr.Unwrap())
+  }
+ }
+}
+```
+
+Output:
+
+```
+Query failed:
+  Full error: database error executing query 'SELECT name FROM users WHERE id = 123': permission denied
+  Reason: Permission denied (checked via errors.Is)
+  Query: SELECT name FROM users WHERE id = 123
+  Wrapped error from DBError: permission denied
+```
+
+By implementing `Unwrap`, our `DBError` integrates fully with the standard error handling functions, allowing callers to inspect both the high-level context (`DBError`) and the low-level cause (`os.ErrPermission`).
+
+## Error Handling Philosophies in Larger Applications
+
+Consistent error handling is vital for maintainability in larger projects. Some common philosophies and practices include:
+
+1. **Handle Errors Close to the Source or Propagate:** Handle an error immediately if you have enough context to take meaningful action (e.g., retry, return a default value, log and continue). Otherwise, wrap the error with context (using `fmt.Errorf` with `%w` or a custom error type) and return it up the call stack. Avoid simply logging an error and returning `nil`, as this hides the problem from callers.
+
+2. **Add Context When Propagating:** When returning an error up the stack, add context about the operation that failed. `fmt.Errorf("failed to process user %d: %w", userID, err)` is much more helpful than just returning `err`.
+
+3. **Distinguish Between Error Types:** Callers often need to differentiate between different kinds of errors to react appropriately (e.g., retry a temporary network error vs. fail immediately on invalid input).
+
+   * **Sentinel Errors:** Use exported error variables (e.g., `var ErrNotFound = errors.New("not found")`) for specific, well-known error conditions. Check using `errors.Is`. Best for errors requiring simple boolean checks.
+
+   * **Custom Error Types:** Use custom structs implementing the `error` interface when you need to carry additional data with the error (e.g., status codes, specific failing parameters). Check using `errors.As`.
+
+   * **Opaque Errors:** Errors where the caller only needs to know *that* an error occurred, not *what kind*. The caller simply checks `if err != nil`. Wrapping still adds value for logging and debugging.
+
+4. **API Boundaries:** At API boundaries (e.g., HTTP handlers, public library functions), translate internal errors into appropriate responses or error types suitable for the caller. Don't leak internal implementation details through error messages. For example, an HTTP handler might map various internal errors (database errors, validation errors) to specific HTTP status codes (500, 400).
+
+5. **Logging vs. Returning:** Generally, libraries should *return* errors rather than logging them directly. The application's top level (e.g., `main` or the HTTP request handler) is typically responsible for deciding the ultimate logging and termination strategy based on the returned error. Logging deep within library code can create noise and make it hard for the application to control logging behavior.
+
+6. **Avoid Panics for Expected Errors:** Reserve `panic` for truly unrecoverable situations (programmer errors like index out of bounds, impossible states). Use regular `error` values for expected failures (network issues, invalid input, file not found, etc.).
+
+⠀
+Choosing the right strategy (sentinel vs. type vs. opaque) depends on whether the caller needs to *act* differently based on the specific error. If they only need to know success/failure, an opaque error (perhaps wrapped for context) is sufficient. If they need to retry only certain errors, sentinel values or types become necessary.
+
+**Summary of Error Handling Strategies:** Effective error handling in Go builds upon returning `error` values. Advanced techniques involve wrapping errors using `fmt.Errorf` with `%w` or custom types implementing `Unwrap` to add context while preserving the original cause. `errors.Is` and `errors.As` allow inspecting the error chain for specific values or types. Establishing clear philosophies—handling or propagating errors appropriately, adding context, distinguishing error types (sentinel vs. custom), managing errors at API boundaries, and reserving `panic` for exceptional cases—is crucial for building robust and maintainable applications.
