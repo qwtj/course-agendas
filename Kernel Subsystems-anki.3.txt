@@ -1,0 +1,40 @@
+<div>What does the <code>fork()</code> system call do?</div> | <div>It creates a new process (child) that is a near-exact copy of the parent process.</div>
+<div>What is the return value of <code>fork()</code>?</div> | <div>0 in the child, child's PID in the parent, or -1 on error.</div>
+<div>What does <code>exec()</code> do after a <code>fork()</code>?</div> | <div>It replaces the child’s memory space with a new program loaded from an executable file.</div>
+<div>What happens to the PID after <code>exec()</code>?</div> | <div>It remains the same even though the process image is replaced.</div>
+<div>How does a process terminate normally?</div> | <div>By calling <code>exit()</code> or returning from <code>main()</code>.</div>
+<div>What causes an error termination of a process?</div> | <div>Unhandled exceptions, fatal errors, or explicit signals like <code>SIGKILL</code>.</div>
+<div>What happens during process termination?</div> | <div>Memory is reclaimed, files are closed, resources are released, and parent is notified.</div>
+<div>What is a zombie process?</div> | <div>A process that has terminated but still has an entry in the process table until its parent calls <code>wait()</code>.</div>
+<div>What is an orphan process?</div> | <div>A process whose parent has terminated, usually adopted by <code>init</code>.</div>
+<div>What does the scheduler do?</div> | <div>It selects which process to run on the CPU at any given time.</div>
+<div>What is the goal of process scheduling?</div> | <div>To maximize CPU utilization, throughput, minimize turnaround and waiting time, and ensure fairness.</div>
+<div>Describe First-Come, First-Served (FCFS) scheduling.</div> | <div>Processes are run in the order they arrive; simple but may cause long wait times for short jobs.</div>
+<div>What is the Shortest Job Next (SJN) algorithm?</div> | <div>A non-preemptive method that runs the process with the shortest estimated execution time.</div>
+<div>What is Shortest Remaining Time First (SRTF)?</div> | <div>A preemptive version of SJN that switches if a shorter job arrives.</div>
+<div>What is a major drawback of SJN/SRTF?</div> | <div>Requires knowing or predicting process runtime, which is difficult.</div>
+<div>Describe Priority Scheduling.</div> | <div>CPU is given to the highest priority process; can be preemptive or non-preemptive.</div>
+<div>What is a risk with Priority Scheduling?</div> | <div>Starvation of low-priority processes.</div>
+<div>Describe Round Robin scheduling.</div> | <div>Each process gets a fixed time quantum; preempted if it doesn't finish.</div>
+<div>What is a disadvantage of small time quanta in Round Robin?</div> | <div>Too many context switches reduce CPU efficiency.</div>
+<div>What is a multi-level feedback queue?</div> | <div>A complex scheduler that adjusts process priority dynamically based on behavior.</div>
+<div>What is context switching?</div> | <div>Saving the state of one process and restoring another’s so multiple processes can share the CPU.</div>
+<div>What triggers a context switch?</div> | <div>Timer interrupts, I/O blocking, or a higher-priority process becoming ready.</div>
+<div>What is saved during a context switch?</div> | <div>CPU registers, process state, memory mappings, and other metadata in the PCB.</div>
+<div>Where is a process’s context stored?</div> | <div>In its Process Control Block (PCB).</div>
+<div>Why is context switching considered overhead?</div> | <div>It uses CPU time without doing useful work for any process.</div>
+<div>What is Inter-Process Communication (IPC)?</div> | <div>Mechanisms that allow processes to exchange data and synchronize actions.</div>
+<div>What is a pipe in IPC?</div> | <div>A unidirectional communication channel between related processes.</div>
+<div>What are named pipes (FIFOs)?</div> | <div>Pipes that exist as files and allow unrelated processes to communicate.</div>
+<div>What are message queues?</div> | <div>Kernel-managed queues that allow asynchronous messaging between processes.</div>
+<div>What is shared memory in IPC?</div> | <div>Processes share a memory region and access it directly, requiring synchronization.</div>
+<div>What are sockets used for?</div> | <div>Bidirectional communication between processes, often over networks.</div>
+<div>When is shared memory most efficient?</div> | <div>When large amounts of data need to be transferred quickly between processes.</div>
+<div>What is a signal?</div> | <div>A software interrupt notifying a process of an asynchronous event.</div>
+<div>What can a process do with a signal?</div> | <div>Ignore it, handle it with a custom function, or use the default action.</div>
+<div>What is <code>SIGCHLD</code> used for?</div> | <div>Notifies a parent process when a child process terminates.</div>
+<div>What is an interrupt?</div> | <div>A hardware-generated signal to the CPU that something needs immediate attention.</div>
+<div>What is an ISR?</div> | <div>Interrupt Service Routine – the function that handles an interrupt in the kernel.</div>
+<div>Why must interrupt handling be fast?</div> | <div>To avoid blocking other critical kernel operations and improve system responsiveness.</div>
+<div>How are interrupts different from signals?</div> | <div>Interrupts come from hardware; signals come from software or the kernel.</div>
+<div>What is the role of <code>wait()</code> in process termination?</div> | <div>It allows the parent to retrieve the child’s exit status and clean up the zombie process.</div>

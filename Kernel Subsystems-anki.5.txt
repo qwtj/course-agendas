@@ -1,0 +1,19 @@
+#separator:Tab
+#html:false
+#tags:Linux File System
+#columns:NoteType	Field1	Field2	Field3
+#deck:Software Design::Kernel::Subsystems
+#notetype column:1
+Basic	What is the Virtual File System (VFS)?	An abstraction layer in the kernel that provides a uniform interface to various file systems.	It routes POSIX calls like open(), read(), write(), etc.
+Basic	What are inodes in a file system?	Structures storing metadata about files or directories, excluding names or content.	Include file type, permissions, size, timestamps, etc.
+Basic	What is a dentry?	A directory entry representing the link between a filename and its inode.	Used for caching directory lookups.
+Basic	What is a file descriptor?	An integer returned by open() that indexes a file in the process's file descriptor table.	Used by read(), write(), close() to refer to open files.
+Cloze	The VFS defines standard structures like {{c1::inode}}, {{c1::dentry}}, {{c1::file}}, and {{c1::super_block}}.	Each file system must implement these to integrate with VFS.	
+Cloze	An {{c1::inode}} contains metadata like permissions, timestamps, and size.	It does not include file names or data.	
+Cloze	A directory is a file containing {{c1::filename-inode}} mappings.	The VFS uses {{c1::dentries}} to cache these mappings.	
+Cloze	When a process opens a file, the kernel creates a {{c1::file object}} in memory.	It links to the file's inode and dentry.	
+Cloze	The {{c1::page cache}} stores recently accessed file blocks in RAM.	Improves performance by reducing disk access.	
+Cloze	The kernel writes data to disk asynchronously via {{c1::write-back caching}}.	Dirty pages are written back later to improve performance.	
+Cloze	Disk scheduling algorithms like {{c1::Deadline}} or {{c1::Elevator}} optimize read/write order.	Reduces latency and increases throughput.	
+Cloze	Disk drivers translate generic block requests into {{c1::hardware-specific commands}}.	They interact with disk controllers like SATA or NVMe.	
+Cloze	The {{c1::block layer}} connects file systems and disk drivers.	Handles I/O in terms of fixed-size blocks.	

@@ -1,0 +1,45 @@
+<div>What is the primary function of memory management in an operating system?</div> | <div>It allocates memory to the kernel and processes, manages virtual memory, handles swapping, page tables, and enforces memory protection.</div>
+<div>Why is virtual memory important in memory management?</div> | <div>It allows processes to use more memory than physically available by using disk space as extended memory.</div>
+<div>What does swapping refer to in memory management?</div> | <div>Swapping moves data between RAM and disk to free up physical memory for active processes.</div>
+<div>How does the kernel protect its own memory space?</div> | <div>By using memory protection techniques that isolate kernel memory from user processes.</div>
+<div>What is a page table in virtual memory management?</div> | <div>A data structure that maps virtual addresses to physical memory addresses.</div>
+<div>How does memory management optimize physical memory use?</div> | <div>By efficiently allocating memory and using virtual memory to prevent fragmentation and overuse.</div>
+<div>What ensures that processes don’t interfere with each other’s memory?</div> | <div>Memory protection mechanisms and process isolation.</div>
+<div>What is context switching?</div> | <div>Switching the CPU from one process to another, saving and restoring process state.</div>
+<div>What are the main states of a process?</div> | <div>Running, waiting, ready, and terminated.</div>
+<div>What role does the scheduler play in process management?</div> | <div>It decides which process runs next by managing CPU time allocation.</div>
+<div>What is inter-process communication (IPC)?</div> | <div>Mechanisms that allow processes to exchange data and synchronize actions.</div>
+<div>Why is process synchronization important?</div> | <div>To prevent race conditions and ensure coordinated access to shared resources.</div>
+<div>How does the OS terminate a process?</div> | <div>It deallocates all resources used by the process and updates the process table.</div>
+<div>What is a PID?</div> | <div>Process Identifier, a unique number assigned to each process.</div>
+<div>How does the OS create a new process?</div> | <div>Using system calls like <code>fork()</code> and <code>exec()</code>.</div>
+<div>What is a daemon process?</div> | <div>A background process that runs without user interaction.</div>
+<div>What is a zombie process?</div> | <div>A process that has completed execution but still has an entry in the process table.</div>
+<div>What is a file system?</div> | <div>A method used by the OS to organize and manage data stored on drives using directories and files.</div>
+<div>What is the purpose of file permissions?</div> | <div>To control which users or processes can read, write, or execute a file.</div>
+<div>What does the VFS (Virtual File System) do?</div> | <div>It abstracts the file system operations so applications can work with files uniformly regardless of the actual file system.</div>
+<div>What happens during a file open operation?</div> | <div>The OS allocates a file descriptor and loads metadata about the file.</div>
+<div>How does the OS manage file reads and writes?</div> | <div>Through buffered I/O and system calls like <code>read()</code> and <code>write()</code>.</div>
+<div>What is a file descriptor?</div> | <div>An integer that uniquely identifies an open file within a process.</div>
+<div>Why is the file system hierarchy important?</div> | <div>It provides a structured and organized way to store and retrieve files.</div>
+<div>What is the difference between ext4 and NTFS?</div> | <div>ext4 is commonly used in Linux systems; NTFS is used in Windows systems. They differ in journaling, permissions, and metadata handling.</div>
+<div>What is the role of the OS in network communication?</div> | <div>It handles protocols, manages interfaces, routes packets, and provides the socket API for applications.</div>
+<div>What are common protocols implemented by the network stack?</div> | <div>TCP, IP, UDP, ICMP, ARP.</div>
+<div>What is a socket?</div> | <div>An endpoint for sending and receiving data across a network connection.</div>
+<div>What does the OS do when receiving data from the network?</div> | <div>It buffers the data, processes it using protocols, and delivers it to the appropriate application.</div>
+<div>What is a network interface in OS terms?</div> | <div>A software representation of physical or virtual network hardware like Ethernet or Wi-Fi adapters.</div>
+<div>How does the OS manage IP addresses?</div> | <div>By configuring interfaces statically or dynamically using DHCP.</div>
+<div>What is a device driver?</div> | <div>Software that allows the OS to communicate with hardware devices by translating commands and handling responses.</div>
+<div>What does a printer driver do?</div> | <div>It translates print jobs from the OS into commands the printer understands.</div>
+<div>How are device drivers loaded in an OS?</div> | <div>They can be compiled into the kernel or loaded dynamically as kernel modules.</div>
+<div>Why are drivers essential for hardware compatibility?</div> | <div>They abstract hardware-specific operations so the OS can work with a wide range of devices.</div>
+<div>What happens during device initialization?</div> | <div>The driver configures the hardware, allocates resources, and registers it with the OS.</div>
+<div>What is interrupt handling in drivers?</div> | <div>Responding to hardware signals that notify the OS of events like input or errors.</div>
+<div>How does the OS protect itself from buggy drivers?</div> | <div>By isolating them in kernel modules and using fault recovery mechanisms.</div>
+<div>What is the role of the kernel in managing devices?</div> | <div>It provides a unified API for device access, delegates control to drivers, and ensures secure, stable operations.</div>
+<div>How does the OS differentiate devices?</div> | <div>Using device IDs and assigning them unique names like <code>/dev/sda</code> or <code>/dev/tty</code>.</div>
+<div>What are the common subsystems of an operating system kernel?</div> | <div>Process Management, Memory Management, File System, Network Stack, Device Drivers, Inter-Process Communication (IPC), Security, Scheduler, I/O Management, System Call Interface.</div>
+<div>Why is modular design important in OS kernel architecture?</div> | <div>It improves maintainability, fault isolation, and resource management by separating the kernel into specialized subsystems.</div>
+<div>How does modularity benefit kernel development?</div> | <div>It simplifies understanding, debugging, and maintaining the kernel by allowing independent updates to subsystems.</div>
+<div>How does subsystem isolation contribute to system stability?</div> | <div>Faults in one subsystem are less likely to crash the entire OS, enhancing overall reliability.</div>
+<div>What advantage does specialization of subsystems provide?</div> | <div>Each subsystem can efficiently manage its specific resources, like memory, CPU, or I/O, leading to better performance.</div>

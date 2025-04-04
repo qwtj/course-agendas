@@ -1,0 +1,23 @@
+#separator:Tab
+#html:false
+#tags:Network Stack TCP/IP
+#columns:NoteType	Field1	Field2	Field3
+#deck:Kernel::Subsystems::Network Stack
+#notetype column:1
+Basic	What is the primary responsibility of the IP protocol?	Addressing and routing packets (datagrams) at the network layer.	
+Basic	What does TCP provide that UDP does not?	Reliable, connection-oriented, ordered delivery of a byte-stream.	
+Basic	Which protocol uses a three-way handshake?	TCP.	
+Cloze	TCP uses a {{c1::three-way handshake}} to establish a connection.	Establishes connection before transmitting data.	
+Basic	Why is UDP faster than TCP?	It has less overhead due to no connection setup, ACKs, or retransmissions.	
+Cloze	UDP provides a {{c1::connectionless}}, unreliable datagram service.	Used for speed-critical apps like DNS, VoIP.	
+Basic	What is encapsulation in networking?	The process of wrapping data with protocol-specific headers as it moves down the network stack.	
+Cloze	{{c1::Encapsulation}} is the process of adding headers at each layer of the network stack.	Reversed during decapsulation.	
+Basic	What does the `socket()` system call do?	Creates a new socket endpoint.	
+Basic	Which system call is used to associate a socket with a specific IP and port?	bind().	
+Cloze	The {{c1::accept()}} system call accepts incoming connections on a listening socket.	Returns a new socket for client communication.	
+Basic	What is the role of network device drivers?	They interface between the kernel network stack and physical hardware.	
+Cloze	Routing uses a {{c1::routing table}} to determine the path a packet should take.	Kernel consults it to forward packets.	
+Basic	What kernel tool enables firewall rule configuration?	iptables or nftables.	
+Cloze	Packet filtering actions include {{c1::ACCEPT}}, DROP, REJECT, and LOG.	Defined by firewall rules in kernel.	
+
+

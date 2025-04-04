@@ -1,0 +1,40 @@
+<div>What is virtual memory in an OS?</div> | <div>A technique that gives each process its own private address space, with the kernel translating virtual addresses to physical memory using the MMU.</div>
+<div>What does MMU stand for?</div> | <div>Memory Management Unit – hardware that translates virtual addresses to physical addresses.</div>
+<div>What is an address space?</div> | <div>A contiguous range of virtual addresses assigned to a process by the OS.</div>
+<div>What are page tables?</div> | <div>Kernel-managed data structures that map virtual pages to physical memory frames.</div>
+<div>What are pages and frames?</div> | <div>Pages are fixed-size blocks of virtual memory, and frames are corresponding blocks of physical memory.</div>
+<div>How does memory protection work?</div> | <div>The MMU uses page table permissions to prevent unauthorized access to memory, ensuring process isolation and kernel protection.</div>
+<div>Why is virtual memory beneficial?</div> | <div>It allows processes larger than RAM to run, simplifies allocation, and enhances security and process isolation.</div>
+<div>What is internal fragmentation?</div> | <div>Wasted space within an allocated memory block due to allocating more than needed.</div>
+<div>What is external fragmentation?</div> | <div>Free memory is split into many small blocks, making large allocations fail despite enough total space.</div>
+<div>How does the buddy system allocate memory?</div> | <div>By dividing memory into power-of-two blocks and recursively splitting and merging to fit requests.</div>
+<div>What is the slab allocator used for?</div> | <div>Efficient allocation of small, frequently used kernel objects by pre-allocating and reusing memory chunks.</div>
+<div>What are hierarchical page tables?</div> | <div>Multi-level page tables that break down the address space into smaller parts, improving efficiency and space usage.</div>
+<div>How does the MMU perform address translation?</div> | <div>By walking the levels of the page table using parts of the virtual address to locate the physical frame.</div>
+<div>What is the purpose of the TLB?</div> | <div>Translation Lookaside Buffer – a hardware cache storing recent virtual-to-physical translations for fast access.</div>
+<div>What is a TLB hit?</div> | <div>When the MMU finds the required address mapping in the TLB, avoiding a page table walk.</div>
+<div>What is a TLB miss?</div> | <div>When the MMU doesn't find the mapping in the TLB and must walk the page table to get the physical address.</div>
+<div>Why are multi-level page tables efficient?</div> | <div>They save memory by collapsing large unused areas into single entries and reduce page table size.</div>
+<div>What does mmap do?</div> | <div>Maps files or devices directly into a process’s address space for efficient access without read/write calls.</div>
+<div>How does mmap enable shared memory?</div> | <div>Multiple processes can map the same file or memory region into their address space to share data.</div>
+<div>What is the page cache?</div> | <div>A cache in RAM of recently accessed file data, used to speed up file I/O by avoiding disk access.</div>
+<div>Why is page caching beneficial?</div> | <div>It reduces disk I/O latency and improves performance for frequently accessed files.</div>
+<div>How does the kernel manage the size of the page cache?</div> | <div>It dynamically balances memory use between process data and cached file data based on demand.</div>
+<div>What is memory mapping used for in large files?</div> | <div>It allows efficient and direct file access without read/write syscalls, useful for performance-critical applications.</div>
+<div>What is a spinlock?</div> | <div>A lock where a thread loops while waiting for availability, suitable for short critical sections.</div>
+<div>What are the downsides of spinlocks?</div> | <div>They waste CPU cycles while waiting and should not be held during blocking operations.</div>
+<div>What is a mutex?</div> | <div>A locking mechanism where threads sleep if the lock is unavailable, conserving CPU resources.</div>
+<div>When should you use a mutex over a spinlock?</div> | <div>When the lock is held for longer durations or may involve sleep operations.</div>
+<div>What is a semaphore?</div> | <div>A synchronization primitive that allows signaling and coordination between multiple threads or processes.</div>
+<div>What are read-write locks?</div> | <div>Locks allowing multiple concurrent readers but only one writer at a time to optimize access patterns.</div>
+<div>Why is synchronization needed in the kernel?</div> | <div>To prevent race conditions and data corruption in shared memory during concurrent access.</div>
+<div>What can happen without proper memory synchronization?</div> | <div>Race conditions, inconsistent data, crashes, or security vulnerabilities.</div>
+<div>What kernel structures require locking?</div> | <div>Page tables, memory allocators, process lists, and any shared kernel data accessed by multiple threads.</div>
+<div>How does the buddy system reduce external fragmentation?</div> | <div>By merging adjacent free blocks into larger ones when memory is deallocated.</div>
+<div>What is a slab in the slab allocator?</div> | <div>A pre-allocated memory chunk divided into fixed-size slots for efficient reuse of small kernel objects.</div>
+<div>What kind of objects benefit most from the slab allocator?</div> | <div>Frequent, fixed-size kernel structures like inodes or process descriptors.</div>
+<div>Why is mmap more efficient than read/write in some cases?</div> | <div>It avoids copying and system call overhead by letting processes access data via pointers.</div>
+<div>What happens on a page fault with mmap?</div> | <div>The kernel loads the required page from disk into memory and updates page tables.</div>
+<div>Why do page faults occur?</div> | <div>When a process accesses a virtual address not currently mapped to physical memory.</div>
+<div>What is memory compaction?</div> | <div>A process of moving allocated blocks together to eliminate external fragmentation and create large contiguous spaces.</div>
+<div>What happens if memory fragmentation is not handled?</div> | <div>Large allocations may fail despite sufficient total memory, impacting system performance or causing crashes.</div>
