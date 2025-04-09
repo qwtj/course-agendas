@@ -78,7 +78,7 @@ while IFS= read -r topic; do
   # - Redirect command's stdin from /dev/null to prevent interference with the loop's read
   # - Redirect stdout to the output file
   # - Redirect stderr to a temporary log file
-  if ! ask-google-gemini -m "$gemini_model" -p "$prompt_file" "$prompt_argument" < /dev/null > "$output_path" 2> ask_gemini_error.log; then
+  if ! ask-google-gemini -s -m "$gemini_model" -p "$prompt_file" "$prompt_argument" < /dev/null > "$output_path" 2> ask_gemini_error.log; then
       exit_code=$?
       error_count=$((error_count + 1))
       echo "Error: 'ask-google-gemini' command failed with exit code ${exit_code} for topic '${topic}'." >&2
