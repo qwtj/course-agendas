@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Course Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script>
+        // Configure Tailwind - applied automatically by the browser script
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Basic body styling */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Style for the EDITABLE textareas in main preview view*/
+        .content-textarea {
+            width: 100%; min-height: 100px; padding: 10px; margin-top: 8px; margin-bottom: 20px;
+            border: 1px solid #d1d5db; border-radius: 0.375rem; font-family: monospace;
+            font-size: 0.875rem; line-height: 1.4; background-color: #ffffff;
+            color: #1f2937; resize: vertical;
+            box-shadow: inset 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .content-textarea:focus {
+             outline: none; border-color: #4f46e5; box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.3);
+        }
+
+        /* Style for rendered headers in main preview view */
+        #output h1, #output h2, #output h3, #output h4 {
+            margin-bottom: 0.5rem; font-weight: 600; line-height: 1.3;
+            color: #111827; padding-top: 1rem;
+        }
+         #output h1:first-child, #output h2:first-child,
+         #output h3:first-child, #output h4:first-child { padding-top: 0; }
+        #output h1 { font-size: 1.875rem; } #output h2 { font-size: 1.5rem; }
+        #output h3 { font-size: 1.25rem; } #output h4 { font-size: 1.125rem; }
+
+        /* --- Animation Styles --- */
+        .subsection-wrapper {
+            opacity: 0; transform: translateY(15px);
+            transition: opacity 0.6s ease-out, transform 0.5s ease-out;
+        }
+        .subsection-wrapper.fade-in { opacity: 1; transform: translateY(0); }
+
+        /* --- Canvas Style --- */
+        #mindMapCanvas {
+            width: 100%;
+            height: 60vh; /* Default height, adjust as needed */
+            border: 1px solid #d1d5db; /* gray-300 */
+            border-radius: 0.375rem; /* rounded-md */
+            cursor: grab; /* Indicate draggable */
+            display: block; /* Prevent extra space below */
+        }
+         #mindMapCanvas:active {
+             cursor: grabbing;
+         }
+
+        /* --- Modal Styles --- */
+        .modal-overlay { /* ... existing modal styles ... */
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(0, 0, 0, 0.6); display: flex;
+            justify-content: center; align-items: center; z-index: 1000; padding: 1rem;
+        }
+        .modal-content { /* ... existing modal styles ... */
+            background-color: white; padding: 1.5rem; border-radius: 0.5rem;
+            max-width: 90%; width: 60rem; max-height: 85vh; display: flex;
+            flex-direction: column; overflow: hidden;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        #confirmNewModal .modal-content, #jupyterHelpModal .modal-content { width: 32rem; max-width: 90%; max-height: 90vh; }
+        .modal-header { /* ... existing modal styles ... */
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 1rem; border-bottom: 1px solid #e5e7eb; padding-bottom: 0.75rem;
+        }
+        .modal-title { /* ... existing modal styles ... */
+             font-size: 1.125rem; font-weight: 600; color: #1f2937; display: flex; align-items: center;
+        }
+         .help-icon { /* ... existing modal styles ... */
+             margin-left: 0.5rem; color: #3b82f6; font-weight: bold; cursor: pointer; font-size: 0.8rem;
+             border: 1px solid #9ca3af; border-radius: 50%; width: 1.1rem; height: 1.1rem;
+             display: inline-flex; align-items: center; justify-content: center; line-height: 1;
+             transition: background-color 0.2s, color 0.2s;
+         }
+         .help-icon:hover { background-color: #eff6ff; color: #1d4ed8; border-color: #6b7280; }
+        .modal-close-button { /* ... existing modal styles ... */
+            background: none; border: none; font-size: 1.8rem; line-height: 1;
+            cursor: pointer; color: #9ca3af; padding: 0.25rem;
+        }
+         .modal-close-button:hover { color: #1f2937; }
+        .modal-body { /* ... existing modal styles ... */
+             flex-grow: 1; overflow-y: auto; margin-bottom: 1rem; line-height: 1.6; font-size: 0.9rem;
+        }
+         .modal-body ol { list-style-type: decimal; margin-left: 1.5rem; }
+         .modal-body li { margin-bottom: 0.5rem; }
+         .modal-body code { background-color: #f3f4f6; padding: 0.1em 0.3em; border-radius: 3px; font-family: monospace; font-size: 0.85em;}
+         .modal-footer { /* ... existing modal styles ... */
+            border-top: 1px solid #e5e7eb; padding-top: 1rem; display: flex; justify-content: flex-end; gap: 0.75rem;
+         }
+         #jupyterJsonModal .modal-footer { justify-content: space-between; align-items: center; }
+
+        /* Style for EDITABLE Raw Markdown Editor Textarea in modal */
+        #rawMdEditorTextarea { /* ... existing modal styles ... */
+            width: 100%; height: 100%; min-height: 40vh; border: 1px solid #d1d5db; border-radius: 0.375rem;
+            padding: 0.75rem; font-family: monospace; font-size: 0.875rem; line-height: 1.5; resize: none;
+            box-shadow: inset 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+        /* Style for Jupyter JSON display */
+        #jupyterJsonDisplayContainer { /* ... existing modal styles ... */
+             background-color: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 0.375rem; padding: 1rem;
+             flex-grow: 1; overflow: hidden; display: flex;
+        }
+         #jupyterJsonDisplay { /* ... existing modal styles ... */
+             font-family: monospace; font-size: 0.875rem; white-space: pre; overflow: auto;
+             width: 100%; height: 100%; margin: 0; color: #1f2937;
+        }
+         #jupyterJsonDisplay code { display: block; padding: 0; }
+        /* Basic styling for RENDERED HTML content in modal */
+        #renderedContentDisplay { /* ... existing modal styles ... */ }
+    </style>
+</head>
+<body class="bg-gray-100 p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto bg-white p-6 md:p-8 rounded-lg shadow-md">
+        <h1 class="text-2xl font-bold mb-6 text-center text-gray-800">Interactive Course Guide</h1>
+
+        <div class="mb-4 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <label for="mdFileInput" class="block text-sm font-medium text-gray-700 whitespace-nowrap">Select Markdown File (.md):</label>
+            <input type="file" id="mdFileInput" accept=".md" class="flex-grow-0 w-full sm:w-auto text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+        </div>
+
+        <div class="text-center mb-6 flex flex-wrap justify-center gap-3">
+            <button id="newButton" class="bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 px-4 rounded-md shadow transition duration-150 ease-in-out text-sm" title="Start a new blank document"> New </button>
+            <button id="viewRawMdButton" class="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-4 rounded-md shadow transition duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed text-sm" disabled> Edit Raw Markdown </button>
+            <button id="viewRenderedButton" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-md shadow transition duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed text-sm" disabled> View Rendered HTML </button>
+            <button id="exportJupyterButton" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md shadow transition duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed text-sm" disabled title="Export content as Jupyter Notebook (.ipynb)"> Export to Jupyter </button>
+        </div>
+
+        <div class="border-t border-gray-200 pt-6">
+            <h2 id="outputTitle" class="text-xl font-semibold mb-4 text-gray-800 truncate" title="Preview"> Preview </h2>
+            <div id="output">
+                <p class="text-gray-500" id="outputPlaceholder">Select a .md file to automatically load and render, or click 'New'.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="rawMdModal" class="modal-overlay hidden"> <div class="modal-content"> <div class="modal-header"> <h3 class="modal-title">Edit Raw Markdown</h3> <button id="closeRawMdModalButton" class="modal-close-button">&times;</button> </div> <div class="modal-body"> <textarea id="rawMdEditorTextarea" spellcheck="false"></textarea> </div> <div class="modal-footer"> <button id="saveRawMdButton" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-md shadow transition duration-150 ease-in-out text-sm"> Save Changes & Close </button> </div> </div> </div>
+    <div id="renderedHtmlModal" class="modal-overlay hidden"> <div class="modal-content"> <div class="modal-header"> <h3 class="modal-title">Rendered HTML View</h3> <button id="closeRenderedModalButton" class="modal-close-button">&times;</button> </div> <div class="modal-body"> <div id="renderedContentDisplay"></div> </div> </div> </div>
+    <div id="confirmNewModal" class="modal-overlay hidden"> <div class="modal-content"> <div class="modal-header"> <h3 class="modal-title">Confirm New Document</h3> </div> <div class="modal-body"> <p class="text-sm text-gray-700">Are you sure you want to start a new document? Any unsaved changes will be lost.</p> </div> <div class="modal-footer"> <button id="cancelNewButton" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-md shadow-sm transition duration-150 ease-in-out text-sm"> Cancel </button> <button id="confirmNewButton" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md shadow-sm transition duration-150 ease-in-out text-sm"> Start New </button> </div> </div> </div>
+    <div id="jupyterJsonModal" class="modal-overlay hidden"> <div class="modal-content"> <div class="modal-header"> <h3 class="modal-title"> Jupyter Notebook JSON (.ipynb) <span id="jupyterHelpIcon" class="help-icon" title="How to use this JSON?">(?)</span> </h3> <button id="closeJupyterJsonModalButton" class="modal-close-button">&times;</button> </div> <div class="modal-body"> <div id="jupyterJsonDisplayContainer"> <pre id="jupyterJsonDisplay"><code>{/* JSON will be loaded here */}</code></pre> </div> </div> <div class="modal-footer"> <p class="text-xs text-gray-500 mr-auto">Copy JSON & save as '.ipynb' file.</p> <button id="copyJupyterJsonButton" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md shadow-sm transition duration-150 ease-in-out text-sm">Copy JSON</button> </div> </div> </div>
+    <div id="jupyterHelpModal" class="modal-overlay hidden"> <div class="modal-content"> <div class="modal-header"> <h3 class="modal-title">How to Create Jupyter Notebook File</h3> <button id="closeJupyterHelpModalButton" class="modal-close-button">&times;</button> </div> <div class="modal-body"> <p class="mb-3">To use the generated JSON in Jupyter:</p> <ol> <li>Click the "Copy JSON" button in the previous modal (or select all text in the JSON display area and copy it manually with <code>Ctrl+C</code> or <code>Cmd+C</code>).</li> <li>Open a plain text editor (like Notepad, TextEdit, VS Code, etc.).</li> <li>Paste the copied JSON text into a new, blank file.</li> <li>Go to <code>File > Save As...</code></li> <li>Choose a location and name the file with the <code>.ipynb</code> extension (e.g., <code>my_notebook.ipynb</code>).</li> <li>Ensure the "Save as type" is set to "All Files" (if applicable) and the encoding is UTF-8.</li> <li>Save the file.</li> <li>Open Jupyter Notebook or JupyterLab, navigate to where you saved the file, and click it to open.</li> </ol> </div> <div class="modal-footer"> <button id="closeJupyterHelpModalButtonOk" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md shadow-sm transition duration-150 ease-in-out text-sm">Understood</button> </div> </div> </div>
+
+
+    <script>
+        // --- DOM Elements ---
+        const fileInput = document.getElementById('mdFileInput');
+        const viewRawMdButton = document.getElementById('viewRawMdButton');
+        const viewRenderedButton = document.getElementById('viewRenderedButton');
+        const exportJupyterButton = document.getElementById('exportJupyterButton');
+        const newButton = document.getElementById('newButton');
+        const outputDiv = document.getElementById('output');
+        const outputTitle = document.getElementById('outputTitle');
+        const outputPlaceholder = document.getElementById('outputPlaceholder');
+        // Modals...
+        const rawMdModal = document.getElementById('rawMdModal');
+        const closeRawMdModalButton = document.getElementById('closeRawMdModalButton');
+        const rawMdEditorTextarea = document.getElementById('rawMdEditorTextarea');
+        const saveRawMdButton = document.getElementById('saveRawMdButton');
+        const renderedHtmlModal = document.getElementById('renderedHtmlModal');
+        const closeRenderedModalButton = document.getElementById('closeRenderedModalButton');
+        const renderedContentDisplay = document.getElementById('renderedContentDisplay');
+        const confirmNewModal = document.getElementById('confirmNewModal');
+        const cancelNewButton = document.getElementById('cancelNewButton');
+        const confirmNewButton = document.getElementById('confirmNewButton');
+        const jupyterJsonModal = document.getElementById('jupyterJsonModal');
+        const closeJupyterJsonModalButton = document.getElementById('closeJupyterJsonModalButton');
+        const jupyterJsonDisplay = document.getElementById('jupyterJsonDisplay').querySelector('code');
+        const copyJupyterJsonButton = document.getElementById('copyJupyterJsonButton');
+        const jupyterHelpIcon = document.getElementById('jupyterHelpIcon');
+        const jupyterHelpModal = document.getElementById('jupyterHelpModal');
+        const closeJupyterHelpModalButton = document.getElementById('closeJupyterHelpModalButton');
+        const closeJupyterHelpModalButtonOk = document.getElementById('closeJupyterHelpModalButtonOk');
+
+        // --- State ---
+        let rawFileContent = null;
+        let currentFilename = null;
+
+        // --- Config ---
+        const animationDelayIncrement = 100;
+        const nodeColors = [ '#14b8a6', '#f97316', '#dc2626', '#3b82f6' ];
+        
+        // --- Initial Placeholder Text ---
+        const initialPlaceholderText = "Select a .md file to automatically load and render, or click 'New'.";
+
+        // --- Event Listeners ---
+        fileInput.addEventListener('change', handleFileSelection);
+        viewRawMdButton.addEventListener('click', showRawMdModal);
+        viewRenderedButton.addEventListener('click', showRenderedHtmlModal);
+        exportJupyterButton.addEventListener('click', handleExportJupyter);
+        saveRawMdButton.addEventListener('click', saveRawMdChanges);
+        newButton.addEventListener('click', showConfirmNewModal);
+        // Modal Listeners...
+        closeRawMdModalButton.addEventListener('click', hideRawMdModal);
+        closeRenderedModalButton.addEventListener('click', hideRenderedHtmlModal);
+        rawMdModal.addEventListener('click', (event) => { if (event.target === rawMdModal) hideRawMdModal(); });
+        renderedHtmlModal.addEventListener('click', (event) => { if (event.target === renderedHtmlModal) hideRenderedHtmlModal(); });
+        cancelNewButton.addEventListener('click', hideConfirmNewModal);
+        confirmNewButton.addEventListener('click', executeNewDocument);
+        confirmNewModal.addEventListener('click', (event) => { if (event.target === confirmNewModal) hideConfirmNewModal(); });
+        closeJupyterJsonModalButton.addEventListener('click', hideJupyterJsonModal);
+        jupyterJsonModal.addEventListener('click', (event) => { if (event.target === jupyterJsonModal) hideJupyterJsonModal(); });
+        copyJupyterJsonButton.addEventListener('click', copyJupyterJsonToClipboard);
+        jupyterHelpIcon.addEventListener('click', showJupyterHelpModal);
+        closeJupyterHelpModalButton.addEventListener('click', hideJupyterHelpModal);
+        closeJupyterHelpModalButtonOk.addEventListener('click', hideJupyterHelpModal);
+        jupyterHelpModal.addEventListener('click', (event) => { if (event.target === jupyterHelpModal) hideJupyterHelpModal(); });
+
+        // Escape Key Listener for Modals
+        document.addEventListener('keydown', (event) => { /* ... unchanged ... */
+             if (event.key === 'Escape') { if (!rawMdModal.classList.contains('hidden')) hideRawMdModal(); if (!renderedHtmlModal.classList.contains('hidden')) hideRenderedHtmlModal(); if (!confirmNewModal.classList.contains('hidden')) hideConfirmNewModal(); if (!jupyterJsonModal.classList.contains('hidden')) hideJupyterJsonModal(); if (!jupyterHelpModal.classList.contains('hidden')) hideJupyterHelpModal(); }
+        });
+
+        // --- Functions ---
+
+        function handleFileSelection(event) {
+            const file = event.target.files[0];
+            // Reset visually immediately
+            outputTitle.textContent = 'Preview'; outputTitle.title = 'Preview'; currentFilename = null;
+            outputDiv.innerHTML = `<p class="text-gray-500" id="outputPlaceholder">Loading...</p>`; // Show loading indicator
+            disableActionButtonsButKeepNewEnabled();
+
+            if (!file) { executeNewDocument(); return; } // Treat cancel as 'New'
+
+            if (!file.name.toLowerCase().endsWith('.md')) {
+                outputDiv.innerHTML = '<p class="text-red-500">Please select a valid .md file.</p>';
+                fileInput.value = null; return;
+            }
+
+            currentFilename = file.name;
+            outputTitle.textContent = currentFilename;
+            outputTitle.title = currentFilename;
+
+            const reader = new FileReader();
+            reader.onload = (loadEvent) => {
+                rawFileContent = loadEvent.target.result;
+                // *** Check if it's a mind map file ***
+                if (currentFilename && currentFilename.toLowerCase().includes('.mindmap.')) {
+                    console.log("Mind map file detected, rendering D3 canvas...");
+                    renderMindMap(rawFileContent); // Call D3 renderer
+                } else {
+                    console.log("Standard markdown file, rendering preview...");
+                    renderParsedContent(rawFileContent); // Call standard preview renderer
+                }
+            };
+            reader.onerror = (errorEvent) => {
+                console.error("Read Error:", errorEvent.target.error);
+                outputDiv.innerHTML = '<p class="text-red-500">Error reading file.</p>';
+                rawFileContent = null; currentFilename = null; outputTitle.textContent = 'Preview'; outputTitle.title = 'Preview';
+                disableActionButtonsButKeepNewEnabled(); fileInput.value = null;
+            };
+            reader.readAsText(file);
+         }
+
+        function renderParsedContent(markdownText) { /* ... standard preview rendering ... */
+            outputDiv.innerHTML = '';
+            if (!markdownText || !markdownText.trim()) { outputDiv.innerHTML = `<p class="text-gray-500" id="outputPlaceholder">${initialPlaceholderText}</p>`; outputTitle.textContent = 'Preview'; outputTitle.title = 'Preview'; currentFilename = null; disableActionButtonsButKeepNewEnabled(); return; }
+            outputTitle.textContent = currentFilename || 'Preview'; outputTitle.title = currentFilename || 'Preview';
+
+            const lines = markdownText.split('\n');
+            let currentHeaderElement = null; let contentBlock = []; let foundHeaders = false; let currentAnimationDelay = 0;
+            function finalizeSubsection(headerElem, contentText) { if (!headerElem && (!contentText || !contentText.trim())) return; const textareaElem = createContentTextarea(contentText); const wrapperDiv = document.createElement('div'); wrapperDiv.classList.add('subsection-wrapper'); if(headerElem) wrapperDiv.appendChild(headerElem); if (textareaElem) wrapperDiv.appendChild(textareaElem); else if (headerElem && (!contentText || !contentText.trim())) { headerElem.style.marginBottom = '1rem'; } outputDiv.appendChild(wrapperDiv); setTimeout(() => { wrapperDiv.classList.add('fade-in'); }, currentAnimationDelay); currentAnimationDelay += animationDelayIncrement; }
+            let firstBlockContent = []; let firstHeaderFound = false;
+            lines.forEach(line => { const trimmedLine = line.trim(); let headerLevel = 0; let headerPrefix = ''; if (trimmedLine.startsWith('# ')) { headerLevel = 1; headerPrefix = '# '; } else if (trimmedLine.startsWith('## ')) { headerLevel = 2; headerPrefix = '## '; } else if (trimmedLine.startsWith('### ')) { headerLevel = 3; headerPrefix = '### '; } else if (trimmedLine.startsWith('#### ')) { headerLevel = 4; headerPrefix = '#### '; } if (headerLevel > 0) { if (!firstHeaderFound) { finalizeSubsection(null, firstBlockContent.join('\n')); firstHeaderFound = true; } else if (currentHeaderElement) { finalizeSubsection(currentHeaderElement, contentBlock.join('\n')); } foundHeaders = true; contentBlock = []; const headerText = trimmedLine.substring(headerPrefix.length); currentHeaderElement = createHeaderElement(`h${headerLevel}`, headerText, headerPrefix); } else if (!firstHeaderFound) { firstBlockContent.push(line); } else if (currentHeaderElement !== null) { contentBlock.push(line); } });
+             if (!firstHeaderFound) { finalizeSubsection(null, firstBlockContent.join('\n')); } else if (currentHeaderElement) { finalizeSubsection(currentHeaderElement, contentBlock.join('\n')); }
+            if (markdownText.trim()) { enableActionButtons(); } else { disableActionButtonsButKeepNewEnabled(); }
+         }
+
+         // --- D3 Mind Map Rendering ---
+         function renderMindMap(markdownText) {
+             console.log("renderMindMap started.");
+             if(!outputDiv) { console.error("Output div not found!"); return; }
+             outputDiv.innerHTML = '';
+             if (!markdownText || !markdownText.trim()) { console.warn("Mind map text empty."); outputDiv.innerHTML = `<p class="text-gray-500">Mind map file is empty.</p>`; disableActionButtonsButKeepNewEnabled(); return; }
+             if(outputTitle) outputTitle.textContent = currentFilename || 'Mind Map'; outputTitle.title = currentFilename || 'Mind Map';
+
+             const canvas = document.createElement('canvas'); canvas.id = 'mindMapCanvas';
+             outputDiv.style.height = '60vh';
+             const containerWidth = outputDiv.clientWidth;
+             const canvasHeight = outputDiv.clientHeight;
+             console.log(`Canvas dimensions: ${containerWidth}x${canvasHeight}`);
+             if (!containerWidth || !canvasHeight) { console.error("Canvas container has zero dimensions."); outputDiv.innerHTML = `<p class="text-red-500">Error: Cannot determine rendering area size.</p>`; disableActionButtonsButKeepNewEnabled(); return; }
+             canvas.width = containerWidth; canvas.height = canvasHeight;
+             outputDiv.appendChild(canvas);
+             const ctx = canvas.getContext('2d');
+             if(!ctx) { console.error("Could not get 2D context"); return; }
+
+             let hierarchyData; try { hierarchyData = parseMarkdownToHierarchy(markdownText); if (!hierarchyData) throw new Error("Parsing returned null"); } catch (error) { console.error("Error parsing hierarchy:", error); outputDiv.innerHTML = `<p class="text-red-500">Error parsing mind map structure.</p>`; disableActionButtonsButKeepNewEnabled(); return; }
+
+             const root = d3.hierarchy(hierarchyData);
+             const nodeWidth = 120; const nodeHeight = 40; const nodeVMargin = 30; const nodeHMargin = 50;
+             const treeLayout = d3.tree().nodeSize([nodeHeight + nodeVMargin, nodeWidth + nodeHMargin]);
+             const initialX = 50; const initialY = canvas.height / 2;
+             root.x0 = initialY; root.y0 = initialX;
+             treeLayout(root);
+
+             let currentTransform = d3.zoomIdentity.translate(initialX, initialY);
+             const borderRadius = 15; const maxTextWidth = nodeWidth - 16; const textBgPadding = 4;
+
+             function draw() {
+                 try {
+                     ctx.save();
+                     ctx.clearRect(0, 0, canvas.width, canvas.height);
+                     ctx.translate(currentTransform.x, currentTransform.y);
+                     ctx.scale(currentTransform.k, currentTransform.k);
+                     ctx.strokeStyle = '#9ca3af'; ctx.lineWidth = 1.5 / currentTransform.k; ctx.beginPath();
+                     root.links().forEach(link => { ctx.moveTo(link.source.y + nodeWidth / 2, link.source.x); ctx.bezierCurveTo( link.source.y + nodeWidth / 2 + nodeHMargin / 2, link.source.x, link.target.y - nodeWidth / 2 - nodeHMargin / 2, link.target.x, link.target.y - nodeWidth / 2, link.target.x ); });
+                     ctx.stroke();
+                    root.descendants().forEach(node => {
+                        // Set up the canvas context
+                        const fontSize = 10 / (1 / currentTransform.k); // Font size scales with zoom
+                        ctx.font = `bold ${fontSize}px sans-serif`;
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        
+                        // Measure the text
+                        let nodeName = node.data.name || '';
+                        let textMetrics = ctx.measureText(nodeName);
+                        const maxTextWidthScaled = maxTextWidth / currentTransform.k; // Adjust max width for zoom
+                        while (textMetrics.width > maxTextWidthScaled && nodeName.length > 1) {
+                            nodeName = nodeName.slice(0, -2) + '…';
+                            textMetrics = ctx.measureText(nodeName);
+                        }
+
+                        // Calculate text dimensions
+                        const textWidth = textMetrics.width;
+                        const textHeight = fontSize; // Approximate height based on font size
+
+                        // Define padding and rectangle dimensions (scaled with zoom)
+                        const padding = textBgPadding / (1 / currentTransform.k); // Padding scales with zoom
+                        const minWidth = 400 / currentTransform.k; // Minimum width of 200, adjusted for zoom
+                        const maxWidth = 130;
+                        const textBasedWidth = Math.min(maxWidth, Math.max(minWidth, textWidth)); // Width based on text
+                        const rectWidth = textBasedWidth + padding * 2 ; // Use the larger of minWidth or text-based width
+                        const rectHeight = textHeight + padding * 2; // Height includes padding on top and bottom
+
+                        // Calculate rectangle position
+                        const rectX = node.y - rectWidth / 2;
+                        const rectY = node.x - rectHeight / 2;
+
+                        // Draw the rectangle
+                        const colorIndex = Math.min(node.depth, nodeColors.length - 1);
+                        ctx.fillStyle = nodeColors[colorIndex];
+                        ctx.beginPath();
+                        if (typeof ctx.roundRect === 'function') {
+                            ctx.roundRect(rectX, rectY, rectWidth, rectHeight, borderRadius / currentTransform.k);
+                            ctx.fill();
+                        } else {
+                            ctx.fillRect(rectX, rectY, rectWidth, rectHeight);
+                            if (!window.hasWarnedRoundRect) {
+                                console.warn("ctx.roundRect not supported...");
+                                window.hasWarnedRoundRect = true;
+                            }
+                        }
+
+                        // Draw the text
+                        ctx.fillStyle = '#ffffff';
+                        ctx.fillText(nodeName, node.y, node.x);
+                    });
+                     ctx.restore();
+                 } catch (drawError) { console.error("Error during canvas draw:", drawError); }
+             }
+
+             try {
+                 const zoom = d3.zoom().scaleExtent([0.1, 3]).on('zoom', (event) => { currentTransform = event.transform; draw(); });
+                 d3.select(canvas).call(zoom).on("dblclick.zoom", null);
+                 d3.select(canvas).call(zoom.transform, currentTransform);
+             } catch(zoomError) { console.error("Error setting up D3 zoom:", zoomError); outputDiv.innerHTML = `<p class="text-red-500">Error initializing interactive controls.</p>`; disableActionButtonsButKeepNewEnabled(); return; }
+
+             console.log("renderMindMap finished successfully.");
+             enableActionButtons();
+         }
+
+         function parseMarkdownToHierarchy(markdownText) {
+             console.log("Parsing Markdown to Hierarchy..."); // DEBUG
+             const lines = markdownText.split('\n');
+             const root = { name: "Root", children: [], level: 0 };
+             const stack = [root]; // Stack: stores references to nodes, stack[top] is current parent
+
+             lines.forEach(line => {
+                 const trimmedLine = line.trim();
+                 if (!trimmedLine) return;
+
+                 let level = 0;
+                 let name = trimmedLine;
+
+                 if (trimmedLine.startsWith('#')) {
+                     while (level < trimmedLine.length && trimmedLine[level] === '#') { level++; }
+                     name = trimmedLine.substring(level).trim();
+                     if (!name) return; // Skip if header is just '#'
+                 } else { return; } // Ignore non-header lines for hierarchy
+
+                 const newNode = { name: name, children: [], level: level };
+
+                 // *** Corrected Stack Logic ***
+                 // Pop nodes off stack until parent level < current level
+                 // Ensure we don't pop the root node (level 0)
+                 while (stack.length > 1 && stack[stack.length - 1].level >= level) {
+                     stack.pop();
+                 }
+
+                 // Top of stack is now the correct parent
+                 if (stack.length > 0) {
+                     stack[stack.length - 1].children.push(newNode);
+                 } else {
+                     // This case means level <= 0, which shouldn't happen for valid # headers
+                     // Or stack was somehow emptied - treat as error or attach to original root
+                     console.warn("Could not find suitable parent in stack for:", trimmedLine, "Attaching to root.");
+                     root.children.push(newNode); // Attach to original root as fallback
+                 }
+                 stack.push(newNode); // Add current node to stack
+             });
+
+             console.log("Finished parsing hierarchy."); // DEBUG
+
+             // Promote single child of root if appropriate
+             if (root.children.length === 1 && root.children[0].children.length > 0) {
+                 console.log("Promoting single root child."); // DEBUG
+                 return root.children[0];
+             }
+             // Handle case where no headers were found at all
+             if(root.children.length === 0 && !markdownText.trim().startsWith('#')) {
+                  console.log("No headers found, creating single node."); // DEBUG
+                  const firstLine = lines.find(l => l.trim());
+                  return { name: firstLine || "Mind Map", children: [] };
+             }
+             // If root has no children but headers *were* processed (e.g., only H1s)
+             if(root.children.length === 0 && stack.length > 1) {
+                 // This indicates only root-level children were added
+                 // Keep the explicit root node in this case
+                 root.name = currentFilename || "Mind Map Root"; // Use filename if available
+             } else if (root.children.length === 0) {
+                 // No children and no headers found
+                 root.name = "Mind Map";
+             }
+
+
+             return root;
+         }
+
+
+        // --- New Document Functions ---
+        function showConfirmNewModal() { confirmNewModal.classList.remove('hidden'); }
+        function hideConfirmNewModal() { confirmNewModal.classList.add('hidden'); }
+        function executeNewDocument() {
+             console.log("Starting new document...");
+             rawFileContent = ""; fileInput.value = null; currentFilename = null;
+             renderParsedContent(rawFileContent); // Render empty state, resets title
+             hideConfirmNewModal();
+             hideRenderedHtmlModal(); hideJupyterJsonModal(); hideJupyterHelpModal();
+             showRawMdModal();
+             console.log("New document created and editor opened.");
+        }
+
+        // --- Modal Functions ---
+        function showRawMdModal() { if (rawFileContent !== null) { rawMdEditorTextarea.value = rawFileContent; rawMdModal.classList.remove('hidden'); rawMdEditorTextarea.focus(); } else { console.warn("Cannot open raw editor: No file content loaded."); } }
+        function hideRawMdModal() { rawMdModal.classList.add('hidden'); }
+        function saveRawMdChanges() {
+             rawFileContent = rawMdEditorTextarea.value;
+             // Check if current view should be mindmap or preview after saving
+             if (currentFilename && currentFilename.toLowerCase().includes('.mindmap.')) {
+                 renderMindMap(rawFileContent);
+             } else {
+                 renderParsedContent(rawFileContent);
+             }
+             hideRawMdModal();
+         }
+        function showRenderedHtmlModal() { if (rawFileContent !== null) { try { const renderedHtml = marked.parse(rawFileContent); renderedContentDisplay.innerHTML = renderedHtml; renderedHtmlModal.classList.remove('hidden'); } catch (error) { console.error("Error rendering Markdown:", error); renderedContentDisplay.innerHTML = '<p class="text-red-500">Error rendering Markdown.</p>'; renderedHtmlModal.classList.remove('hidden'); } } else { console.warn("No file content loaded."); } }
+        function hideRenderedHtmlModal() { renderedHtmlModal.classList.add('hidden'); renderedContentDisplay.innerHTML = ''; }
+
+        // --- Main View Edit Handling ---
+        function handleMainTextareaEdit() { reconstructRawContent(); }
+        function reconstructRawContent() { /* ... unchanged ... */
+            let newRawContent = ''; const wrappers = outputDiv.querySelectorAll('.subsection-wrapper');
+            wrappers.forEach(wrapper => { const header = wrapper.querySelector('h1, h2, h3, h4'); const textarea = wrapper.querySelector('.content-textarea'); if (header) { newRawContent += (header.dataset.markdownPrefix || '') + header.textContent + '\n'; } if (textarea) { newRawContent += textarea.value + '\n'; } else if (header && wrappers.length > 1) { newRawContent += '\n';} });
+            rawFileContent = newRawContent.trim(); console.log("Raw content reconstructed. Length:", rawFileContent.length);
+         }
+
+        // --- Jupyter Export ---
+        function handleExportJupyter() { /* ... unchanged ... */
+            console.log("Export to Jupyter requested."); if (!rawFileContent || !rawFileContent.trim()) { console.warn("No content to export."); return; } try { const notebookJsonString = generateJupyterNotebookJSON(rawFileContent); jupyterJsonDisplay.textContent = notebookJsonString; showJupyterJsonModal(); } catch (error) { console.error("Error generating Jupyter Notebook JSON:", error); }
+         }
+        function generateJupyterNotebookJSON(markdownText) { /* ... unchanged ... */
+             const cells = []; const lines = markdownText.split('\n'); let currentCellLines = []; function createMarkdownCell(sourceLines) { while (sourceLines.length > 0 && sourceLines[sourceLines.length - 1].trim() === '') { sourceLines.pop(); } const sourceWithNewlines = sourceLines.map((line, index) => index === sourceLines.length - 1 ? line : line + '\n'); return { cell_type: "markdown", metadata: {}, source: sourceWithNewlines }; } lines.forEach(line => { if (line.trim().startsWith('#')) { if (currentCellLines.length > 0) { cells.push(createMarkdownCell(currentCellLines)); } currentCellLines = [line]; } else { currentCellLines.push(line); } }); if (currentCellLines.length > 0) { cells.push(createMarkdownCell(currentCellLines)); } const notebook = { cells: cells, metadata: { kernelspec: { display_name: "Python 3 (ipykernel)", language: "python", name: "python3" }, language_info: { codemirror_mode: { name: "ipython", version: 3 }, file_extension: ".py", mimetype: "text/x-python", name: "python", nbconvert_exporter: "python", pygments_lexer: "ipython3", version: "3.10.0" } }, nbformat: 4, nbformat_minor: 5 }; return JSON.stringify(notebook, null, 2);
+        }
+
+        // --- Jupyter JSON Modal Functions ---
+        function showJupyterJsonModal() { jupyterJsonModal.classList.remove('hidden'); }
+        function hideJupyterJsonModal() { jupyterJsonModal.classList.add('hidden'); jupyterJsonDisplay.textContent = ''; }
+        async function copyJupyterJsonToClipboard() { /* ... unchanged ... */
+            const jsonText = jupyterJsonDisplay.textContent; if (!jsonText) return; try { await navigator.clipboard.writeText(jsonText); console.log('Jupyter JSON copied to clipboard!'); const originalText = copyJupyterJsonButton.textContent; copyJupyterJsonButton.textContent = 'Copied!'; setTimeout(() => { copyJupyterJsonButton.textContent = originalText; }, 1500); } catch (err) { console.error('Failed to copy Jupyter JSON: ', err); }
+         }
+
+        // --- Jupyter Help Modal Functions ---
+        function showJupyterHelpModal() { jupyterHelpModal.classList.remove('hidden'); }
+        function hideJupyterHelpModal() { jupyterHelpModal.classList.add('hidden'); }
+
+        // --- Helper Functions ---
+        function createHeaderElement(tag, text, prefix) { const element = document.createElement(tag); element.textContent = text.trim(); element.dataset.markdownPrefix = prefix; return element; }
+        function createContentTextarea(contentText) { if (!contentText || !contentText.trim()) { return null; } const textarea = document.createElement('textarea'); textarea.value = contentText; textarea.classList.add('content-textarea'); textarea.addEventListener('blur', handleMainTextareaEdit); const lines = contentText.split('\n').length; textarea.rows = Math.min(Math.max(5, lines + 1), 25); return textarea; }
+
+        // --- Button Enabling/Disabling ---
+        function enableActionButtons() { viewRawMdButton.disabled = false; viewRenderedButton.disabled = false; exportJupyterButton.disabled = false; newButton.disabled = false; console.log("Action buttons enabled."); }
+        function disableActionButtonsButKeepNewEnabled() { viewRawMdButton.disabled = true; viewRenderedButton.disabled = true; exportJupyterButton.disabled = true; newButton.disabled = false; console.log("Action buttons (except New) disabled."); }
+
+        // --- Initial Setup ---
+        disableActionButtonsButKeepNewEnabled();
+
+    </script>
+
+</body>
+</html>
