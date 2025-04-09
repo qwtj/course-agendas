@@ -62,11 +62,11 @@ while IFS= read -r topic; do
   # Determine output path based on whether a base filename argument was given
   output_path=""
   if [ -n "$base_filename_arg" ]; then
-    output_path="./$(echo $base_filename_arg | tr ' ' '_').course.${gemini_model}.md"
+    output_path="./$(echo $base_filename_arg | tr ' ' '_').course_plan.${gemini_model}.md"
     echo "Output file (overwrite): ${output_path}"
   else
     sanitized_name=$(sanitize_filename "$topic")
-    output_path="./$(echo $sanitized_name | tr ' ' '_').course.${gemini_model}.md"
+    output_path="./$(echo $sanitized_name | tr ' ' '_').course_plan.${gemini_model}.md"
     echo "Output file (topic-based): ${output_path}"
   fi
 
