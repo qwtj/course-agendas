@@ -1,22 +1,30 @@
 #!/bin/zsh
 
-if [ $# -ne 1 ]; then
+if [ $# -lt 1 ]; then
   echo "Usage: $0 <filename>"
   exit 1
 fi
 
-filename=$1
-content=$1
+topic=$1
+filename=${2:-$(echo $1 | tr ' ' '_')}
 gemini_model="gemini-2.5-pro-exp-03-25"
-content_description_file="../common-prompts/create-mindmap.1.md"
-mindmap_file="${filename}.mindmap.${gemini_model}.md"
-
-if [ ! -f "$content_description_file" ]; then
-  echo "Error: Content description file '$content_description_file' not found."
+template_file_path="${3:-../common-prompts/create-mindmap.1.md}"
+if [ ! -f "$template_file_path" ]; then
+  echo "Error: Content description file '$template_file_path' not found."
   exit 1
 fi
 
-echo "$content\n$(cat "$content_description_file")" | ask-google-gemini -s -m $gemini_model > "$(echo "$mindmap_file" | tr ' ' '_')"
+if [ -n "$2" ]; then
+ mindmap_file=$filename 
+else
+  mindmap_file="${filename}.mindmap.${gemini_model}.md"
+fi
+
+template_content=$(<"$template_file_path")
+
+prompt="${template_content//'${topic}'/$topic}"
+
+echo "$prompt" | ask-google-gemini -s -m $gemini_model > "$mindmap_file"
 
 echo "Mindmap created: $mindmap_file"
 
