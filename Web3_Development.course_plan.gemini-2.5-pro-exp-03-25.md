@@ -1,4 +1,3 @@
-```markdown
 # I. Foundations of Web3
 
 ## Understanding Blockchain Fundamentals (Beginner)
@@ -716,4 +715,3 @@ ipfs cat <CID>
 *   [Link Placeholder: CryptoZombies (Interactive Solidity Tutorial)]
 *   [Link Placeholder: Web3 University Resources]
 
-```
