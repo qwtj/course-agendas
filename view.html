@@ -3,17 +3,31 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Interactive Course Guide</title>
+    <title>Interactive eBook</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
+
     <script>
-      // Configure Tailwind - applied automatically by the browser script
+      window.MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']], // Define $...$ and \(...\) as inline math
+          displayMath: [['$$', '$$'], ['\\[', '\\]']] // Define $$...$$ and \[...\] as display math
+        },
+        svg: {
+          fontCache: 'global' // Use global font cache for better performance
+        }
+      };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" id="MathJax-script" async></script>
+
+    <script>
+      // Configure Tailwind CSS - applied automatically by the browser script
       tailwind.config = {
         theme: {
           extend: {
             fontFamily: {
-              sans: ["Inter", "sans-serif"],
+              sans: ["Inter", "sans-serif"], // Use Inter font
             },
           },
         },
@@ -24,69 +38,102 @@
       body {
         font-family: "Inter", sans-serif;
       }
-      /* Style for the EDITABLE textareas in main preview view*/
+      /* Horizontal rule styling */
+      hr {
+        border: 1px solid #e5e7eb; /* gray-200 */
+        margin: 1.5rem 0 !important;
+      }
+      /* Unordered list styling */
+      ul {
+        margin-bottom: 0.5rem;
+      }
+      ul li {
+        margin-bottom: 0.5rem;
+        list-style: disc;
+        list-style-position: inside;
+      }
+      /* Paragraph styling in output areas */
+      #output p, #renderedContentDisplay p {
+        font-size: 1rem;
+        font-weight: 500;
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+        line-height: 1.6;
+      }
+      /* Style for the EDITABLE textareas in main preview view */
       .content-textarea {
-        width: 100%;
-        min-height: 100px;
+        /* width: 100%; */ /* Width handled by flex-grow now */
+        min-height: 100px; /* Minimum height */
         padding: 10px;
-        margin-top: 8px;
-        margin-bottom: 20px;
-        border: 1px solid #d1d5db;
-        border-radius: 0.375rem;
-        font-family: monospace;
-        font-size: 0.875rem;
+        margin-top: 0px; /* Margin handled by container now */
+        margin-bottom: 0px; /* Margin handled by container now */
+        border: 1px solid #d1d5db; /* gray-300 */
+        border-radius: 0.375rem; /* rounded-md */
+        font-family: monospace; /* Monospace font for code-like editing */
+        font-size: 0.875rem; /* text-sm */
         line-height: 1.4;
-        background-color: #ffffff;
-        color: #1f2937;
-        resize: vertical;
+        background-color: #ffffff; /* white */
+        color: #1f2937; /* gray-800 */
+        resize: vertical; /* Allow vertical resizing */
         box-shadow: inset 0 1px 2px 0 rgba(0, 0, 0, 0.05);
         transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
       }
       .content-textarea:focus {
         outline: none;
-        border-color: #4f46e5;
-        box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.3);
+        border-color: #4f46e5; /* indigo-600 */
+        box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.3); /* Focus ring */
       }
 
-      /* Style for rendered headers in main preview view */
+      /* Style for rendered headers (H1-H6) in main preview and rendered view */
       #output h1, #renderedContentDisplay h1,
       #output h2, #renderedContentDisplay h2,
       #output h3, #renderedContentDisplay h3,
-      #output h4, #renderedContentDisplay h4 {
+      #output h4, #renderedContentDisplay h4,
+      #output h5, #renderedContentDisplay h5,
+      #output h6, #renderedContentDisplay h6 {
         margin-bottom: 0.5rem;
-        font-weight: 600;
         line-height: 1.3;
-        color: #111827;
-        padding-top: 1rem;
+        color: #111827; /* gray-900 */
+        padding-top: 1rem; /* Space above headers */
       }
+      /* Specific header colors */
+      #output h1, #renderedContentDisplay h1 { color: rgb(20 184 166); font-weight: 900; } /* teal-500 */
+      #output h2, #renderedContentDisplay h2 { color: rgb(234 88 12); font-weight: 900; } /* orange-500 */
+      #output h3, #renderedContentDisplay h3 { color: rgb(185 28 28); font-weight: 500; } /* red-700 */
+      #output h4, #renderedContentDisplay h4 { color: rgb(37 99 235); font-weight: 500; } /* blue-600 */
+      #output h5, #renderedContentDisplay h5 { color: rgb(168, 85, 247); font-weight: 400; } /* purple-500 */ /* Adjusted color */
+      #output h6, #renderedContentDisplay h6 { color: rgb(107, 114, 128); font-weight: 400; } /* gray-500 */ /* Adjusted color */
+
+
+      /* Remove top padding from the very first header */
       #output h1:first-child, #renderedContentDisplay h1:first-child,
       #output h2:first-child, #renderedContentDisplay h2:first-child,
       #output h3:first-child, #renderedContentDisplay h3:first-child,
-      #output h4:first-child, #renderedContentDisplay h4:first-child {
+      #output h4:first-child, #renderedContentDisplay h4:first-child,
+      #output h5:first-child, #renderedContentDisplay h5:first-child,
+      #output h6:first-child, #renderedContentDisplay h6:first-child {
         padding-top: 0;
       }
-      #output h1, #renderedContentDisplay h1 {
-        font-size: 1.875rem;
-      }
-      #output h2, #renderedContentDisplay h2 {
-        font-size: 1.5rem;
-      }
-      #output h3, #renderedContentDisplay h3 {
-        font-size: 1.25rem;
-      }
-      #output h4,  #renderedContentDisplay h4  {
-        font-size: 1.125rem;
-      }
+      /* Header font sizes */
+      #output h1, #renderedContentDisplay h1 { font-size: 1.875rem; } /* text-3xl */
+      #output h2, #renderedContentDisplay h2 { font-size: 1.5rem; } /* text-2xl */
+      #output h3, #renderedContentDisplay h3 { font-size: 1.25rem; } /* text-xl */
+      #output h4, #renderedContentDisplay h4 { font-size: 1.125rem; } /* text-lg */
+      #output h5, #renderedContentDisplay h5 { font-size: 1rem; } /* text-base */
+      #output h6, #renderedContentDisplay h6 { font-size: 0.875rem; } /* text-sm */
+
 
       /* --- Animation Styles --- */
+      /* Wrapper for subsections to apply fade-in animation */
       .subsection-wrapper {
         opacity: 0;
-        transform: translateY(15px);
+        transform: translateY(15px); /* Start slightly lower */
         transition: opacity 0.6s ease-out, transform 0.5s ease-out;
+        margin-bottom: 1.25rem; /* Add space below each section (mb-5) */
       }
       .subsection-wrapper.fade-in {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateY(0); /* Move to final position */
       }
 
       /* --- Canvas Style --- */
@@ -96,75 +143,86 @@
         border: 1px solid #d1d5db; /* gray-300 */
         border-radius: 0.375rem; /* rounded-md */
         cursor: grab; /* Indicate draggable */
-        display: block; /* Prevent extra space below */
+        display: block; /* Prevent extra space below canvas */
       }
       #mindMapCanvas:active {
-        cursor: grabbing;
+        cursor: grabbing; /* Indicate dragging */
       }
 
       /* --- Modal Styles --- */
+      /* Overlay for modals */
       .modal-overlay {
-        /* ... existing modal styles ... */
         position: fixed;
         top: 0;
         left: 0;
         right: 0;
         bottom: 0;
-        background-color: rgba(0, 0, 0, 0.6);
+        background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent black */
         display: flex;
         justify-content: center;
         align-items: center;
-        z-index: 1000;
+        z-index: 1000; /* Ensure modals are on top */
         padding: 1rem;
       }
+      /* Content area of modals */
       .modal-content {
-        /* ... existing modal styles ... */
         background-color: white;
         padding: 1.5rem;
-        border-radius: 0.5rem;
-        max-width: 90%;
-        width: 60rem;
-        max-height: 85vh;
+        border-radius: 0.5rem; /* rounded-lg */
+        max-width: 90%; /* Max width relative to viewport */
+        max-height: 85vh; /* Max height relative to viewport */
         display: flex;
-        flex-direction: column;
-        overflow: hidden;
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
-          0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        flex-direction: column; /* Stack header, body, footer vertically */
+        overflow: hidden; /* Prevent content spilling */
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-lg */
       }
+      /* Specific modal widths */
       #confirmNewModal .modal-content,
       #jupyterHelpModal .modal-content {
-        width: 32rem;
+        width: 32rem; /* Fixed width for smaller modals */
         max-width: 90%;
         max-height: 90vh;
       }
+       /* Jupyter JSON Modal width */
+      #jupyterJsonModal .modal-content {
+         width: 48rem; /* Increase width for better JSON view */
+         max-width: 90%;
+      }
+      /* Raw MD and Rendered HTML Modal width */
+       #rawMdModal .modal-content,
+       #renderedHtmlModal .modal-content {
+         width: 60rem; /* Wider for editing/viewing */
+         max-width: 90%;
+       }
+
+      /* Modal header styling */
       .modal-header {
-        /* ... existing modal styles ... */
         display: flex;
         justify-content: space-between;
         align-items: center;
         margin-bottom: 1rem;
-        border-bottom: 1px solid #e5e7eb;
+        border-bottom: 1px solid #e5e7eb; /* gray-200 */
         padding-bottom: 0.75rem;
       }
+      /* Modal title styling */
       .modal-title {
-        /* ... existing modal styles ... */
-        font-size: 1.125rem;
-        font-weight: 600;
-        color: #1f2937;
+        font-size: 1.125rem; /* text-lg */
+        font-weight: 600; /* font-semibold */
+        color: #1f2937; /* gray-800 */
         display: flex;
         align-items: center;
       }
+      /* Help icon styling (?) */
       .help-icon {
-        /* ... existing modal styles ... */
         margin-left: 0.5rem;
-        color: #3b82f6;
+        color: #3b82f6; /* blue-500 */
         font-weight: bold;
         cursor: pointer;
-        font-size: 0.8rem;
-        border: 1px solid #9ca3af;
-        border-radius: 50%;
-        width: 1.1rem;
-        height: 1.1rem;
+        font-size: 0.8rem; /* Adjust size if needed for emoji */
+        /* border: 1px solid #9ca3af; */ /* Removed border for emoji */
+        /* border-radius: 50%; */ /* Removed border-radius */
+        width: 1.1rem; /* Keep size or adjust */
+        height: 1.1rem; /* Keep size or adjust */
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -172,133 +230,268 @@
         transition: background-color 0.2s, color 0.2s;
       }
       .help-icon:hover {
-        background-color: #eff6ff;
-        color: #1d4ed8;
-        border-color: #6b7280;
+        /* background-color: #eff6ff; */ /* Removed background hover */
+        color: #1d4ed8; /* blue-700 */
+        /* border-color: #6b7280; */ /* Removed border hover */
       }
+      /* Modal close button (X) styling */
       .modal-close-button {
-        /* ... existing modal styles ... */
         background: none;
         border: none;
         font-size: 1.8rem;
         line-height: 1;
         cursor: pointer;
-        color: #9ca3af;
+        color: #9ca3af; /* gray-400 */
         padding: 0.25rem;
       }
       .modal-close-button:hover {
-        color: #1f2937;
+        color: #1f2937; /* gray-800 */
       }
+      /* Modal body styling */
       .modal-body {
-        /* ... existing modal styles ... */
-        flex-grow: 1;
-        overflow-y: auto;
+        flex-grow: 1; /* Allow body to take available space */
+        overflow-y: auto; /* Enable vertical scrolling if needed */
         margin-bottom: 1rem;
         line-height: 1.6;
         font-size: 0.9rem;
       }
+      /* Ordered list styling within modal body */
       .modal-body ol {
         list-style-type: decimal;
         margin-left: 1.5rem;
       }
+      /* List item styling within modal body */
       .modal-body li {
         margin-bottom: 0.5rem;
         margin-left: 0.5rem;
       }
+      /* Code block styling within modal body */
       .modal-body pre {
-        background-color: #f4f4f4;
+        background-color: #f4f4f4; /* Light gray background */
         padding: 2.5px;
         border-radius: 4px;
-        overflow-x: auto;           /* Horizontal scrolling if needed */
+        overflow-x: auto;         /* Horizontal scrolling if needed */
         font-family: monospace;
         color: #333;
-        line-height: 1.4;          /* Better readability */
-        border: 1px solid #ddd;    /* Subtle border */
+        line-height: 1.4;         /* Better readability */
+        border: 1px solid #ddd;   /* Subtle border */
         margin-block: 5px;
       }
+      /* Modal footer styling */
       .modal-footer {
-        /* ... existing modal styles ... */
-        border-top: 1px solid #e5e7eb;
+        border-top: 1px solid #e5e7eb; /* gray-200 */
         padding-top: 1rem;
         display: flex;
-        justify-content: flex-end;
-        gap: 0.75rem;
+        justify-content: flex-end; /* Align buttons to the right */
+        gap: 0.75rem; /* Space between buttons */
       }
+      /* Specific footer alignment for Jupyter JSON modal */
       #jupyterJsonModal .modal-footer {
-        justify-content: space-between;
+        justify-content: space-between; /* Space out text and button */
         align-items: center;
       }
 
       /* Style for EDITABLE Raw Markdown Editor Textarea in modal */
       #rawMdEditorTextarea {
-        /* ... existing modal styles ... */
         width: 100%;
         height: 100%;
-        min-height: 40vh;
-        border: 1px solid #d1d5db;
-        border-radius: 0.375rem;
+        min-height: 40vh; /* Ensure decent minimum height */
+        border: 1px solid #d1d5db; /* gray-300 */
+        border-radius: 0.375rem; /* rounded-md */
         padding: 0.75rem;
         font-family: monospace;
-        font-size: 0.875rem;
+        font-size: 0.875rem; /* text-sm */
         line-height: 1.5;
-        resize: none;
+        resize: none; /* Disable resizing */
         box-shadow: inset 0 1px 2px 0 rgba(0, 0, 0, 0.05);
       }
-      /* Style for Jupyter JSON display */
+      /* Style for Jupyter JSON display container in modal */
       #jupyterJsonDisplayContainer {
-        /* ... existing modal styles ... */
-        background-color: #f3f4f6;
-        border: 1px solid #e5e7eb;
-        border-radius: 0.375rem;
+        background-color: #f3f4f6; /* gray-100 */
+        border: 1px solid #e5e7eb; /* gray-200 */
+        border-radius: 0.375rem; /* rounded-md */
         padding: 1rem;
-        flex-grow: 1;
-        overflow: hidden;
-        display: flex;
+        flex-grow: 1; /* Take available space */
+        overflow: hidden; /* Hide overflow */
+        display: flex; /* Use flexbox */
       }
+      /* Style for the preformatted text element holding JSON */
       #jupyterJsonDisplay {
-        /* ... existing modal styles ... */
         font-family: monospace;
-        font-size: 0.875rem;
-        white-space: pre;
-        overflow: auto;
+        font-size: 0.875rem; /* text-sm */
+        white-space: pre; /* Preserve whitespace and line breaks */
+        overflow: auto; /* Enable scrolling for long JSON */
         width: 100%;
         height: 100%;
         margin: 0;
-        color: #1f2937;
+        color: #1f2937; /* gray-800 */
       }
+      /* Ensure code tag inside pre takes full block */
       #jupyterJsonDisplay code {
         display: block;
         padding: 0;
       }
       /* Basic styling for RENDERED HTML content in modal */
       #renderedContentDisplay {
-        /* ... existing modal styles ... */
+        /* Inherits modal body styles, specific overrides can go here */
       }
+
+      /* --- Gemini Options Panel Styles --- */
+      #geminiOptionsPanel {
+        position: fixed; /* Keep it in view */
+        top: 0;
+        right: 0;
+        height: 100vh; /* Full viewport height */
+        width: 300px; /* Panel width */
+        max-width: 80%; /* Max width on smaller screens */
+        background-color: #ffffff; /* White background */
+        box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1); /* Left shadow */
+        padding: 1.5rem; /* p-6 */
+        z-index: 1100; /* Above modals */
+        transform: translateX(100%); /* Initially hidden off-screen */
+        transition: transform 0.3s ease-in-out; /* Slide animation */
+        overflow-y: auto; /* Allow scrolling if content overflows */
+        display: flex; /* Use flex for layout */
+        flex-direction: column; /* Stack sections vertically */
+      }
+      #geminiOptionsPanel.visible {
+        transform: translateX(0); /* Slide into view */
+      }
+      /* Style for disabled select */
+      #geminiModelSelect:disabled {
+          background-color: #f3f4f6; /* gray-100 */
+          cursor: not-allowed;
+          opacity: 0.7;
+      }
+      /* Style for response textarea */
+      #geminiResponseTextarea {
+          font-family: monospace;
+          font-size: 0.8rem;
+          line-height: 1.4;
+          background-color: #f9fafb; /* gray-50 */
+          min-height: 80px; /* Give it some initial height */
+      }
+      /* Style for token count area */
+      #tokenCountArea {
+          background-color: #f9fafb; /* gray-50 */
+          padding: 0.5rem 0.75rem; /* py-2 px-3 */
+          border-radius: 0.375rem; /* rounded-md */
+          border: 1px solid #e5e7eb; /* gray-200 */
+      }
+      /* Style for custom prompt textareas */
+      .custom-prompt-textarea {
+        width: 100%;
+        padding: 0.5rem 0.75rem; /* py-2 px-3 */
+        border: 1px solid #d1d5db; /* gray-300 */
+        border-radius: 0.375rem; /* rounded-md */
+        font-size: 0.875rem; /* text-sm */
+        line-height: 1.4;
+        box-shadow: inset 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        resize: vertical; /* Allow vertical resize */
+      }
+      .custom-prompt-textarea:focus {
+        outline: none;
+        border-color: #4f46e5; /* indigo-600 */
+        box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.3); /* Focus ring */
+      }
+       /* Style for main view action buttons (next to textareas) */
+       .main-view-action-button {
+         width: 1.5rem; /* w-6 */
+         height: 1.5rem; /* h-6 */
+         background-color: #f3f4f6; /* bg-gray-100 */
+         border: 1px solid #d1d5db; /* border-gray-300 */
+         border-radius: 0.25rem; /* rounded */
+         font-size: 0.75rem; /* text-xs */
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         transition: background-color 0.15s ease-in-out;
+       }
+       .main-view-action-button:hover {
+         background-color: #e5e7eb; /* hover:bg-gray-200 */
+       }
+       .main-view-action-button:disabled {
+         opacity: 0.5;
+         cursor: not-allowed;
+       }
+
+       /* Style for the new Refresh button (similar size to Options icon) */
+       #refreshPreviewButton {
+         padding: 0.5rem; /* Adjust padding to make it squarish like icon buttons */
+       }
+       #refreshPreviewButton svg {
+          width: 1rem; /* h-4 */
+          height: 1rem; /* w-4 */
+          display: inline-block; /* Keep SVG inline */
+       }
+
     </style>
   </head>
   <body class="bg-gray-100 p-4 md:p-8">
-    <div class="max-w-4xl mx-auto bg-white p-6 md:p-8 rounded-lg shadow-md">
+    <div class="max-w-4xl mx-auto bg-white p-6 md:p-8 rounded-lg shadow-md relative">
       <h1 class="text-2xl font-bold mb-6 text-center text-gray-800">
-        Interactive Course Guide
+        Interactive Course
       </h1>
 
-      <div
-        class="mb-4 flex flex-col sm:flex-row items-center justify-center gap-4"
-      >
-        <label
-          for="mdFileInput"
-          class="block text-sm font-medium text-gray-700 whitespace-nowrap"
-          >Select Markdown File (.md):</label
-        >
-        <input
-          type="file"
-          id="mdFileInput"
-          accept=".md"
-          class="flex-grow-0 w-full sm:w-auto text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
-        />
+      <div class="mb-6">
+        <div class="border-b border-gray-200">
+          <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+            <button
+              type="button"
+              id="tabButtonFile"
+              class="whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm border-indigo-500 text-indigo-600"
+              aria-current="page"
+            >
+              Load from File
+            </button>
+            <button
+              type="button"
+              id="tabButtonUrl"
+              class="whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+            >
+              Load from URL
+            </button>
+          </nav>
+        </div>
+
+        <div class="pt-4">
+          <div id="tabPanelFile">
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <label for="mdFileInput" class="block text-sm font-medium text-gray-700 whitespace-nowrap">
+                Select Markdown File (.md):
+              </label>
+              <input
+                type="file"
+                id="mdFileInput"
+                accept=".md"
+                class="flex-grow-0 w-full sm:w-auto text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+              />
+            </div>
+          </div>
+
+          <div id="tabPanelUrl" class="hidden">
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-2">
+              <label for="mdUrlInput" class="block text-sm font-medium text-gray-700 whitespace-nowrap sr-only">
+                Enter Markdown URL:
+              </label>
+              <input
+                type="url"
+                id="mdUrlInput"
+                placeholder="Enter Markdown URL..."
+                class="flex-grow w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+              />
+              <button
+                id="loadFromUrlButton"
+                class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md shadow-sm transition duration-150 ease-in-out text-sm flex-shrink-0"
+              >
+                Load from URL
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div class="text-center mb-6 flex flex-wrap justify-center gap-3">
+      <div class="text-center mb-6 flex flex-wrap justify-center items-center gap-3">
         <button
           id="newButton"
           class="bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 px-4 rounded-md shadow transition duration-150 ease-in-out text-sm"
@@ -328,14 +521,31 @@
         >
           Export to Jupyter
         </button>
+        <button
+          id="toggleGeminiPanelButton"
+          class="bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 px-4 rounded-md shadow transition duration-150 ease-in-out text-sm"
+          title="Toggle Gemini Options"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          Options
+        </button>
+        <button
+          id="refreshPreviewButton"
+          class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-2 rounded-md shadow transition duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+          title="Refresh Preview"
+          disabled
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+          </svg>
+        </button>
       </div>
 
       <div class="border-t border-gray-200 pt-6">
-        <h2
-          id="outputTitle"
-          class="text-xl font-semibold mb-4 text-gray-800 truncate"
-          title="Preview"
-        >
+        <h2 id="outputTitle" class="text-xl font-semibold mb-4 text-gray-800 truncate" title="Preview">
           Preview
         </h2>
         <div id="output">
@@ -350,9 +560,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h3 class="modal-title">Edit Raw Markdown</h3>
-          <button id="closeRawMdModalButton" class="modal-close-button">
-            &times;
-          </button>
+          <button id="closeRawMdModalButton" class="modal-close-button">&times;</button>
         </div>
         <div class="modal-body">
           <textarea id="rawMdEditorTextarea" spellcheck="false"></textarea>
@@ -367,17 +575,19 @@
         </div>
       </div>
     </div>
+
     <div id="renderedHtmlModal" class="modal-overlay hidden">
       <div class="modal-content">
         <div class="modal-header">
           <h3 class="modal-title">Rendered HTML View</h3>
-          <button id="closeRenderedModalButton" class="modal-close-button">
-            &times;
-          </button>
+          <button id="closeRenderedModalButton" class="modal-close-button">&times;</button>
         </div>
-        <div class="modal-body"><div id="renderedContentDisplay"></div></div>
+        <div class="modal-body">
+          <div id="renderedContentDisplay"></div>
+        </div>
       </div>
     </div>
+
     <div id="confirmNewModal" class="modal-overlay hidden">
       <div class="modal-content">
         <div class="modal-header">
@@ -385,8 +595,7 @@
         </div>
         <div class="modal-body">
           <p class="text-sm text-gray-700">
-            Are you sure you want to start a new document? Any unsaved changes
-            will be lost.
+            Are you sure you want to start a new document? Any unsaved changes will be lost.
           </p>
         </div>
         <div class="modal-footer">
@@ -405,33 +614,23 @@
         </div>
       </div>
     </div>
+
     <div id="jupyterJsonModal" class="modal-overlay hidden">
       <div class="modal-content">
         <div class="modal-header">
           <h3 class="modal-title">
             Jupyter Notebook JSON (.ipynb)
-            <span
-              id="jupyterHelpIcon"
-              class="help-icon"
-              title="How to use this JSON?"
-              >(?)</span
-            >
+            <span id="jupyterHelpIcon" class="help-icon" title="How to use this JSON?">ℹ️</span>
           </h3>
-          <button id="closeJupyterJsonModalButton" class="modal-close-button">
-            &times;
-          </button>
+          <button id="closeJupyterJsonModalButton" class="modal-close-button">&times;</button>
         </div>
         <div class="modal-body">
           <div id="jupyterJsonDisplayContainer">
-            <pre
-              id="jupyterJsonDisplay"
-            ><code>{/* JSON will be loaded here */}</code></pre>
+            <pre id="jupyterJsonDisplay"><code>{/* JSON will be loaded here */}</code></pre>
           </div>
         </div>
         <div class="modal-footer">
-          <p class="text-xs text-gray-500 mr-auto">
-            Copy JSON & save as '.ipynb' file.
-          </p>
+          <p class="text-xs text-gray-500 mr-auto">Copy JSON & save as '.ipynb' file.</p>
           <button
             id="copyJupyterJsonButton"
             class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md shadow-sm transition duration-150 ease-in-out text-sm"
@@ -441,41 +640,24 @@
         </div>
       </div>
     </div>
+
     <div id="jupyterHelpModal" class="modal-overlay hidden">
       <div class="modal-content">
         <div class="modal-header">
           <h3 class="modal-title">How to Create Jupyter Notebook File</h3>
-          <button id="closeJupyterHelpModalButton" class="modal-close-button">
-            &times;
-          </button>
+          <button id="closeJupyterHelpModalButton" class="modal-close-button">&times;</button>
         </div>
         <div class="modal-body">
           <p class="mb-3">To use the generated JSON in Jupyter:</p>
           <ol>
-            <li>
-              Click the "Copy JSON" button in the previous modal (or select all
-              text in the JSON display area and copy it manually with
-              <code>Ctrl+C</code> or <code>Cmd+C</code>).
-            </li>
-            <li>
-              Open a plain text editor (like Notepad, TextEdit, VS Code, etc.).
-            </li>
+            <li>Click the "Copy JSON" button in the previous modal (or select all text in the JSON display area and copy it manually with <code>Ctrl+C</code> or <code>Cmd+C</code>).</li>
+            <li>Open a plain text editor (like Notepad, TextEdit, VS Code, etc.).</li>
             <li>Paste the copied JSON text into a new, blank file.</li>
             <li>Go to <code>File > Save As...</code></li>
-            <li>
-              Choose a location and name the file with the
-              <code>.ipynb</code> extension (e.g.,
-              <code>my_notebook.ipynb</code>).
-            </li>
-            <li>
-              Ensure the "Save as type" is set to "All Files" (if applicable)
-              and the encoding is UTF-8.
-            </li>
+            <li>Choose a location and name the file with the <code>.ipynb</code> extension (e.g., <code>my_notebook.ipynb</code>).</li>
+            <li>Ensure the "Save as type" is set to "All Files" (if applicable) and the encoding is UTF-8.</li>
             <li>Save the file.</li>
-            <li>
-              Open Jupyter Notebook or JupyterLab, navigate to where you saved
-              the file, and click it to open.
-            </li>
+            <li>Open Jupyter Notebook or JupyterLab, navigate to where you saved the file, and click it to open.</li>
           </ol>
         </div>
         <div class="modal-footer">
@@ -489,775 +671,1712 @@
       </div>
     </div>
 
+
+    <div id="geminiOptionsPanel">
+        <div class="flex justify-between items-center mb-4 border-b pb-2 flex-shrink-0">
+            <h3 class="text-lg font-semibold text-gray-700">Gemini Options</h3>
+            <button id="closeGeminiPanelButton" class="text-gray-500 hover:text-gray-800 text-2xl leading-none">&times;</button>
+        </div>
+
+        <div class="flex-grow overflow-y-auto pr-2">
+            <div class="mb-4">
+                <label for="geminiApiKey" class="block text-sm font-medium text-gray-600 mb-1">Gemini API Key:</label>
+                <input type="password" id="geminiApiKey" name="geminiApiKey" placeholder="Enter your API key" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 text-sm">
+                <p id="geminiApiError" class="text-xs text-red-500 mt-1 h-4"></p> </div>
+            <div class="mb-4">
+                 <label for="geminiModelSelect" class="block text-sm font-medium text-gray-600 mb-1">Select Model:</label>
+                 <select id="geminiModelSelect" name="geminiModelSelect" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 text-sm bg-white" disabled>
+                     <option value="">-- Enter API Key --</option>
+                 </select>
+                 <p id="activeModelIndicator" class="text-xs text-gray-500 italic mt-1 h-4"></p> </div>
+
+            <div class="mb-4 border-t pt-4">
+                 <h4 class="text-sm font-semibold text-gray-700 mb-2">Custom Prompts</h4>
+                 <div class="mb-3">
+                     <label for="promptCreatePlan" class="block text-sm font-medium text-gray-600 mb-1">Create Plan Prompt:</label>
+                     <textarea id="promptCreatePlan" rows="3" class="custom-prompt-textarea" placeholder="Enter prompt for creating a plan..."></textarea>
+                 </div>
+                 <div class="mb-3">
+                     <label for="promptGenerateContent" class="block text-sm font-medium text-gray-600 mb-1">Generate Content Prompt:</label>
+                     <textarea id="promptGenerateContent" rows="3" class="custom-prompt-textarea" placeholder="Enter prompt for generating content..."></textarea>
+                 </div>
+                 <div class="mb-3">
+                     <label for="promptFactCheck" class="block text-sm font-medium text-gray-600 mb-1">Fact Check Prompt:</label>
+                     <textarea id="promptFactCheck" rows="3" class="custom-prompt-textarea" placeholder="Enter prompt for fact checking..."></textarea>
+                 </div>
+                 <div class="mb-3">
+                     <label for="promptCustom1" class="block text-sm font-medium text-gray-600 mb-1">Custom 1 Prompt:</label>
+                     <textarea id="promptCustom1" rows="3" class="custom-prompt-textarea" placeholder="Enter custom prompt 1..."></textarea>
+                 </div>
+                 <div class="mb-3">
+                     <label for="promptCustom2" class="block text-sm font-medium text-gray-600 mb-1">Custom 2 Prompt:</label>
+                     <textarea id="promptCustom2" rows="3" class="custom-prompt-textarea" placeholder="Enter custom prompt 2..."></textarea>
+                 </div>
+            </div>
+
+             <div class="mt-4 border-t pt-4">
+                 <h4 class="text-sm font-semibold text-gray-700 mb-2">Test Prompt</h4>
+                 <button id="sendPromptButton" class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-md shadow transition duration-150 ease-in-out text-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                   Send "hello world"
+                 </button>
+                 <label for="geminiResponseTextarea" class="block text-sm font-medium text-gray-600 mt-3 mb-1">Response:</label>
+                 <textarea id="geminiResponseTextarea" rows="4" readonly class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm bg-gray-50 cursor-default"></textarea>
+                 <div id="tokenCountArea" class="mt-3 text-xs text-gray-600">
+                     <h5 class="font-semibold mb-1">Token Usage (Cumulative):</h5>
+                     <div>In: <span id="promptTokenCount" class="font-medium">0</span></div>
+                     <div>Out: <span id="completionTokenCount" class="font-medium">0</span></div>
+                     <div>Total: <span id="totalTokenCount" class="font-medium">0</span></div>
+                 </div>
+            </div>
+            <div class="mt-4 border-t pt-4">
+                 <h4 class="text-sm font-semibold text-gray-700 mb-2">Version: 1</h4>
+                 <ul>
+                    <li class="text-sm font-semibold text-gray-400 mb-2">Add markdown editing.</li>
+                    <li class="text-sm font-semibold text-gray-400 mb-2">Add markdown rendering.</li>
+                    <li class="text-sm font-semibold text-gray-400 mb-2">Add export jupyter.</li>
+                    <li class="text-sm font-semibold text-gray-400 mb-2">Add gemini integration.</li>
+                  </ul>
+                 <h4 class="text-sm font-semibold text-gray-700 mb-2">Version: 2</h4>
+                 <ul>
+                    <li class="text-sm font-semibold text-gray-400 mb-2">Add mathjax.</li>
+                    <li class="text-sm font-semibold text-gray-400 mb-2">Add load markdown remotely.</li>
+                    <li class="text-sm font-semibold text-gray-400 mb-2">Add load by #markdownUrl paramoutside of Gemini</li>
+                    <li class="text-sm font-semibold text-gray-400 mb-2">Add tabs to change load markdown ui.</li>
+                  </ul>
+            </div>
+        </div>
+    </div>
+
+
     <script>
       // --- DOM Elements ---
+      // Get references to all necessary HTML elements by their ID
       const fileInput = document.getElementById("mdFileInput");
       const viewRawMdButton = document.getElementById("viewRawMdButton");
       const viewRenderedButton = document.getElementById("viewRenderedButton");
-      const exportJupyterButton = document.getElementById(
-        "exportJupyterButton"
-      );
+      const exportJupyterButton = document.getElementById("exportJupyterButton");
       const newButton = document.getElementById("newButton");
       const outputDiv = document.getElementById("output");
       const outputTitle = document.getElementById("outputTitle");
       const outputPlaceholder = document.getElementById("outputPlaceholder");
-      // Modals...
+      const refreshPreviewButton = document.getElementById("refreshPreviewButton"); // Get reference to the new button
+      // Raw MD Modal elements
       const rawMdModal = document.getElementById("rawMdModal");
-      const closeRawMdModalButton = document.getElementById(
-        "closeRawMdModalButton"
-      );
-      const rawMdEditorTextarea = document.getElementById(
-        "rawMdEditorTextarea"
-      );
+      const closeRawMdModalButton = document.getElementById("closeRawMdModalButton");
+      const rawMdEditorTextarea = document.getElementById("rawMdEditorTextarea");
       const saveRawMdButton = document.getElementById("saveRawMdButton");
+      // Rendered HTML Modal elements
       const renderedHtmlModal = document.getElementById("renderedHtmlModal");
-      const closeRenderedModalButton = document.getElementById(
-        "closeRenderedModalButton"
-      );
-      const renderedContentDisplay = document.getElementById(
-        "renderedContentDisplay"
-      );
+      const closeRenderedModalButton = document.getElementById("closeRenderedModalButton");
+      const renderedContentDisplay = document.getElementById("renderedContentDisplay");
+      // Confirm New Modal elements
       const confirmNewModal = document.getElementById("confirmNewModal");
       const cancelNewButton = document.getElementById("cancelNewButton");
       const confirmNewButton = document.getElementById("confirmNewButton");
+      // Jupyter JSON Modal elements
       const jupyterJsonModal = document.getElementById("jupyterJsonModal");
-      const closeJupyterJsonModalButton = document.getElementById(
-        "closeJupyterJsonModalButton"
-      );
-      const jupyterJsonDisplay = document
-        .getElementById("jupyterJsonDisplay")
-        .querySelector("code");
-      const copyJupyterJsonButton = document.getElementById(
-        "copyJupyterJsonButton"
-      );
+      const closeJupyterJsonModalButton = document.getElementById("closeJupyterJsonModalButton");
+      const jupyterJsonDisplay = document.getElementById("jupyterJsonDisplay").querySelector("code");
+      const copyJupyterJsonButton = document.getElementById("copyJupyterJsonButton");
+      // Jupyter Help Modal elements
       const jupyterHelpIcon = document.getElementById("jupyterHelpIcon");
       const jupyterHelpModal = document.getElementById("jupyterHelpModal");
-      const closeJupyterHelpModalButton = document.getElementById(
-        "closeJupyterHelpModalButton"
-      );
-      const closeJupyterHelpModalButtonOk = document.getElementById(
-        "closeJupyterHelpModalButtonOk"
-      );
+      const closeJupyterHelpModalButton = document.getElementById("closeJupyterHelpModalButton");
+      const closeJupyterHelpModalButtonOk = document.getElementById("closeJupyterHelpModalButtonOk");
+      // Gemini Panel Elements
+      const geminiOptionsPanel = document.getElementById("geminiOptionsPanel");
+      const toggleGeminiPanelButton = document.getElementById("toggleGeminiPanelButton");
+      const closeGeminiPanelButton = document.getElementById("closeGeminiPanelButton");
+      const geminiApiKeyInput = document.getElementById("geminiApiKey");
+      const geminiModelSelect = document.getElementById("geminiModelSelect");
+      const geminiApiError = document.getElementById("geminiApiError");
+      const activeModelIndicator = document.getElementById("activeModelIndicator");
+      const sendPromptButton = document.getElementById("sendPromptButton");
+      const geminiResponseTextarea = document.getElementById("geminiResponseTextarea");
+      const promptTokenCountEl = document.getElementById("promptTokenCount");
+      const completionTokenCountEl = document.getElementById("completionTokenCount");
+      const totalTokenCountEl = document.getElementById("totalTokenCount");
+      // Custom Prompt Textareas
+      const promptCreatePlanEl = document.getElementById("promptCreatePlan");
+      const promptGenerateContentEl = document.getElementById("promptGenerateContent");
+      const promptFactCheckEl = document.getElementById("promptFactCheck");
+      const promptCustom1El = document.getElementById("promptCustom1");
+      const promptCustom2El = document.getElementById("promptCustom2");
+      // Get references for URL input elements
+      const mdUrlInput = document.getElementById("mdUrlInput");
+      const loadFromUrlButton = document.getElementById("loadFromUrlButton");
+      // Get references for Tab elements
+      const tabButtonFile = document.getElementById("tabButtonFile");
+      const tabButtonUrl = document.getElementById("tabButtonUrl");
+      const tabPanelFile = document.getElementById("tabPanelFile");
+      const tabPanelUrl = document.getElementById("tabPanelUrl");
 
       // --- State ---
-      let rawFileContent = null;
-      let currentFilename = null;
+      // Variables to hold the application's current state
+      let rawFileContent = null; // Holds the raw text content of the loaded .md file
+      let currentFilename = null; // Holds the name of the currently loaded file
+      // Cumulative token counts for the session with the Gemini API
+      let cumulativeInTokens = 0;
+      let cumulativeOutTokens = 0;
+      let cumulativeTotalTokens = 0;
 
       // --- Config ---
-      const animationDelayIncrement = 100;
-      const nodeColors = ["#14b8a6", "#f97316", "#dc2626", "#3b82f6"];
+      // Configuration constants for the application
+      const animationDelayIncrement = 100; // Delay (ms) between animating subsections
+      const nodeColors = ["#14b8a6", "#f97316", "#dc2626", "#3b82f6"]; // Colors for mind map nodes based on depth
+      const GEMINI_API_BASE_URL = "https://generativelanguage.googleapis.com/v1beta"; // Base URL for the Gemini API
 
       // --- Initial Placeholder Text ---
-      const initialPlaceholderText =
-        "Select a .md file to automatically load and render, or click 'New'.";
+      const initialPlaceholderText = "Select a .md file to automatically load and render, or click 'New'.";
 
       // --- Event Listeners ---
-      fileInput.addEventListener("change", handleFileSelection);
-      viewRawMdButton.addEventListener("click", showRawMdModal);
-      viewRenderedButton.addEventListener("click", showRenderedHtmlModal);
-      exportJupyterButton.addEventListener("click", handleExportJupyter);
-      saveRawMdButton.addEventListener("click", saveRawMdChanges);
-      newButton.addEventListener("click", showConfirmNewModal);
-      // Modal Listeners...
-      closeRawMdModalButton.addEventListener("click", hideRawMdModal);
-      closeRenderedModalButton.addEventListener("click", hideRenderedHtmlModal);
-      rawMdModal.addEventListener("click", (event) => {
-        if (event.target === rawMdModal) hideRawMdModal();
-      });
-      renderedHtmlModal.addEventListener("click", (event) => {
-        if (event.target === renderedHtmlModal) hideRenderedHtmlModal();
-      });
-      cancelNewButton.addEventListener("click", hideConfirmNewModal);
-      confirmNewButton.addEventListener("click", executeNewDocument);
-      confirmNewModal.addEventListener("click", (event) => {
-        if (event.target === confirmNewModal) hideConfirmNewModal();
-      });
-      closeJupyterJsonModalButton.addEventListener(
-        "click",
-        hideJupyterJsonModal
-      );
-      jupyterJsonModal.addEventListener("click", (event) => {
-        if (event.target === jupyterJsonModal) hideJupyterJsonModal();
-      });
-      copyJupyterJsonButton.addEventListener(
-        "click",
-        copyJupyterJsonToClipboard
-      );
-      jupyterHelpIcon.addEventListener("click", showJupyterHelpModal);
-      closeJupyterHelpModalButton.addEventListener(
-        "click",
-        hideJupyterHelpModal
-      );
-      closeJupyterHelpModalButtonOk.addEventListener(
-        "click",
-        hideJupyterHelpModal
-      );
-      jupyterHelpModal.addEventListener("click", (event) => {
-        if (event.target === jupyterHelpModal) hideJupyterHelpModal();
+      // Attach functions to UI events (clicks, changes, etc.)
+
+      // Add listener for the Load from URL button
+      loadFromUrlButton.addEventListener("click", () => {
+        const urlValue = mdUrlInput.value.trim();
+        if (urlValue && (urlValue.startsWith('http://') || urlValue.startsWith('https://'))) {
+          // If URL is valid, fetch and render
+          fetchAndRenderMarkdown(urlValue);
+          // Optionally clear the input after successful trigger
+          // mdUrlInput.value = '';
+        } else {
+          // Handle invalid or empty URL input
+          console.warn("Invalid or empty URL entered:", urlValue);
+          mdUrlInput.classList.add('border-red-500'); // Add red border for feedback
+          setTimeout(() => { // Remove feedback after a delay
+            mdUrlInput.classList.remove('border-red-500');
+          }, 2000);
+        }
       });
 
-      // Escape Key Listener for Modals
+      // Add listeners for Tab buttons
+      tabButtonFile.addEventListener('click', () => switchTab('file'));
+      tabButtonUrl.addEventListener('click', () => switchTab('url'));
+
+      // Main UI Listeners
+      fileInput.addEventListener("change", handleFileSelection); // File input change
+      viewRawMdButton.addEventListener("click", showRawMdModal); // "Edit Raw" button click
+      viewRenderedButton.addEventListener("click", showRenderedHtmlModal); // "View Rendered" button click
+      exportJupyterButton.addEventListener("click", handleExportJupyter); // "Export Jupyter" button click
+      saveRawMdButton.addEventListener("click", saveRawMdChanges); // "Save" button in raw editor modal
+      newButton.addEventListener("click", showConfirmNewModal); // "New" button click
+      refreshPreviewButton.addEventListener("click", handleRefreshPreview); // NEW: Refresh button click
+
+      // Modal Interaction Listeners (closing modals)
+      closeRawMdModalButton.addEventListener("click", hideRawMdModal);
+      rawMdModal.addEventListener("click", (event) => { if (event.target === rawMdModal) hideRawMdModal(); }); // Close if clicking overlay
+      closeRenderedModalButton.addEventListener("click", hideRenderedHtmlModal);
+      renderedHtmlModal.addEventListener("click", (event) => { if (event.target === renderedHtmlModal) hideRenderedHtmlModal(); }); // Close if clicking overlay
+      cancelNewButton.addEventListener("click", hideConfirmNewModal); // Cancel "New" action
+      confirmNewButton.addEventListener("click", executeNewDocument); // Confirm "New" action
+      confirmNewModal.addEventListener("click", (event) => { if (event.target === confirmNewModal) hideConfirmNewModal(); }); // Close if clicking overlay
+      closeJupyterJsonModalButton.addEventListener("click", hideJupyterJsonModal);
+      jupyterJsonModal.addEventListener("click", (event) => { if (event.target === jupyterJsonModal) hideJupyterJsonModal(); }); // Close if clicking overlay
+      copyJupyterJsonButton.addEventListener("click", copyJupyterJsonToClipboard); // Copy Jupyter JSON
+      jupyterHelpIcon.addEventListener("click", showJupyterHelpModal); // Show Jupyter help
+      closeJupyterHelpModalButton.addEventListener("click", hideJupyterHelpModal);
+      closeJupyterHelpModalButtonOk.addEventListener("click", hideJupyterHelpModal); // "Understood" button in help
+      jupyterHelpModal.addEventListener("click", (event) => { if (event.target === jupyterHelpModal) hideJupyterHelpModal(); }); // Close if clicking overlay
+
+      // Gemini Panel Listeners
+      toggleGeminiPanelButton.addEventListener("click", toggleGeminiPanel); // Toggle panel visibility
+      closeGeminiPanelButton.addEventListener("click", hideGeminiPanel); // Close panel button
+      // Close panel if clicking outside of it
+      document.addEventListener('click', (event) => {
+        if (geminiOptionsPanel.classList.contains('visible') &&
+            !geminiOptionsPanel.contains(event.target) && // Click is outside panel
+            !toggleGeminiPanelButton.contains(event.target)) { // Click is not on the toggle button
+          hideGeminiPanel();
+        }
+      });
+       // Handle API key changes to fetch models
+       geminiApiKeyInput.addEventListener('change', handleApiKeyChange);
+       // Save selected model to localStorage and update UI
+       geminiModelSelect.addEventListener('change', (event) => {
+           localStorage.setItem('selectedGeminiModel', event.target.value);
+           console.log('Selected Gemini Model saved:', event.target.value);
+           updateActiveModelIndicator();
+           resetTokenCountDisplay(); // Reset counts when model changes
+       });
+       // Handle click on the test prompt button
+       sendPromptButton.addEventListener('click', handleSendPromptClick);
+       // Save custom prompts to localStorage on change
+       promptCreatePlanEl.addEventListener('change', (e) => localStorage.setItem('promptCreatePlanValue', e.target.value));
+       promptGenerateContentEl.addEventListener('change', (e) => localStorage.setItem('promptGenerateContentValue', e.target.value));
+       promptFactCheckEl.addEventListener('change', (e) => localStorage.setItem('promptFactCheckValue', e.target.value));
+       promptCustom1El.addEventListener('change', (e) => localStorage.setItem('promptCustom1Value', e.target.value));
+       promptCustom2El.addEventListener('change', (e) => localStorage.setItem('promptCustom2Value', e.target.value));
+
+
+      // Global Key Listener (for Escape key to close modals/panel)
       document.addEventListener("keydown", (event) => {
-        /* ... unchanged ... */
         if (event.key === "Escape") {
           if (!rawMdModal.classList.contains("hidden")) hideRawMdModal();
-          if (!renderedHtmlModal.classList.contains("hidden"))
-            hideRenderedHtmlModal();
-          if (!confirmNewModal.classList.contains("hidden"))
-            hideConfirmNewModal();
-          if (!jupyterJsonModal.classList.contains("hidden"))
-            hideJupyterJsonModal();
-          if (!jupyterHelpModal.classList.contains("hidden"))
-            hideJupyterHelpModal();
+          if (!renderedHtmlModal.classList.contains("hidden")) hideRenderedHtmlModal();
+          if (!confirmNewModal.classList.contains("hidden")) hideConfirmNewModal();
+          if (!jupyterJsonModal.classList.contains("hidden")) hideJupyterJsonModal();
+          if (!jupyterHelpModal.classList.contains("hidden")) hideJupyterHelpModal();
+          if (geminiOptionsPanel.classList.contains("visible")) hideGeminiPanel();
         }
       });
 
       // --- Functions ---
 
+      /**
+       * Switches the active tab and panel for file/URL loading.
+       * @param {'file' | 'url'} activeTab - The tab to activate ('file' or 'url').
+       */
+      function switchTab(activeTab) {
+        if (activeTab === 'file') {
+          // Activate File Tab
+          tabButtonFile.classList.remove('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
+          tabButtonFile.classList.add('border-indigo-500', 'text-indigo-600');
+          tabButtonFile.setAttribute('aria-current', 'page');
+
+          // Deactivate URL Tab
+          tabButtonUrl.classList.remove('border-indigo-500', 'text-indigo-600');
+          tabButtonUrl.classList.add('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
+          tabButtonUrl.removeAttribute('aria-current');
+
+          // Show File Panel, Hide URL Panel
+          tabPanelFile.classList.remove('hidden');
+          tabPanelUrl.classList.add('hidden');
+
+        } else if (activeTab === 'url') {
+          // Deactivate File Tab
+          tabButtonFile.classList.add('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
+          tabButtonFile.classList.remove('border-indigo-500', 'text-indigo-600');
+          tabButtonFile.removeAttribute('aria-current');
+
+          // Activate URL Tab
+          tabButtonUrl.classList.add('border-indigo-500', 'text-indigo-600');
+          tabButtonUrl.classList.remove('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
+          tabButtonUrl.setAttribute('aria-current', 'page');
+
+          // Hide File Panel, Show URL Panel
+          tabPanelFile.classList.add('hidden');
+          tabPanelUrl.classList.remove('hidden');
+        }
+        console.log(`Switched to ${activeTab} tab.`); // Optional log
+      }
+
+      /**
+       * Checks the URL hash on page load for a markdownUrl parameter and loads it.
+       */
+      function loadMarkdownFromUrl() {
+        if (window.location.hash && window.location.hash.startsWith('#markdownUrl=')) {
+          const encodedUrl = window.location.hash.substring('#markdownUrl='.length);
+          try {
+            const decodedUrl = decodeURIComponent(encodedUrl);
+            // Basic validation
+            if (decodedUrl.startsWith('http://') || decodedUrl.startsWith('https://')) {
+              fetchAndRenderMarkdown(decodedUrl);
+            } else {
+              console.warn("Invalid URL found in hash:", decodedUrl);
+              outputDiv.innerHTML = `<p class="text-orange-500">Invalid URL format provided in the address bar.</p>`;
+            }
+          } catch (e) {
+            console.error("Error decoding URL from hash:", e);
+            outputDiv.innerHTML = `<p class="text-red-500">Could not decode the URL from the address bar.</p>`;
+          }
+        } else {
+            // If no valid hash, ensure placeholder is shown (might already be handled by initial setup)
+            if (!rawFileContent && !document.getElementById('mindMapCanvas') && outputDiv.innerHTML === "") {
+              outputDiv.innerHTML = `<p class="text-gray-500" id="outputPlaceholder">${initialPlaceholderText}</p>`;
+              disableActionButtonsButKeepNewEnabled();
+            }
+        }
+      }
+
+      /**
+       * Fetches Markdown content from a given URL and renders it.
+       * @param {string} url - The URL to fetch the Markdown file from.
+       */
+      async function fetchAndRenderMarkdown(url) {
+        console.log(`Attempting to fetch Markdown from: ${url}`);
+        // Display loading state
+        outputDiv.innerHTML = `<p class="text-gray-500" id="outputPlaceholder">Loading from URL...</p>`;
+        outputTitle.textContent = "Loading...";
+        outputTitle.title = "Loading...";
+        currentFilename = null;
+        rawFileContent = null;
+        disableActionButtonsButKeepNewEnabled(); // Disable buttons during load
+
+        try {
+          const response = await fetch(url, { mode: 'cors' }); // Use CORS mode
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const markdownText = await response.text();
+          rawFileContent = markdownText; // Store fetched content
+
+          // Try to extract a filename from the URL for display
+          try {
+              const urlParts = new URL(url);
+              currentFilename = urlParts.pathname.split('/').pop() || "Loaded from URL";
+          } catch (e) {
+              // If URL parsing fails, use a generic name
+              currentFilename = "Loaded from URL";
+          }
+          outputTitle.textContent = currentFilename;
+          outputTitle.title = currentFilename;
+          fileInput.value = null; // Clear file input as we loaded from URL
+
+          console.log(`Successfully fetched content. Filename inferred as: ${currentFilename}`);
+
+          // Render based on inferred filename
+          if (currentFilename && currentFilename.toLowerCase().includes(".mindmap.")) {
+              console.log("Rendering as mind map...");
+              renderMindMap(rawFileContent);
+          } else {
+              console.log("Rendering as standard markdown...");
+              renderParsedContent(rawFileContent);
+          }
+          // Note: enableActionButtons() is called within renderMindMap/renderParsedContent if successful
+
+        } catch (error) {
+          console.error("Failed to fetch or render Markdown from URL:", error);
+          outputDiv.innerHTML = `<p class="text-red-500">Error loading from URL: ${error.message}. Check the URL and CORS policy.</p>`;
+          outputTitle.textContent = "Error Loading";
+          outputTitle.title = "Error Loading";
+          rawFileContent = null;
+          currentFilename = null;
+          disableActionButtonsButKeepNewEnabled();
+        }
+      }
+
+      /**
+       * Handles the selection of a Markdown file.
+       * Reads the file content and triggers rendering.
+       * @param {Event} event - The file input change event.
+       */
       function handleFileSelection(event) {
-        const file = event.target.files[0];
-        // Reset visually immediately
+        const file = event.target.files[0]; // Get the selected file
+
+        // Reset UI state
         outputTitle.textContent = "Preview";
         outputTitle.title = "Preview";
         currentFilename = null;
-        outputDiv.innerHTML = `<p class="text-gray-500" id="outputPlaceholder">Loading...</p>`; // Show loading indicator
-        disableActionButtonsButKeepNewEnabled();
+        outputDiv.innerHTML = `<p class="text-gray-500" id="outputPlaceholder">Loading...</p>`;
+        disableActionButtonsButKeepNewEnabled(); // Disable most actions during load
 
+        // If no file is selected (e.g., user cancels), treat as "New"
         if (!file) {
-          executeNewDocument();
-          return;
-        } // Treat cancel as 'New'
-
-        if (!file.name.toLowerCase().endsWith(".md")) {
-          outputDiv.innerHTML =
-            '<p class="text-red-500">Please select a valid .md file.</p>';
-          fileInput.value = null;
-          return;
+            executeNewDocument();
+            console.log("File selection cancelled, treating as 'New'.");
+            return;
         }
 
+        // Validate file type
+        if (!file.name.toLowerCase().endsWith(".md")) {
+            outputDiv.innerHTML = '<p class="text-red-500">Please select a valid .md file.</p>';
+            fileInput.value = null; // Clear the invalid selection
+            return;
+        }
+
+        // Store filename and update title
         currentFilename = file.name;
         outputTitle.textContent = currentFilename;
         outputTitle.title = currentFilename;
 
+        // Read the file content
         const reader = new FileReader();
         reader.onload = (loadEvent) => {
-          rawFileContent = loadEvent.target.result;
-          // *** Check if it's a mind map file ***
-          if (
-            currentFilename &&
-            currentFilename.toLowerCase().includes(".mindmap.")
-          ) {
-            console.log("Mind map file detected, rendering D3 canvas...");
-            renderMindMap(rawFileContent); // Call D3 renderer
-          } else {
-            console.log("Standard markdown file, rendering preview...");
-            renderParsedContent(rawFileContent); // Call standard preview renderer
-          }
+            rawFileContent = loadEvent.target.result; // Store the raw content
+            // Check if it's a mind map file based on filename convention
+            if (currentFilename && currentFilename.toLowerCase().includes(".mindmap.")) {
+                console.log("Mind map file detected...");
+                renderMindMap(rawFileContent); // Render as mind map
+            } else {
+                console.log("Standard markdown file...");
+                renderParsedContent(rawFileContent); // Render as standard parsed content
+            }
         };
         reader.onerror = (errorEvent) => {
-          console.error("Read Error:", errorEvent.target.error);
-          outputDiv.innerHTML =
-            '<p class="text-red-500">Error reading file.</p>';
-          rawFileContent = null;
-          currentFilename = null;
-          outputTitle.textContent = "Preview";
-          outputTitle.title = "Preview";
-          disableActionButtonsButKeepNewEnabled();
-          fileInput.value = null;
+            // Handle file reading errors
+            console.error("File Read Error:", errorEvent.target.error);
+            outputDiv.innerHTML = '<p class="text-red-500">Error reading file.</p>';
+            rawFileContent = null;
+            currentFilename = null;
+            outputTitle.textContent = "Preview";
+            outputTitle.title = "Preview";
+            disableActionButtonsButKeepNewEnabled();
+            fileInput.value = null; // Clear the input
         };
-        reader.readAsText(file);
+        reader.readAsText(file); // Start reading the file as text
       }
 
+      /**
+       * Renders standard Markdown content into editable sections in the main output area.
+       * Splits content by headers (H1-H6) and creates textareas for editing.
+       * @param {string} markdownText - The raw Markdown text.
+       */
       function renderParsedContent(markdownText) {
-        /* ... standard preview rendering ... */
-        outputDiv.innerHTML = "";
-        if (!markdownText || !markdownText.trim()) {
-          outputDiv.innerHTML = `<p class="text-gray-500" id="outputPlaceholder">${initialPlaceholderText}</p>`;
-          outputTitle.textContent = "Preview";
-          outputTitle.title = "Preview";
-          currentFilename = null;
-          disableActionButtonsButKeepNewEnabled();
-          return;
-        }
-        outputTitle.textContent = currentFilename || "Preview";
-        outputTitle.title = currentFilename || "Preview";
+          // Clear previous output and reset height
+          outputDiv.innerHTML = "";
+          outputDiv.style.height = 'auto'; // Reset height for standard view
 
-        const lines = markdownText.split("\n").map((line) =>line.replaceAll(/(\* *)\"/g, "$1").replace(/^\"/g, "").replace(/\"$/g, ""));
-        let currentHeaderElement = null;
-        let contentBlock = [];
-        let foundHeaders = false;
-        let currentAnimationDelay = 0;
-        function finalizeSubsection(headerElem, contentText) {
-          if (!headerElem && (!contentText || !contentText.trim())) return;
-          const textareaElem = createContentTextarea(contentText);
-          const wrapperDiv = document.createElement("div");
-          wrapperDiv.classList.add("subsection-wrapper");
-          if (headerElem) wrapperDiv.appendChild(headerElem);
-          if (textareaElem) wrapperDiv.appendChild(textareaElem);
-          else if (headerElem && (!contentText || !contentText.trim())) {
-            headerElem.style.marginBottom = "1rem";
+          // Handle empty input
+          if (!markdownText || !markdownText.trim()) {
+              outputDiv.innerHTML = `<p class="text-gray-500" id="outputPlaceholder">${initialPlaceholderText}</p>`;
+              outputTitle.textContent = "Preview";
+              outputTitle.title = "Preview";
+              currentFilename = null;
+              disableActionButtonsButKeepNewEnabled();
+              return;
           }
-          outputDiv.appendChild(wrapperDiv);
-          setTimeout(() => {
-            wrapperDiv.classList.add("fade-in");
-          }, currentAnimationDelay);
-          currentAnimationDelay += animationDelayIncrement;
-        }
-        let firstBlockContent = [];
-        let firstHeaderFound = false;
-        lines.forEach((line) => {
-          const trimmedLine = line.trim();
-          let headerLevel = 0;
-          let headerPrefix = "";
-          if (trimmedLine.startsWith("# ")) {
-            headerLevel = 1;
-            headerPrefix = "# ";
-          } else if (trimmedLine.startsWith("## ")) {
-            headerLevel = 2;
-            headerPrefix = "## ";
-          } else if (trimmedLine.startsWith("### ")) {
-            headerLevel = 3;
-            headerPrefix = "### ";
-          } else if (trimmedLine.startsWith("#### ")) {
-            headerLevel = 4;
-            headerPrefix = "#### ";
+
+          // Update title
+          outputTitle.textContent = currentFilename || "Preview";
+          outputTitle.title = currentFilename || "Preview";
+
+          // Preprocess lines: remove potential unwanted quotes from source
+          const lines = markdownText.split("\n").map(line => line.replaceAll(/(\* *)\"/g, "$1").replace(/^\"/g, "").replace(/\"$/g, ""));
+
+          let currentHeaderElement = null; // Holds the current header element being processed
+          let contentBlock = []; // Holds lines of content belonging to the current header
+          let foundHeaders = false; // Flag if any headers were found
+          let currentAnimationDelay = 0; // Delay for staggered animation
+
+          /**
+           * Helper function to finalize and append a subsection (header + content textarea)
+           * to the outputDiv, applying animations and adding action buttons.
+           * @param {HTMLElement | null} headerElem - The header element (H1-H6) or null.
+           * @param {string} contentText - The text content for the textarea.
+           */
+          function finalizeSubsection(headerElem, contentText) {
+              // Skip if both header and content are effectively empty
+              if (!headerElem && (!contentText || !contentText.trim())) return;
+
+              // Create a wrapper for animation and spacing
+              const wrapperDiv = document.createElement("div");
+              wrapperDiv.classList.add("subsection-wrapper"); // For animation and spacing
+
+              // Add header if it exists
+              if (headerElem) {
+                  wrapperDiv.appendChild(headerElem);
+              }
+
+              // Create and add textarea if content exists
+              const textareaElem = createContentTextarea(contentText);
+              if (textareaElem) {
+                  // Create a container for the textarea and its action buttons
+                  const textActionContainer = document.createElement('div');
+                  textActionContainer.className = 'flex items-start gap-2 mt-2'; // Flex layout, vertical alignment, spacing
+
+                  // Make textarea grow to fill available width
+                  textareaElem.classList.add('flex-grow');
+                  textActionContainer.appendChild(textareaElem);
+
+                  // Create a column for action buttons
+                  const buttonColumn = document.createElement('div');
+                  buttonColumn.className = 'flex flex-col space-y-1 flex-shrink-0'; // Vertical layout, spacing, prevent shrinking
+
+                  // Add 5 action buttons (linked to Gemini prompts)
+                  for (let i = 0; i < 5; i++) {
+                      const btn = document.createElement('button');
+                      btn.className = 'main-view-action-button'; // Apply styling
+                      btn.textContent = `${i + 1}`; // Placeholder label
+                      btn.title = `Action ${i + 1}`; // Default tooltip
+
+                      // Assign specific actions and tooltips based on button index
+                      if (i === 0) { // Button 1 -> Create Plan Prompt
+                          btn.addEventListener('click', (event) => handleMainViewPrompt(event, textareaElem, promptCreatePlanEl, 'Create Plan Prompt'));
+                          btn.title = `Send with Create Plan Prompt`;
+                      } else if (i === 1) { // Button 2 -> Generate Content Prompt
+                           btn.addEventListener('click', (event) => handleMainViewPrompt(event, textareaElem, promptGenerateContentEl, 'Generate Content Prompt'));
+                           btn.title = `Send with Generate Content Prompt`;
+                      } else if (i === 2) { // Button 3 -> Fact Check Prompt
+                           btn.addEventListener('click', (event) => handleMainViewPrompt(event, textareaElem, promptFactCheckEl, 'Fact Check Prompt'));
+                           btn.title = `Send with Fact Check Prompt`;
+                      } else if (i === 3) { // Button 4 -> Custom 1 Prompt
+                           btn.addEventListener('click', (event) => handleMainViewPrompt(event, textareaElem, promptCustom1El, 'Custom 1 Prompt'));
+                           btn.title = `Send with Custom 1 Prompt`;
+                      } else if (i === 4) { // Button 5 -> Custom 2 Prompt
+                           btn.addEventListener('click', (event) => handleMainViewPrompt(event, textareaElem, promptCustom2El, 'Custom 2 Prompt'));
+                           btn.title = `Send with Custom 2 Prompt`;
+                      }
+
+                      buttonColumn.appendChild(btn); // Add button to the column
+                  }
+
+                  textActionContainer.appendChild(buttonColumn); // Add button column to the container
+                  wrapperDiv.appendChild(textActionContainer); // Add the container to the main wrapper
+              }
+
+              // Append the completed subsection wrapper to the main output area
+              outputDiv.appendChild(wrapperDiv);
+
+              // Apply fade-in animation with a delay
+              setTimeout(() => {
+                  wrapperDiv.classList.add("fade-in");
+              }, currentAnimationDelay);
+              currentAnimationDelay += animationDelayIncrement; // Increment delay for the next section
           }
-          if (headerLevel > 0) {
-            if (!firstHeaderFound) {
+          // --- END finalizeSubsection ---
+
+          // Process lines to split by headers (H1-H6)
+          let firstBlockContent = []; // Content before the first header
+          let firstHeaderFound = false; // Flag for initial content block
+          lines.forEach((line) => {
+              const trimmedLine = line.trim();
+              let headerLevel = 0;
+              let headerPrefix = "";
+
+              // Detect header level (H1-H6)
+              if (trimmedLine.startsWith("# ")) { headerLevel = 1; headerPrefix = "# "; }
+              else if (trimmedLine.startsWith("## ")) { headerLevel = 2; headerPrefix = "## "; }
+              else if (trimmedLine.startsWith("### ")) { headerLevel = 3; headerPrefix = "### "; }
+              else if (trimmedLine.startsWith("#### ")) { headerLevel = 4; headerPrefix = "#### "; }
+              else if (trimmedLine.startsWith("##### ")) { headerLevel = 5; headerPrefix = "##### "; }
+              else if (trimmedLine.startsWith("###### ")) { headerLevel = 6; headerPrefix = "###### "; }
+
+
+              if (headerLevel > 0) { // If it's a header line
+                  if (!firstHeaderFound) {
+                      // Finalize content before the first header
+                      finalizeSubsection(null, firstBlockContent.join("\n"));
+                      firstHeaderFound = true;
+                  } else if (currentHeaderElement) {
+                      // Finalize the previous section (header + content)
+                      finalizeSubsection(currentHeaderElement, contentBlock.join("\n"));
+                  }
+                  foundHeaders = true;
+                  contentBlock = []; // Reset content block for the new header
+                  const headerText = trimmedLine.substring(headerPrefix.length);
+                  currentHeaderElement = createHeaderElement(`h${headerLevel}`, headerText, headerPrefix); // Create the new header element (H1-H6)
+              } else if (!firstHeaderFound) {
+                  // Collect content before the first header
+                  firstBlockContent.push(line);
+              } else if (currentHeaderElement !== null) {
+                  // Collect content under the current header
+                  contentBlock.push(line);
+              }
+          });
+
+          // Finalize the last section after the loop
+          if (!firstHeaderFound) {
+              // If no headers were found at all, finalize the initial block
               finalizeSubsection(null, firstBlockContent.join("\n"));
-              firstHeaderFound = true;
-            } else if (currentHeaderElement) {
+          } else if (currentHeaderElement) {
+              // Finalize the last header and its content
               finalizeSubsection(currentHeaderElement, contentBlock.join("\n"));
-            }
-            foundHeaders = true;
-            contentBlock = [];
-            const headerText = trimmedLine.substring(headerPrefix.length);
-            currentHeaderElement = createHeaderElement(
-              `h${headerLevel}`,
-              headerText,
-              headerPrefix
-            );
-          } else if (!firstHeaderFound) {
-            firstBlockContent.push(line);
-          } else if (currentHeaderElement !== null) {
-            contentBlock.push(line);
           }
-        });
-        if (!firstHeaderFound) {
-          finalizeSubsection(null, firstBlockContent.join("\n"));
-        } else if (currentHeaderElement) {
-          finalizeSubsection(currentHeaderElement, contentBlock.join("\n"));
-        }
-        if (markdownText.trim()) {
-          enableActionButtons();
-        } else {
-          disableActionButtonsButKeepNewEnabled();
-        }
+
+          // Enable action buttons if content was rendered
+          if (markdownText.trim()) {
+              enableActionButtons();
+          } else {
+              disableActionButtonsButKeepNewEnabled();
+          }
+          // Trigger MathJax typesetting for the main output area
+          if (window.MathJax && window.MathJax.typesetPromise) {
+            console.log("Typesetting main output area..."); // Optional log
+            MathJax.typesetPromise([outputDiv])
+              .catch(err => console.error('MathJax typesetting error in renderParsedContent:', err));
+          }
       }
 
-      // --- D3 Mind Map Rendering ---
+      /**
+       * Renders Markdown content as an interactive D3.js mind map on an HTML canvas.
+       * Parses headers (#, ##, etc.) into a hierarchical structure.
+       * @param {string} markdownText - The raw Markdown text (expected to use headers for structure).
+       */
       function renderMindMap(markdownText) {
-        console.log("renderMindMap started.");
-        if (!outputDiv) {
-          console.error("Output div not found!");
-          return;
-        }
-        outputDiv.innerHTML = "";
-        if (!markdownText || !markdownText.trim()) {
-          console.warn("Mind map text empty.");
-          outputDiv.innerHTML = `<p class="text-gray-500">Mind map file is empty.</p>`;
-          disableActionButtonsButKeepNewEnabled();
-          return;
-        }
-        if (outputTitle)
-          outputTitle.textContent = currentFilename || "Mind Map";
-        outputTitle.title = currentFilename || "Mind Map";
+          console.log("renderMindMap started.");
+          if (!outputDiv) { console.error("Output div not found!"); return; }
+          outputDiv.innerHTML = ""; // Clear previous output
 
-        const canvas = document.createElement("canvas");
-        canvas.id = "mindMapCanvas";
-        outputDiv.style.height = "60vh";
-        const containerWidth = outputDiv.clientWidth;
-        const canvasHeight = outputDiv.clientHeight;
-        console.log(`Canvas dimensions: ${containerWidth}x${canvasHeight}`);
-        if (!containerWidth || !canvasHeight) {
-          console.error("Canvas container has zero dimensions.");
-          outputDiv.innerHTML = `<p class="text-red-500">Error: Cannot determine rendering area size.</p>`;
-          disableActionButtonsButKeepNewEnabled();
-          return;
-        }
-        canvas.width = containerWidth;
-        canvas.height = canvasHeight;
-        outputDiv.appendChild(canvas);
-        const ctx = canvas.getContext("2d");
-        if (!ctx) {
-          console.error("Could not get 2D context");
-          return;
-        }
-
-        let hierarchyData;
-        try {
-          hierarchyData = parseMarkdownToHierarchy(markdownText);
-          if (!hierarchyData) throw new Error("Parsing returned null");
-        } catch (error) {
-          console.error("Error parsing hierarchy:", error);
-          outputDiv.innerHTML = `<p class="text-red-500">Error parsing mind map structure.</p>`;
-          disableActionButtonsButKeepNewEnabled();
-          return;
-        }
-
-        const root = d3.hierarchy(hierarchyData);
-        const nodeWidth = 120;
-        const nodeHeight = 40;
-        const nodeVMargin = 30;
-        const nodeHMargin = 50;
-        const treeLayout = d3
-          .tree()
-          .nodeSize([nodeHeight + nodeVMargin, nodeWidth + nodeHMargin]);
-        const initialX = 50;
-        const initialY = canvas.height / 2;
-        root.x0 = initialY;
-        root.y0 = initialX;
-        treeLayout(root);
-
-        let currentTransform = d3.zoomIdentity.translate(initialX, initialY);
-        const borderRadius = 15;
-        const maxTextWidth = nodeWidth - 16;
-        const textBgPadding = 4;
-
-        function draw() {
-          try {
-            ctx.save();
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.translate(currentTransform.x, currentTransform.y);
-            ctx.scale(currentTransform.k, currentTransform.k);
-            ctx.strokeStyle = "#9ca3af";
-            ctx.lineWidth = 1.5 / currentTransform.k;
-            ctx.beginPath();
-            root.links().forEach((link) => {
-              ctx.moveTo(link.source.y + nodeWidth / 2, link.source.x);
-              ctx.bezierCurveTo(
-                link.source.y + nodeWidth / 2 + nodeHMargin / 2,
-                link.source.x,
-                link.target.y - nodeWidth / 2 - nodeHMargin / 2,
-                link.target.x,
-                link.target.y - nodeWidth / 2,
-                link.target.x
-              );
-            });
-            ctx.stroke();
-            root.descendants().forEach((node) => {
-              // Set up the canvas context
-              const fontSize = 10 / (1 / currentTransform.k); // Font size scales with zoom
-              ctx.font = `bold ${fontSize}px sans-serif`;
-              ctx.textAlign = "center";
-              ctx.textBaseline = "middle";
-
-              // Measure the text
-              let nodeName = node.data.name || "";
-              let textMetrics = ctx.measureText(nodeName);
-              const maxTextWidthScaled = maxTextWidth / currentTransform.k; // Adjust max width for zoom
-              while (
-                textMetrics.width > maxTextWidthScaled &&
-                nodeName.length > 1
-              ) {
-                nodeName = nodeName.slice(0, -2) + "…";
-                textMetrics = ctx.measureText(nodeName);
-              }
-
-              // Calculate text dimensions
-              const textWidth = textMetrics.width;
-              const textHeight = fontSize; // Approximate height based on font size
-
-              // Define padding and rectangle dimensions (scaled with zoom)
-              const padding = textBgPadding / (1 / currentTransform.k); // Padding scales with zoom
-              const minWidth = 400 / currentTransform.k; // Minimum width of 200, adjusted for zoom
-              const maxWidth = 130;
-              const textBasedWidth = Math.min(
-                maxWidth,
-                Math.max(minWidth, textWidth)
-              ); // Width based on text
-              const rectWidth = textBasedWidth + padding * 2; // Use the larger of minWidth or text-based width
-              const rectHeight = textHeight + padding * 2; // Height includes padding on top and bottom
-
-              // Calculate rectangle position
-              const rectX = node.y - rectWidth / 2;
-              const rectY = node.x - rectHeight / 2;
-
-              // Draw the rectangle
-              const colorIndex = Math.min(node.depth, nodeColors.length - 1);
-              ctx.fillStyle = nodeColors[colorIndex];
-              ctx.beginPath();
-              if (typeof ctx.roundRect === "function") {
-                ctx.roundRect(
-                  rectX,
-                  rectY,
-                  rectWidth,
-                  rectHeight,
-                  borderRadius / currentTransform.k
-                );
-                ctx.fill();
-              } else {
-                ctx.fillRect(rectX, rectY, rectWidth, rectHeight);
-                if (!window.hasWarnedRoundRect) {
-                  console.warn("ctx.roundRect not supported...");
-                  window.hasWarnedRoundRect = true;
-                }
-              }
-
-              // Draw the text
-              ctx.fillStyle = "#ffffff";
-              ctx.fillText(nodeName, node.y, node.x);
-            });
-            ctx.restore();
-          } catch (drawError) {
-            console.error("Error during canvas draw:", drawError);
+          // Handle empty input
+          if (!markdownText || !markdownText.trim()) {
+              console.warn("Mind map text empty.");
+              outputDiv.innerHTML = `<p class="text-gray-500">Mind map file is empty.</p>`;
+              disableActionButtonsButKeepNewEnabled();
+              return;
           }
-        }
 
-        try {
-          const zoom = d3
-            .zoom()
-            .scaleExtent([0.1, 3])
-            .on("zoom", (event) => {
-              currentTransform = event.transform;
-              draw();
-            });
-          d3.select(canvas).call(zoom).on("dblclick.zoom", null);
-          d3.select(canvas).call(zoom.transform, currentTransform);
-        } catch (zoomError) {
-          console.error("Error setting up D3 zoom:", zoomError);
-          outputDiv.innerHTML = `<p class="text-red-500">Error initializing interactive controls.</p>`;
-          disableActionButtonsButKeepNewEnabled();
-          return;
-        }
+          // Update title
+          if (outputTitle) outputTitle.textContent = currentFilename || "Mind Map";
+          if (outputTitle) outputTitle.title = currentFilename || "Mind Map";
 
-        console.log("renderMindMap finished successfully.");
-        enableActionButtons();
+          // Create canvas element
+          const canvas = document.createElement("canvas");
+          canvas.id = "mindMapCanvas";
+          outputDiv.style.height = "60vh"; // Set container height for canvas
+
+          // Use requestAnimationFrame to ensure container dimensions are available
+          requestAnimationFrame(() => {
+              const containerWidth = outputDiv.clientWidth;
+              const canvasHeight = outputDiv.clientHeight; // Use container height
+              console.log(`Canvas dimensions: ${containerWidth}x${canvasHeight}`);
+
+              if (!containerWidth || !canvasHeight) {
+                  console.error("Canvas container has zero dimensions.");
+                  outputDiv.innerHTML = `<p class="text-red-500">Error: Cannot determine rendering area size.</p>`;
+                  disableActionButtonsButKeepNewEnabled();
+                  return;
+              }
+
+              // Set canvas dimensions and append
+              canvas.width = containerWidth;
+              canvas.height = canvasHeight;
+              outputDiv.appendChild(canvas);
+              const ctx = canvas.getContext("2d");
+              if (!ctx) {
+                  console.error("Could not get 2D context");
+                  outputDiv.innerHTML = `<p class="text-red-500">Error: Cannot initialize canvas drawing.</p>`;
+                  disableActionButtonsButKeepNewEnabled();
+                  return;
+              }
+
+              // Parse Markdown into hierarchy data for D3
+              let hierarchyData;
+              try {
+                  hierarchyData = parseMarkdownToHierarchy(markdownText);
+                  if (!hierarchyData) throw new Error("Parsing returned null");
+              } catch (error) {
+                  console.error("Error parsing hierarchy:", error);
+                  outputDiv.innerHTML = `<p class="text-red-500">Error parsing mind map structure.</p>`;
+                  disableActionButtonsButKeepNewEnabled();
+                  return;
+              }
+
+              // Create D3 hierarchy and tree layout
+              const root = d3.hierarchy(hierarchyData);
+              const nodeWidth = 120; // Width allocated for node text/box
+              const nodeHeight = 40; // Height allocated for node text/box
+              const nodeVMargin = 30; // Vertical margin between nodes
+              const nodeHMargin = 50; // Horizontal margin between nodes
+              const treeLayout = d3.tree().nodeSize([nodeHeight + nodeVMargin, nodeWidth + nodeHMargin]);
+
+              // Set initial position (center vertically, offset horizontally)
+              const initialX = 50; // Initial horizontal offset
+              const initialY = canvas.height / 2; // Initial vertical center
+              root.x0 = initialY;
+              root.y0 = initialX;
+
+              // Calculate tree layout positions
+              treeLayout(root);
+
+              // D3 Zoom and Pan state
+              let currentTransform = d3.zoomIdentity.translate(initialX, initialY); // Start centered
+              const borderRadius = 15; // For rounded node rectangles
+              const maxTextWidth = nodeWidth - 16; // Max width for text inside node (padding)
+              const textBgPadding = 4; // Padding around text for background rect
+
+              /** Draws the mind map onto the canvas based on D3 layout and current transform. */
+              function draw() {
+                  try {
+                      ctx.save(); // Save current canvas state
+                      ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
+                      ctx.translate(currentTransform.x, currentTransform.y); // Apply pan
+                      ctx.scale(currentTransform.k, currentTransform.k); // Apply zoom
+
+                      // --- Draw Links (bezier curves) ---
+                      ctx.strokeStyle = "#9ca3af"; // gray-400
+                      ctx.lineWidth = 1.5 / currentTransform.k; // Adjust line width based on zoom
+                      ctx.beginPath();
+                      root.links().forEach((link) => {
+                          // Draw bezier curve from right-center of source to left-center of target
+                          ctx.moveTo(link.source.y + nodeWidth / 2, link.source.x);
+                          ctx.bezierCurveTo(
+                              link.source.y + nodeWidth / 2 + nodeHMargin / 2, link.source.x, // Control point 1
+                              link.target.y - nodeWidth / 2 - nodeHMargin / 2, link.target.x, // Control point 2
+                              link.target.y - nodeWidth / 2, link.target.x // End point
+                          );
+                      });
+                      ctx.stroke(); // Render the links
+
+                      // --- Draw Nodes (rounded rectangles with text) ---
+                      root.descendants().forEach((node) => {
+                          // Calculate font size based on zoom
+                          const fontSize = 10 / currentTransform.k;
+                          ctx.font = `bold ${fontSize}px sans-serif`;
+                          ctx.textAlign = "center";
+                          ctx.textBaseline = "middle";
+
+                          // Truncate long node names
+                          let nodeName = node.data.name || "";
+                          let textMetrics = ctx.measureText(nodeName);
+                          const maxTextWidthScaled = maxTextWidth / currentTransform.k;
+                          while (textMetrics.width > maxTextWidthScaled && nodeName.length > 1) {
+                              nodeName = nodeName.slice(0, -2) + "…"; // Add ellipsis
+                              textMetrics = ctx.measureText(nodeName);
+                          }
+
+                          // Calculate dimensions for the background rectangle
+                          const textWidth = textMetrics.width;
+                          const textHeight = fontSize; // Approximate height
+                          const padding = textBgPadding / currentTransform.k;
+                          const rectWidth = textWidth + padding * 2;
+                          const rectHeight = textHeight + padding * 2;
+                          const rectX = node.y - rectWidth / 2; // Center rectangle horizontally
+                          const rectY = node.x - rectHeight / 2; // Center rectangle vertically
+
+                          // Set fill color based on node depth
+                          const colorIndex = Math.min(node.depth, nodeColors.length - 1);
+                          ctx.fillStyle = nodeColors[colorIndex];
+
+                          // Draw rounded rectangle (fallback to square if not supported)
+                          ctx.beginPath();
+                          if (typeof ctx.roundRect === "function") {
+                              ctx.roundRect(rectX, rectY, rectWidth, rectHeight, borderRadius / currentTransform.k);
+                              ctx.fill();
+                          } else {
+                              // Fallback for browsers without roundRect support
+                              ctx.fillRect(rectX, rectY, rectWidth, rectHeight);
+                              if (!window.hasWarnedRoundRect) { // Warn only once
+                                  console.warn("ctx.roundRect not supported, using fillRect fallback.");
+                                  window.hasWarnedRoundRect = true;
+                              }
+                          }
+
+                          // Draw text on top
+                          ctx.fillStyle = "#ffffff"; // White text
+                          ctx.fillText(nodeName, node.y, node.x); // Draw text at node center
+                      });
+
+                      ctx.restore(); // Restore canvas state
+                  } catch (drawError) {
+                      console.error("Error during canvas draw:", drawError);
+                      // Optionally display an error on the canvas itself
+                  }
+              }
+
+              // Setup D3 zoom behavior
+              try {
+                  const zoom = d3.zoom()
+                      .scaleExtent([0.1, 3]) // Min/max zoom levels
+                      .on("zoom", (event) => {
+                          currentTransform = event.transform; // Update transform state
+                          draw(); // Redraw on zoom/pan
+                      });
+
+                  d3.select(canvas)
+                      .call(zoom)
+                      .on("dblclick.zoom", null); // Disable zoom on double click
+
+                  // Apply initial transform
+                  d3.select(canvas).call(zoom.transform, currentTransform);
+
+                  draw(); // Initial draw
+              } catch (zoomError) {
+                  console.error("Error setting up D3 zoom:", zoomError);
+                  outputDiv.innerHTML = `<p class="text-red-500">Error initializing interactive controls.</p>`;
+                  disableActionButtonsButKeepNewEnabled();
+                  return;
+              }
+
+              console.log("renderMindMap finished successfully.");
+              enableActionButtons(); // Enable actions now that rendering is done
+          });
       }
 
+      /**
+       * Parses Markdown text (using headers) into a hierarchical object suitable for D3.
+       * @param {string} markdownText - The raw Markdown text.
+       * @returns {object | null} The root node of the hierarchy or null on error.
+       */
       function parseMarkdownToHierarchy(markdownText) {
-        console.log("Parsing Markdown to Hierarchy..."); // DEBUG
-        const lines = markdownText.split("\n");
-        const root = { name: "Root", children: [], level: 0 };
-        const stack = [root]; // Stack: stores references to nodes, stack[top] is current parent
+          console.log("Parsing Markdown to Hierarchy...");
+          const lines = markdownText.split("\n");
+          const root = { name: "Mind Map", children: [], level: 0 }; // Default root
+          const stack = [root]; // Stack to keep track of parent nodes
 
-        lines.forEach((line) => {
-          const trimmedLine = line.trim();
-          if (!trimmedLine) return;
+          lines.forEach((line) => {
+              const trimmedLine = line.trim();
+              if (!trimmedLine) return; // Skip empty lines
 
-          let level = 0;
-          let name = trimmedLine;
+              let level = 0;
+              let name = "";
 
-          if (trimmedLine.startsWith("#")) {
-            while (level < trimmedLine.length && trimmedLine[level] === "#") {
-              level++;
-            }
-            name = trimmedLine.substring(level).trim();
-            if (!name) return; // Skip if header is just '#'
-          } else {
-            return;
-          } // Ignore non-header lines for hierarchy
+              // Check if the line starts with '#' headers
+              if (trimmedLine.startsWith("#")) {
+                  while (level < trimmedLine.length && trimmedLine[level] === "#") {
+                      level++;
+                  }
+                  name = trimmedLine.substring(level).trim();
+                  if (!name) return; // Skip if header is empty after '#'
+              } else {
+                  // Ignore lines that don't start with headers for hierarchy structure
+                  return;
+              }
 
-          const newNode = { name: name, children: [], level: level };
+              const newNode = { name: name, children: [], level: level };
 
-          // *** Corrected Stack Logic ***
-          // Pop nodes off stack until parent level < current level
-          // Ensure we don't pop the root node (level 0)
-          while (stack.length > 1 && stack[stack.length - 1].level >= level) {
-            stack.pop();
+              // Find the correct parent in the stack based on level
+              while (stack.length > 1 && stack[stack.length - 1].level >= level) {
+                  stack.pop();
+              }
+
+              // Add the new node to the children of the current parent
+              if (stack.length > 0) {
+                  stack[stack.length - 1].children.push(newNode);
+              } else {
+                  // Should not happen with a root node, but handle defensively
+                  console.warn("Could not find suitable parent in stack for:", trimmedLine, "Attaching to root.");
+                  root.children.push(newNode);
+              }
+              stack.push(newNode); // Push the new node onto the stack as a potential parent
+          });
+
+          console.log("Finished parsing hierarchy.");
+
+          // If the root only has one child, and that child has children, promote the child to be the root
+          // This often happens if the MD starts with a single H1
+          if (root.children.length === 1 && root.children[0].children.length > 0) {
+              console.log("Promoting single root child.");
+              return root.children[0];
           }
 
-          // Top of stack is now the correct parent
-          if (stack.length > 0) {
-            stack[stack.length - 1].children.push(newNode);
-          } else {
-            // This case means level <= 0, which shouldn't happen for valid # headers
-            // Or stack was somehow emptied - treat as error or attach to original root
-            console.warn(
-              "Could not find suitable parent in stack for:",
-              trimmedLine,
-              "Attaching to root."
-            );
-            root.children.push(newNode); // Attach to original root as fallback
+          // If no headers were found, create a single node with the first non-empty line as name
+          if (root.children.length === 0 && !markdownText.trim().startsWith("#")) {
+              console.log("No headers found, creating single node.");
+              const firstLine = lines.find((l) => l.trim()) || "Mind Map"; // Find first non-empty line
+              return { name: firstLine, children: [] };
           }
-          stack.push(newNode); // Add current node to stack
-        });
 
-        console.log("Finished parsing hierarchy."); // DEBUG
+          // If root has children, use filename or a default name
+          if (root.children.length > 0) {
+             root.name = currentFilename || "Mind Map Root";
+          } else if (root.children.length === 0 && stack.length <= 1) {
+             // If truly empty after parsing (only root on stack)
+             root.name = "Mind Map";
+          }
 
-        // Promote single child of root if appropriate
-        if (
-          root.children.length === 1 &&
-          root.children[0].children.length > 0
-        ) {
-          console.log("Promoting single root child."); // DEBUG
-          return root.children[0];
-        }
-        // Handle case where no headers were found at all
-        if (
-          root.children.length === 0 &&
-          !markdownText.trim().startsWith("#")
-        ) {
-          console.log("No headers found, creating single node."); // DEBUG
-          const firstLine = lines.find((l) => l.trim());
-          return { name: firstLine || "Mind Map", children: [] };
-        }
-        // If root has no children but headers *were* processed (e.g., only H1s)
-        if (root.children.length === 0 && stack.length > 1) {
-          // This indicates only root-level children were added
-          // Keep the explicit root node in this case
-          root.name = currentFilename || "Mind Map Root"; // Use filename if available
-        } else if (root.children.length === 0) {
-          // No children and no headers found
-          root.name = "Mind Map";
-        }
-
-        return root;
+          return root;
       }
 
-      // --- New Document Functions ---
-      function showConfirmNewModal() {
-        confirmNewModal.classList.remove("hidden");
-      }
-      function hideConfirmNewModal() {
-        confirmNewModal.classList.add("hidden");
-      }
+      /** Shows the confirmation modal for starting a new document. */
+      function showConfirmNewModal() { confirmNewModal.classList.remove("hidden"); }
+      /** Hides the confirmation modal for starting a new document. */
+      function hideConfirmNewModal() { confirmNewModal.classList.add("hidden"); }
+
+      /** Clears the current content and state to start a new document. Opens the raw editor. */
       function executeNewDocument() {
-        console.log("Starting new document...");
-        rawFileContent = "";
-        fileInput.value = null;
-        currentFilename = null;
-        renderParsedContent(rawFileContent); // Render empty state, resets title
-        hideConfirmNewModal();
-        hideRenderedHtmlModal();
-        hideJupyterJsonModal();
-        hideJupyterHelpModal();
-        showRawMdModal();
-        console.log("New document created and editor opened.");
+          console.log("Starting new document...");
+          rawFileContent = ""; // Clear content
+          fileInput.value = null; // Clear file input
+          currentFilename = null; // Clear filename
+          renderParsedContent(rawFileContent); // Render the empty state
+          hideConfirmNewModal(); // Hide confirmation
+          // Ensure other modals are hidden
+          hideRenderedHtmlModal();
+          hideJupyterJsonModal();
+          hideJupyterHelpModal();
+          hideGeminiPanel();
+          showRawMdModal(); // Open the raw editor for the new document
+          console.log("New document created and editor opened.");
       }
 
-      // --- Modal Functions ---
+      /** Shows the modal for editing the raw Markdown content. */
       function showRawMdModal() {
-        if (rawFileContent !== null) {
-          rawMdEditorTextarea.value = rawFileContent;
-          rawMdModal.classList.remove("hidden");
-          rawMdEditorTextarea.focus();
-        } else {
-          console.warn("Cannot open raw editor: No file content loaded.");
-        }
-      }
-      function hideRawMdModal() {
-        rawMdModal.classList.add("hidden");
-      }
-      function saveRawMdChanges() {
-        rawFileContent = rawMdEditorTextarea.value;
-        // Check if current view should be mindmap or preview after saving
-        if (
-          currentFilename &&
-          currentFilename.toLowerCase().includes(".mindmap.")
-        ) {
-          renderMindMap(rawFileContent);
-        } else {
-          renderParsedContent(rawFileContent);
-        }
-        hideRawMdModal();
-      }
-      function showRenderedHtmlModal() {
-        if (rawFileContent !== null) {
-          try {
-            rawFileContent = rawFileContent.replaceAll(/\n\* *\"/g, "\n").replaceAll(/\n *\"/g, "\n").replaceAll(/\" *\n/g, "\n");
-            const renderedHtml = marked.parse(rawFileContent);
-            renderedContentDisplay.innerHTML = renderedHtml;
-            renderedHtmlModal.classList.remove("hidden");
-          } catch (error) {
-            console.error("Error rendering Markdown:", error);
-            renderedContentDisplay.innerHTML =
-              '<p class="text-red-500">Error rendering Markdown.</p>';
-            renderedHtmlModal.classList.remove("hidden");
-          }
-        } else {
-          console.warn("No file content loaded.");
-        }
-      }
-      function hideRenderedHtmlModal() {
-        renderedHtmlModal.classList.add("hidden");
-        renderedContentDisplay.innerHTML = "";
-      }
-
-      // --- Main View Edit Handling ---
-      function handleMainTextareaEdit() {
-        reconstructRawContent();
-      }
-      function reconstructRawContent() {
-        /* ... unchanged ... */
-        let newRawContent = "";
-        const wrappers = outputDiv.querySelectorAll(".subsection-wrapper");
-        wrappers.forEach((wrapper) => {
-          const header = wrapper.querySelector("h1, h2, h3, h4");
-          const textarea = wrapper.querySelector(".content-textarea");
-          if (header) {
-            newRawContent +=
-              (header.dataset.markdownPrefix || "") + header.textContent + "\n";
-          }
-          if (textarea) {
-            newRawContent += textarea.value + "\n";
-          } else if (header && wrappers.length > 1) {
-            newRawContent += "\n";
-          }
-        });
-        rawFileContent = newRawContent.trim();
-        console.log(
-          "Raw content reconstructed. Length:",
-          rawFileContent.length
-        );
-      }
-
-      // --- Jupyter Export ---
-      function handleExportJupyter() {
-        /* ... unchanged ... */
-        console.log("Export to Jupyter requested.");
-        if (!rawFileContent || !rawFileContent.trim()) {
-          console.warn("No content to export.");
-          return;
-        }
-        try {
-          const notebookJsonString =
-            generateJupyterNotebookJSON(rawFileContent);
-          jupyterJsonDisplay.textContent = notebookJsonString;
-          showJupyterJsonModal();
-        } catch (error) {
-          console.error("Error generating Jupyter Notebook JSON:", error);
-        }
-      }
-      function generateJupyterNotebookJSON(markdownText) {
-        /* ... unchanged ... */
-        const cells = [];
-        const lines = markdownText.split("\n");
-        let currentCellLines = [];
-        function createMarkdownCell(sourceLines) {
-          while (
-            sourceLines.length > 0 &&
-            sourceLines[sourceLines.length - 1].trim() === ""
-          ) {
-            sourceLines.pop();
-          }
-          const sourceWithNewlines = sourceLines.map((line, index) =>
-            index === sourceLines.length - 1 ? line : line + "\n"
-          );
-          return {
-            cell_type: "markdown",
-            metadata: {},
-            source: sourceWithNewlines,
-          };
-        }
-        lines.forEach((line) => {
-          if (line.trim().startsWith("#")) {
-            if (currentCellLines.length > 0) {
-              cells.push(createMarkdownCell(currentCellLines));
-            }
-            currentCellLines = [line];
+          if (rawFileContent !== null) { // Only show if content is loaded/initialized
+              rawMdEditorTextarea.value = rawFileContent; // Load content into textarea
+              rawMdModal.classList.remove("hidden"); // Make modal visible
+              rawMdEditorTextarea.focus(); // Focus the textarea
           } else {
-            currentCellLines.push(line);
+              console.warn("Cannot open raw editor: No file content loaded.");
           }
-        });
-        if (currentCellLines.length > 0) {
-          cells.push(createMarkdownCell(currentCellLines));
-        }
-        const notebook = {
-          cells: cells,
-          metadata: {
-            kernelspec: {
-              display_name: "Python 3 (ipykernel)",
-              language: "python",
-              name: "python3",
-            },
-            language_info: {
-              codemirror_mode: { name: "ipython", version: 3 },
-              file_extension: ".py",
-              mimetype: "text/x-python",
-              name: "python",
-              nbconvert_exporter: "python",
-              pygments_lexer: "ipython3",
-              version: "3.10.0",
-            },
-          },
-          nbformat: 4,
-          nbformat_minor: 5,
-        };
-        return JSON.stringify(notebook, null, 2);
+      }
+      /** Hides the modal for editing the raw Markdown content. */
+      function hideRawMdModal() { rawMdModal.classList.add("hidden"); }
+
+      /** Saves changes from the raw Markdown editor and re-renders the main view. */
+      function saveRawMdChanges() {
+          rawFileContent = rawMdEditorTextarea.value; // Update state with edited content
+          // Re-render based on file type (mind map or standard)
+          if (currentFilename && currentFilename.toLowerCase().includes(".mindmap.")) {
+              renderMindMap(rawFileContent);
+          } else {
+              renderParsedContent(rawFileContent);
+          }
+          hideRawMdModal(); // Close the editor modal
       }
 
-      // --- Jupyter JSON Modal Functions ---
-      function showJupyterJsonModal() {
-        jupyterJsonModal.classList.remove("hidden");
+      /** Shows the modal displaying the rendered HTML view of the Markdown content. */
+      function showRenderedHtmlModal() {
+          if (rawFileContent !== null) { // Only show if content exists
+              try {
+                  // Clean content (remove potential quotes) and parse using Marked.js
+                  const cleanedContent = rawFileContent.split('\n').map(line => line.trim().replace(/^\"|\"$/g, '')).join('\n');
+                  const renderedHtml = marked.parse(cleanedContent);
+                  renderedContentDisplay.innerHTML = renderedHtml; // Display rendered HTML
+                  // Trigger MathJax typesetting for the rendered HTML modal
+                  if (window.MathJax && window.MathJax.typesetPromise) {
+                    console.log("Typesetting rendered HTML modal..."); // Optional log
+                    MathJax.typesetPromise([renderedContentDisplay])
+                      .catch(err => console.error('MathJax typesetting error in rendered modal:', err));
+                  }
+                  renderedHtmlModal.classList.remove("hidden"); // Show modal
+              } catch (error) {
+                  // Handle Markdown parsing errors
+                  console.error("Error rendering Markdown:", error);
+                  renderedContentDisplay.innerHTML = '<p class="text-red-500">Error rendering Markdown.</p>';
+                  renderedHtmlModal.classList.remove("hidden"); // Still show modal with error
+              }
+          } else {
+              console.warn("No file content loaded.");
+          }
       }
+      /** Hides the modal displaying the rendered HTML view. */
+      function hideRenderedHtmlModal() {
+          renderedHtmlModal.classList.add("hidden");
+          renderedContentDisplay.innerHTML = ""; // Clear content when hiding
+      }
+
+      /** Handles the export to Jupyter action. Generates and displays JSON. */
+      function handleExportJupyter() {
+          console.log("Export to Jupyter requested.");
+          if (!rawFileContent || !rawFileContent.trim()) {
+              console.warn("No content to export.");
+              return;
+          }
+          // If currently in standard parsed view, reconstruct raw content from textareas first
+          if (!document.getElementById('mindMapCanvas')) {
+             reconstructRawContent();
+          }
+          try {
+              // Generate the notebook JSON string
+              const notebookJsonString = generateJupyterNotebookJSON(rawFileContent);
+              jupyterJsonDisplay.textContent = notebookJsonString; // Display in modal
+              showJupyterJsonModal(); // Show the modal
+          } catch (error) {
+              console.error("Error generating Jupyter Notebook JSON:", error);
+              // Optionally show an error message to the user
+          }
+      }
+
+      /**
+       * Generates a JSON string representing a Jupyter Notebook (.ipynb) from Markdown text.
+       * Splits the Markdown into cells based on H1 headers.
+       * @param {string} markdownText - The raw Markdown text.
+       * @returns {string} A JSON string representing the Jupyter Notebook.
+       */
+      function generateJupyterNotebookJSON(markdownText) {
+          const cells = []; // Array to hold notebook cells
+          const lines = markdownText.split("\n");
+          let currentCellLines = []; // Lines for the current Markdown cell
+
+          // Helper to create a Markdown cell object
+          function createMarkdownCell(sourceLines) {
+              // Trim trailing empty lines from the cell source
+              while (sourceLines.length > 0 && sourceLines[sourceLines.length - 1].trim() === "") {
+                  sourceLines.pop();
+              }
+              // Add newline characters back, except for the last line
+              const sourceWithNewlines = sourceLines.map((line, index) =>
+                  index === sourceLines.length - 1 ? line : line + "\n"
+              );
+              return {
+                  cell_type: "markdown",
+                  metadata: {}, // Standard empty metadata
+                  source: sourceWithNewlines,
+              };
+          }
+
+          // Iterate through lines, splitting into cells at H1 headers
+          lines.forEach((line) => {
+              // Use H1 (# ) as cell separator
+              if (line.trim().startsWith("# ")) { // Check for H1 header
+                  if (currentCellLines.length > 0) {
+                      // Finalize the previous cell if it has content
+                      cells.push(createMarkdownCell(currentCellLines));
+                  }
+                  // Start a new cell with the H1 header line
+                  currentCellLines = [line];
+              } else {
+                  // Add line to the current cell
+                  currentCellLines.push(line);
+              }
+          });
+
+          // Add the last cell after the loop finishes
+          if (currentCellLines.length > 0) {
+              cells.push(createMarkdownCell(currentCellLines));
+          }
+
+          // Construct the full notebook object structure
+          const notebook = {
+              cells: cells,
+              metadata: { // Standard Jupyter metadata
+                  kernelspec: {
+                      display_name: "Python 3 (ipykernel)",
+                      language: "python",
+                      name: "python3",
+                  },
+                  language_info: {
+                      codemirror_mode: { name: "ipython", version: 3 },
+                      file_extension: ".py",
+                      mimetype: "text/x-python",
+                      name: "python",
+                      nbconvert_exporter: "python",
+                      pygments_lexer: "ipython3",
+                      version: "3.10.0", // Example version, adjust if needed
+                  },
+              },
+              nbformat: 4, // Standard notebook format version
+              nbformat_minor: 5, // Standard minor version
+          };
+
+          // Return the notebook object as a formatted JSON string
+          return JSON.stringify(notebook, null, 2); // Pretty print with 2 spaces
+      }
+
+      /** Shows the modal displaying the generated Jupyter JSON. */
+      function showJupyterJsonModal() { jupyterJsonModal.classList.remove("hidden"); }
+      /** Hides the modal displaying the generated Jupyter JSON. */
       function hideJupyterJsonModal() {
-        jupyterJsonModal.classList.add("hidden");
-        jupyterJsonDisplay.textContent = "";
+          jupyterJsonModal.classList.add("hidden");
+          jupyterJsonDisplay.textContent = ""; // Clear JSON when hiding
       }
+
+      /** Copies the content of the Jupyter JSON display area to the clipboard. */
       async function copyJupyterJsonToClipboard() {
-        /* ... unchanged ... */
-        const jsonText = jupyterJsonDisplay.textContent;
-        if (!jsonText) return;
-        try {
-          await navigator.clipboard.writeText(jsonText);
-          console.log("Jupyter JSON copied to clipboard!");
-          const originalText = copyJupyterJsonButton.textContent;
-          copyJupyterJsonButton.textContent = "Copied!";
-          setTimeout(() => {
-            copyJupyterJsonButton.textContent = originalText;
-          }, 1500);
-        } catch (err) {
-          console.error("Failed to copy Jupyter JSON: ", err);
-        }
+          const jsonText = jupyterJsonDisplay.textContent;
+          if (!jsonText) return; // Do nothing if empty
+
+          try {
+              await navigator.clipboard.writeText(jsonText); // Use Clipboard API
+              console.log("Jupyter JSON copied to clipboard!");
+
+              // Provide visual feedback on the button
+              const originalText = copyJupyterJsonButton.textContent;
+              copyJupyterJsonButton.textContent = "Copied!";
+              copyJupyterJsonButton.disabled = true;
+              setTimeout(() => { // Reset button after a delay
+                  copyJupyterJsonButton.textContent = originalText;
+                  copyJupyterJsonButton.disabled = false;
+              }, 1500);
+          } catch (err) {
+              console.error("Failed to copy Jupyter JSON: ", err);
+              // Provide error feedback on the button
+              copyJupyterJsonButton.textContent = "Copy Failed";
+              setTimeout(() => { // Reset button after a delay
+                  copyJupyterJsonButton.textContent = "Copy JSON";
+              }, 2000);
+          }
       }
 
-      // --- Jupyter Help Modal Functions ---
-      function showJupyterHelpModal() {
-        jupyterHelpModal.classList.remove("hidden");
-      }
-      function hideJupyterHelpModal() {
-        jupyterHelpModal.classList.add("hidden");
+      /** Shows the help modal explaining how to use the Jupyter JSON. */
+      function showJupyterHelpModal() { jupyterHelpModal.classList.remove("hidden"); }
+      /** Hides the Jupyter help modal. */
+      function hideJupyterHelpModal() { jupyterHelpModal.classList.add("hidden"); }
+
+      /** Triggered when a textarea in the main parsed view loses focus. Reconstructs raw content. */
+      function handleMainTextareaEdit() {
+          reconstructRawContent(); // Update the rawFileContent state
       }
 
-      // --- Helper Functions ---
+      /**
+       * Reconstructs the raw Markdown content from the headers and textareas in the main output view.
+       * Updates the `rawFileContent` state variable.
+       * Skips reconstruction if currently in mind map view.
+       */
+      function reconstructRawContent() {
+          // Do not reconstruct if the mind map canvas is present (we rely on rawMdEditorTextarea for mind maps)
+          if (document.getElementById('mindMapCanvas')) {
+              console.log("In mind map view, skipping raw content reconstruction.");
+              return;
+          }
+
+          let newRawContent = "";
+          // Select headers H1 through H6
+          const wrappers = outputDiv.querySelectorAll(".subsection-wrapper");
+
+          wrappers.forEach((wrapper, index) => {
+              const header = wrapper.querySelector("h1, h2, h3, h4, h5, h6"); // Include H5, H6
+              const textarea = wrapper.querySelector(".content-textarea");
+
+              if (header) {
+                  newRawContent += (header.dataset.markdownPrefix || "") + header.textContent + "\n";
+              }
+              if (textarea) {
+                  newRawContent += textarea.value;
+                  if (index < wrappers.length - 1 || header) {
+                     newRawContent += "\n";
+                  }
+              } else if (header && index < wrappers.length - 1) {
+                  newRawContent += "\n";
+              }
+          });
+
+
+          rawFileContent = newRawContent.trimEnd(); // Update global state, remove trailing whitespace
+          console.log("Raw content reconstructed. Length:", rawFileContent.length);
+
+          // Re-evaluate button states based on reconstructed content
+          if (rawFileContent.trim()) {
+              enableActionButtons();
+          } else {
+              disableActionButtonsButKeepNewEnabled();
+          }
+      }
+
+      /**
+       * Creates an HTML header element (H1-H6).
+       * @param {string} tag - The header tag name (e.g., "h1").
+       * @param {string} text - The text content of the header.
+       * @param {string} prefix - The original Markdown prefix (e.g., "## ").
+       * @returns {HTMLElement} The created header element.
+       */
       function createHeaderElement(tag, text, prefix) {
-        const element = document.createElement(tag);
-        element.textContent = text.trim();
-        element.dataset.markdownPrefix = prefix;
-        return element;
-      }
-      function createContentTextarea(contentText) {
-        if (!contentText || !contentText.trim()) {
-          return null;
-        }
-        const textarea = document.createElement("textarea");
-        textarea.value = contentText;
-        textarea.classList.add("content-textarea");
-        textarea.addEventListener("blur", handleMainTextareaEdit);
-        const lines = contentText.split("\n").length;
-        textarea.rows = Math.min(Math.max(5, lines + 1), 25);
-        return textarea;
+          const element = document.createElement(tag);
+          element.textContent = text.trim(); // Set text content
+          element.dataset.markdownPrefix = prefix; // Store original prefix for reconstruction
+          return element;
       }
 
-      // --- Button Enabling/Disabling ---
-      function enableActionButtons() {
-        viewRawMdButton.disabled = false;
-        viewRenderedButton.disabled = false;
-        exportJupyterButton.disabled = false;
-        newButton.disabled = false;
-        console.log("Action buttons enabled.");
+      /**
+       * Creates an editable textarea element for a content block.
+       * @param {string} contentText - The text content for the textarea.
+       * @returns {HTMLTextAreaElement | null} The created textarea element or null if content is empty.
+       */
+      function createContentTextarea(contentText) {
+          if (!contentText || !contentText.trim()) {
+              return null; // Don't create textarea for empty content
+          }
+          const textarea = document.createElement("textarea");
+          textarea.value = contentText; // Set initial value
+          textarea.classList.add("content-textarea"); // Apply styling
+          textarea.addEventListener("blur", handleMainTextareaEdit); // Add listener to update raw content on edit
+
+          // Adjust initial height based on content lines (within limits)
+          const lines = contentText.split("\n").length;
+          textarea.rows = Math.min(Math.max(5, lines + 1), 25); // Min 5, max 25 rows
+
+          return textarea;
       }
+
+      /** Enables the main action buttons (Edit Raw, View Rendered, Export, Refresh). */
+      function enableActionButtons() {
+          viewRawMdButton.disabled = false;
+          viewRenderedButton.disabled = false;
+          exportJupyterButton.disabled = false;
+          refreshPreviewButton.disabled = false; // Enable refresh button
+          newButton.disabled = false; // Ensure New is also enabled
+          console.log("Action buttons enabled.");
+      }
+
+      /** Disables the main action buttons, but keeps the 'New' button enabled. */
       function disableActionButtonsButKeepNewEnabled() {
-        viewRawMdButton.disabled = true;
-        viewRenderedButton.disabled = true;
-        exportJupyterButton.disabled = true;
-        newButton.disabled = false;
-        console.log("Action buttons (except New) disabled.");
+          viewRawMdButton.disabled = true;
+          viewRenderedButton.disabled = true;
+          exportJupyterButton.disabled = true;
+          refreshPreviewButton.disabled = true; // Disable refresh button
+          newButton.disabled = false; // Keep 'New' enabled
+          console.log("Action buttons (except New) disabled.");
+      }
+
+      /** Handles the click event for the Refresh Preview button. */
+      function handleRefreshPreview() {
+          console.log("Refresh Preview requested.");
+          if (rawFileContent === null) {
+              console.warn("Cannot refresh: No content loaded.");
+              return;
+          }
+          // Re-render based on the current content type
+          if (currentFilename && currentFilename.toLowerCase().includes(".mindmap.")) {
+              console.log("Refreshing mind map view...");
+              renderMindMap(rawFileContent);
+          } else {
+              console.log("Refreshing standard markdown view...");
+              renderParsedContent(rawFileContent);
+          }
+          console.log("Preview refreshed.");
+      }
+
+
+      // --- Gemini Panel Functions ---
+
+      /** Toggles the visibility of the Gemini options panel (slides in/out). */
+      function toggleGeminiPanel() {
+        geminiOptionsPanel.classList.toggle("visible");
+      }
+
+      /** Hides the Gemini options panel. */
+      function hideGeminiPanel() {
+        geminiOptionsPanel.classList.remove("visible");
+      }
+
+      /** Resets the displayed token counts in the Gemini panel to 0. */
+      function resetTokenCountDisplay() {
+          if (promptTokenCountEl) promptTokenCountEl.textContent = '0';
+          if (completionTokenCountEl) completionTokenCountEl.textContent = '0';
+          if (totalTokenCountEl) totalTokenCountEl.textContent = '0';
+      }
+
+      /** Resets the cumulative token count variables and their display. */
+      function resetCumulativeCounts() {
+          cumulativeInTokens = 0;
+          cumulativeOutTokens = 0;
+          cumulativeTotalTokens = 0;
+          resetTokenCountDisplay(); // Also reset the display elements
+          console.log("Cumulative token counts reset.");
+      }
+
+
+      /** Updates the text indicator showing the currently selected Gemini model. */
+      function updateActiveModelIndicator() {
+          // If indicator element doesn't exist or select is disabled, clear text and exit
+          if (!activeModelIndicator || geminiModelSelect.disabled) {
+              if(activeModelIndicator) activeModelIndicator.textContent = ''; // Clear if disabled
+              return;
+          }
+          // Get the selected option element
+          const selectedOption = geminiModelSelect.options[geminiModelSelect.selectedIndex];
+          // Update indicator text based on selection
+          if (selectedOption && selectedOption.value) {
+              activeModelIndicator.textContent = `Active Model: ${selectedOption.text}`;
+          } else {
+              activeModelIndicator.textContent = 'Active Model: None Selected';
+          }
+      }
+
+
+      /**
+       * Handles changes to the API key input field.
+       * Saves the key, validates it by fetching models, and updates the UI.
+       */
+      function handleApiKeyChange() {
+          const apiKey = geminiApiKeyInput.value.trim();
+          localStorage.setItem('geminiApiKey', apiKey); // Save key to localStorage
+          console.log('Gemini API Key saved.');
+          geminiApiError.textContent = ''; // Clear previous errors
+          geminiResponseTextarea.value = ''; // Clear previous test response
+          resetCumulativeCounts(); // Reset token counts when key changes
+
+          if (apiKey) {
+              // If key is entered, enable model select and fetch models
+              geminiModelSelect.disabled = false;
+              fetchAndPopulateModels(apiKey);
+          } else {
+              // If key is cleared, disable model select and reset UI
+              geminiModelSelect.disabled = true;
+              clearModelOptions();
+              geminiModelSelect.value = ""; // Ensure no value is selected
+              updateActiveModelIndicator(); // Clear active model indicator
+              const defaultOption = geminiModelSelect.querySelector('option[value=""]');
+              if (defaultOption) {
+                  defaultOption.textContent = "-- Enter API Key --"; // Reset placeholder text
+              }
+          }
+      }
+
+      /** Clears all model options from the select dropdown, except the default placeholder. */
+      function clearModelOptions() {
+          // Remove options starting from the second one (index 1)
+          while (geminiModelSelect.options.length > 1) {
+              geminiModelSelect.remove(1);
+          }
+      }
+
+      /**
+       * Fetches the list of available Gemini models from the API using the provided key
+       * and populates the model selection dropdown.
+       * @param {string} apiKey - The user's Gemini API key.
+       */
+      async function fetchAndPopulateModels(apiKey) {
+          console.log("Fetching Gemini models...");
+          const modelsUrl = `${GEMINI_API_BASE_URL}/models?key=${apiKey}`;
+          const defaultOption = geminiModelSelect.querySelector('option[value=""]');
+
+          // Update UI to loading state
+          if (defaultOption) defaultOption.textContent = "-- Loading Models... --";
+          clearModelOptions(); // Clear existing models first
+          updateActiveModelIndicator(); // Clear active model text
+          resetTokenCountDisplay(); // Reset token display
+
+          try {
+              const response = await fetch(modelsUrl); // Make API call
+              if (!response.ok) {
+                  // Handle HTTP errors (e.g., 400 Bad Request for invalid key)
+                  let errorMsg = `Error fetching models (HTTP ${response.status})`;
+                  try {
+                      // Try to parse error details from the response body
+                      const errorData = await response.json();
+                      if (errorData.error && errorData.error.message) {
+                          errorMsg = `API Error: ${errorData.error.message}`;
+                      }
+                  } catch (parseError) {
+                      console.warn("Could not parse error response body.");
+                  }
+                   throw new Error(errorMsg); // Throw error to be caught below
+              }
+              const data = await response.json(); // Parse successful response
+
+              // Check if the API returned any models
+              if (!data.models || data.models.length === 0) {
+                   console.warn("API returned successfully but with no models listed.");
+                   if (defaultOption) defaultOption.textContent = "-- No models found --";
+                   geminiApiError.textContent = "No models found for this API key.";
+                   updateActiveModelIndicator();
+                   return; // Exit if no models
+              }
+
+              // Populate the dropdown with supported models
+              data.models.forEach(model => {
+                  // Check if the model supports the 'generateContent' method needed by this app
+                  const supportsGenerateContent = model.supportedGenerationMethods?.includes('generateContent');
+                  if (supportsGenerateContent) {
+                      const option = document.createElement('option');
+                      option.value = model.name; // Full model name (e.g., "models/gemini-1.5-pro-latest")
+                      // Use display name if available, otherwise extract name from the full path
+                      option.textContent = model.displayName || model.name.split('/').pop();
+                      geminiModelSelect.appendChild(option);
+                  } else {
+                      console.log(`Skipping model ${model.name} as it does not support 'generateContent'`);
+                  }
+              });
+
+               // Update placeholder text after loading
+               if (defaultOption) defaultOption.textContent = "-- Select a Model --";
+               geminiApiError.textContent = ''; // Clear error message on success
+
+              // Try to restore previously selected model from localStorage
+              const savedModel = localStorage.getItem('selectedGeminiModel');
+              if (savedModel && geminiModelSelect.querySelector(`option[value="${savedModel}"]`)) {
+                   geminiModelSelect.value = savedModel; // Select the saved model
+                   console.log("Restored previously selected model:", savedModel);
+              } else {
+                   geminiModelSelect.value = ""; // Default to placeholder if saved model not found
+              }
+              updateActiveModelIndicator(); // Update the active model display
+
+
+          } catch (error) {
+              // Handle errors during fetch or processing
+              console.error("Failed to fetch or populate models:", error);
+              geminiApiError.textContent = error.message || "Failed to fetch models. Check key or console.";
+              geminiModelSelect.disabled = true; // Disable select on error
+              clearModelOptions(); // Clear any partially loaded options
+              if (defaultOption) defaultOption.textContent = "-- Error Loading --"; // Update placeholder
+              updateActiveModelIndicator(); // Clear active model text
+          }
+      }
+
+      /**
+       * Handles the click event for the "Send 'hello world'" test prompt button.
+       * Sends a simple, predefined prompt to the selected Gemini model.
+       * Displays the response and token usage in the panel.
+       */
+      async function handleSendPromptClick() {
+          const apiKey = geminiApiKeyInput.value.trim();
+          const selectedModel = geminiModelSelect.value;
+          const originalButtonText = sendPromptButton.textContent;
+
+          // --- Validation ---
+          geminiApiError.textContent = ''; // Clear previous errors
+          geminiResponseTextarea.value = ''; // Clear previous response
+          // Reset only the display for this single request, not cumulative counts
+          resetTokenCountDisplay();
+
+          if (!apiKey) {
+              geminiApiError.textContent = 'API Key is required.';
+              return;
+          }
+          if (!selectedModel) {
+              geminiApiError.textContent = 'Please select a model.';
+              return;
+          }
+
+          // --- Prepare API Call ---
+          const apiUrl = `${GEMINI_API_BASE_URL}/${selectedModel}:generateContent?key=${apiKey}`;
+          // Simple request body with a system instruction and user prompt
+          const requestBody = {
+              "systemInstruction": { // Instruct the model on how to behave
+                  "parts": [{"text": "Respond ONLY with the exact text 'hello human'."}]
+              },
+              "contents": [ // The actual user input/prompt
+                  { "parts": [ {"text": "hello world"} ] }
+              ]
+          };
+
+          // --- Loading State ---
+          sendPromptButton.disabled = true;
+          sendPromptButton.textContent = 'Sending...';
+
+          // --- API Call ---
+          try {
+              console.log(`Sending prompt to ${selectedModel}...`);
+              const response = await fetch(apiUrl, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(requestBody),
+              });
+
+              const data = await response.json(); // Always try to parse JSON response
+
+              // Handle non-OK HTTP responses (errors)
+              if (!response.ok) {
+                  let errorMsg = `API Error (HTTP ${response.status})`;
+                   // Use parsed error message if available from the API response body
+                   if (data.error && data.error.message) {
+                       errorMsg = `API Error: ${data.error.message}`;
+                   }
+                   throw new Error(errorMsg); // Throw error to be caught
+              }
+
+              console.log("API Response:", data);
+
+              // --- Extract Text Response ---
+              let responseText = "Error: Could not extract text from response.";
+              // Standard path for successful response text
+              if (data.candidates && data.candidates.length > 0 &&
+                  data.candidates[0].content && data.candidates[0].content.parts &&
+                  data.candidates[0].content.parts.length > 0 &&
+                  data.candidates[0].content.parts[0].text) {
+                  responseText = data.candidates[0].content.parts[0].text;
+              }
+              // Handle cases where the prompt was blocked (safety settings, etc.)
+              else if (data.promptFeedback && data.promptFeedback.blockReason) {
+                   responseText = `Blocked: ${data.promptFeedback.blockReason}`;
+                   if (data.promptFeedback.blockReasonMessage) { // Add specific message if available
+                       responseText += ` - ${data.promptFeedback.blockReasonMessage}`;
+                   }
+              } else {
+                  // Log unexpected response structure if text couldn't be found
+                  console.warn("Unexpected response structure:", data);
+              }
+              geminiResponseTextarea.value = responseText.trim(); // Display extracted text
+
+              // --- Update Token Counts ---
+              if (data.usageMetadata) {
+                  // Get token counts for this specific request
+                  const currentPromptTokens = data.usageMetadata.promptTokenCount || 0;
+                  const currentCompletionTokens = data.usageMetadata.candidatesTokenCount || 0; // Note: API might use different names
+                  const currentTotalTokens = data.usageMetadata.totalTokenCount || 0;
+
+                  // Add current request's tokens to the cumulative session totals
+                  cumulativeInTokens += currentPromptTokens;
+                  cumulativeOutTokens += currentCompletionTokens;
+                  cumulativeTotalTokens += currentTotalTokens; // Or recalculate: cumulativeInTokens + cumulativeOutTokens
+
+                  // Update the display with the *cumulative* totals
+                  promptTokenCountEl.textContent = cumulativeInTokens;
+                  completionTokenCountEl.textContent = cumulativeOutTokens;
+                  totalTokenCountEl.textContent = cumulativeTotalTokens;
+
+                  console.log("Token Usage (Current Request):", data.usageMetadata);
+                  console.log("Token Usage (Cumulative Session):", { in: cumulativeInTokens, out: cumulativeOutTokens, total: cumulativeTotalTokens });
+              } else {
+                  console.warn("Usage metadata not found in response.");
+                  // If metadata is missing, keep displaying the existing cumulative counts
+                  promptTokenCountEl.textContent = cumulativeInTokens;
+                  completionTokenCountEl.textContent = cumulativeOutTokens;
+                  totalTokenCountEl.textContent = cumulativeTotalTokens;
+              }
+
+          } catch (error) {
+              // Handle fetch errors or errors thrown from response checking
+              console.error("Failed to send prompt:", error);
+              geminiApiError.textContent = error.message || "Failed to send prompt. Check console.";
+              geminiResponseTextarea.value = ''; // Clear response area on error
+              // Display existing cumulative counts even on error
+              promptTokenCountEl.textContent = cumulativeInTokens;
+              completionTokenCountEl.textContent = cumulativeOutTokens;
+              totalTokenCountEl.textContent = cumulativeTotalTokens;
+          } finally {
+              // --- Reset Loading State ---
+              sendPromptButton.disabled = false; // Re-enable button
+              sendPromptButton.textContent = originalButtonText; // Restore original text
+          }
+      }
+
+      /**
+       * Handles the click event for the action buttons next to main view textareas (1-5).
+       * Sends the textarea content combined with a specific custom prompt (from the panel) to Gemini.
+       * Replaces the textarea content with the Gemini response.
+       * Updates cumulative token counts.
+       * @param {Event} event - The button click event.
+       * @param {HTMLTextAreaElement} textareaElement - The textarea associated with the clicked button.
+       * @param {HTMLTextAreaElement} customPromptElement - The corresponding custom prompt textarea from the options panel.
+       * @param {string} promptLabel - A user-friendly label for the custom prompt (used in error messages).
+       */
+      async function handleMainViewPrompt(event, textareaElement, customPromptElement, promptLabel) {
+          const clickedButton = event.currentTarget; // Get the button that was clicked
+          const originalButtonText = clickedButton.textContent; // Store original text (e.g., "1")
+
+          // --- Get Settings and Content ---
+          const apiKey = geminiApiKeyInput.value.trim();
+          const selectedModel = geminiModelSelect.value;
+          const customPromptText = customPromptElement.value.trim(); // Get text from the *specific* custom prompt textarea
+          const textareaContent = textareaElement.value.trim(); // Get content from the main view textarea
+
+          // --- Validation ---
+          geminiApiError.textContent = ''; // Clear errors in the Gemini panel
+          resetTokenCountDisplay(); // Reset display for this request (will show cumulative after)
+
+          // Check for API key, model selection, and non-empty prompts/content
+          if (!apiKey) {
+              geminiApiError.textContent = 'API Key is required in options panel.';
+              return;
+          }
+          if (!selectedModel) {
+              geminiApiError.textContent = 'Please select a model in options panel.';
+              return;
+          }
+          if (!customPromptText) {
+              // Use the provided label to indicate *which* custom prompt is missing
+              geminiApiError.textContent = `${promptLabel} is empty in options panel.`;
+              return;
+          }
+          if (!textareaContent) {
+              // Provide visual feedback if the target textarea is empty
+              console.warn("Textarea is empty, nothing to send.");
+              textareaElement.classList.add('border-red-500', 'ring-red-500'); // Highlight border
+              setTimeout(() => { // Remove highlight after a short delay
+                  textareaElement.classList.remove('border-red-500', 'ring-red-500');
+              }, 1500);
+              return;
+          }
+
+          // --- Prepare API Call ---
+          // Combine the custom prompt and the textarea content
+          const combinedPrompt = `${customPromptText}\n\n${textareaContent}`; // Add separation
+          const apiUrl = `${GEMINI_API_BASE_URL}/${selectedModel}:generateContent?key=${apiKey}`;
+          // Simple request body, sending the combined text as the prompt
+          const requestBody = {
+              "contents": [
+                  { "parts": [ {"text": combinedPrompt} ] }
+              ]
+              // Note: No systemInstruction is used here by default, but could be added
+          };
+
+          // --- Loading State ---
+          clickedButton.disabled = true; // Disable the small action button
+          clickedButton.textContent = '...'; // Indicate loading
+
+          // --- API Call ---
+          try {
+              console.log(`Sending main view prompt ('${promptLabel}') to ${selectedModel}...`);
+              const response = await fetch(apiUrl, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(requestBody),
+              });
+
+              const data = await response.json(); // Parse response JSON
+
+              // Handle non-OK HTTP responses
+              if (!response.ok) {
+                  let errorMsg = `API Error (HTTP ${response.status})`;
+                  if (data.error && data.error.message) { errorMsg = `API Error: ${data.error.message}`; }
+                  throw new Error(errorMsg);
+              }
+
+              console.log("API Response:", data);
+
+              // --- Extract Text Response ---
+              let responseText = "Error: Could not extract text from response.";
+              // Standard path for successful response
+              if (data.candidates && data.candidates.length > 0 &&
+                  data.candidates[0].content && data.candidates[0].content.parts &&
+                  data.candidates[0].content.parts.length > 0 &&
+                  data.candidates[0].content.parts[0].text) {
+                  responseText = data.candidates[0].content.parts[0].text;
+              }
+              // Handle blocked prompts
+              else if (data.promptFeedback && data.promptFeedback.blockReason) {
+                   responseText = `Blocked: ${data.promptFeedback.blockReason}`;
+                   if (data.promptFeedback.blockReasonMessage) { responseText += ` - ${data.promptFeedback.blockReasonMessage}`; }
+              } else {
+                   console.warn("Unexpected response structure:", data);
+              }
+
+              // --- Replace Textarea Content ---
+              // Use direct value assignment - simpler and more reliable than execCommand
+              textareaElement.value = responseText.trim();
+
+              // Trigger blur event manually to ensure any related logic (like saving) runs
+              textareaElement.dispatchEvent(new Event('blur'));
+
+              // Manually trigger content reconstruction as blur might not be sufficient if focus doesn't change
+              reconstructRawContent();
+
+
+              // --- Update Token Counts (Cumulative) ---
+              if (data.usageMetadata) {
+                  const currentPromptTokens = data.usageMetadata.promptTokenCount || 0;
+                  const currentCompletionTokens = data.usageMetadata.candidatesTokenCount || 0;
+                  const currentTotalTokens = data.usageMetadata.totalTokenCount || 0;
+
+                  // Add to cumulative totals
+                  cumulativeInTokens += currentPromptTokens;
+                  cumulativeOutTokens += currentCompletionTokens;
+                  cumulativeTotalTokens += currentTotalTokens;
+
+                  // Update display in the Gemini panel with cumulative totals
+                  promptTokenCountEl.textContent = cumulativeInTokens;
+                  completionTokenCountEl.textContent = cumulativeOutTokens;
+                  totalTokenCountEl.textContent = cumulativeTotalTokens;
+
+                  console.log("Token Usage (Current Request):", data.usageMetadata);
+                  console.log("Token Usage (Cumulative Session):", { in: cumulativeInTokens, out: cumulativeOutTokens, total: cumulativeTotalTokens });
+              } else {
+                  console.warn("Usage metadata not found in response.");
+                  // Display existing cumulative counts if metadata is missing
+                  promptTokenCountEl.textContent = cumulativeInTokens;
+                  completionTokenCountEl.textContent = cumulativeOutTokens;
+                  totalTokenCountEl.textContent = cumulativeTotalTokens;
+              }
+
+          } catch (error) {
+              // Handle errors during fetch or processing
+              console.error("Failed to send main view prompt:", error);
+              // Display error in the *panel's* error area
+              geminiApiError.textContent = error.message || "Failed to process request. Check console.";
+              // Display existing cumulative counts even on error
+              promptTokenCountEl.textContent = cumulativeInTokens;
+              completionTokenCountEl.textContent = cumulativeOutTokens;
+              totalTokenCountEl.textContent = cumulativeTotalTokens;
+          } finally {
+              // --- Reset Loading State ---
+              clickedButton.disabled = false; // Re-enable the button
+              clickedButton.textContent = originalButtonText; // Restore original text (e.g., "1")
+          }
+      }
+
+
+      /** Loads saved settings (API key, custom prompts) from localStorage on page load. */
+      function loadSettings() {
+          // Reset cumulative counts at the start of a new session/page load
+          resetCumulativeCounts();
+
+          // Load API Key
+          const savedKey = localStorage.getItem('geminiApiKey');
+          if (savedKey) {
+              geminiApiKeyInput.value = savedKey; // Populate input field
+              console.log('Gemini API Key loaded.');
+              geminiModelSelect.disabled = false; // Enable model select
+              fetchAndPopulateModels(savedKey); // Fetch models using the saved key
+          } else {
+              // If no key saved, keep model select disabled
+              geminiModelSelect.disabled = true;
+              clearModelOptions();
+              const defaultOption = geminiModelSelect.querySelector('option[value=""]');
+               if (defaultOption) defaultOption.textContent = "-- Enter API Key --";
+               updateActiveModelIndicator(); // Ensure indicator is clear
+          }
+
+          // Load Custom Prompts
+          promptCreatePlanEl.value = localStorage.getItem('promptCreatePlanValue') || '';
+          promptGenerateContentEl.value = localStorage.getItem('promptGenerateContentValue') || '';
+          promptFactCheckEl.value = localStorage.getItem('promptFactCheckValue') || '';
+          promptCustom1El.value = localStorage.getItem('promptCustom1Value') || '';
+          promptCustom2El.value = localStorage.getItem('promptCustom2Value') || '';
+          console.log('Custom prompts loaded.');
       }
 
       // --- Initial Setup ---
-      disableActionButtonsButKeepNewEnabled();
+      // Run on script load
+      disableActionButtonsButKeepNewEnabled(); // Start with most buttons disabled
+      loadSettings(); // Load saved settings (API key, prompts) and fetch models if key exists
+      loadMarkdownFromUrl(); // NEW: Check URL hash for a markdown file to load
+      switchTab('file'); // NEW: Ensure 'File' tab is active initially
     </script>
   </body>
 </html>
