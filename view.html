@@ -2306,8 +2306,9 @@
               }
 
               // --- Replace Textarea Content ---
-              // Use direct value assignment - simpler and more reliable than execCommand
-              textareaElement.value = responseText.trim();
+              textareaElement.focus(); // Focus textarea A
+              textareaElement.select(); // Select existing content (optional, to replace it)
+              document.execCommand('insertText', false, responseText.trim()); // Insert new content
 
               // Trigger blur event manually to ensure any related logic (like saving) runs
               textareaElement.dispatchEvent(new Event('blur'));
