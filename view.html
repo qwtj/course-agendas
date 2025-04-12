@@ -792,7 +792,8 @@
                     <li class="text-sm font-semibold text-gray-400 mb-2">Add load by #markdownUrl paramoutside of Gemini</li>
                     <li class="text-sm font-semibold text-gray-400 mb-2">Add tabs to change load markdown ui.</li>
                     <li class="text-sm font-semibold text-gray-400 mb-2">Add button emoji instead of numbers.</li>
-                    <li class="text-sm font-semibold text-gray-400 mb-2">Add tasks panel and tracking</li>
+                    <li class="text-sm font-semibold text-gray-400 mb-2">Add tasks panel and tracking.</li>
+                    <li class="text-sm font-semibold text-gray-400 mb-2">Add ability to cancel pending task.</li>
                  </ul>
             </div>
         </div>
@@ -898,6 +899,32 @@
 
       // --- Event Listeners ---
       // Attach functions to UI events (clicks, changes, etc.)
+
+      // Listener for Cancel buttons ('✖') within the task list container
+      taskListContainer.addEventListener('click', (event) => {
+        // Check if the clicked element is an individual cancel button ('✖')
+        if (event.target.classList.contains('cancel-task-btn')) {
+          const buttonElement = event.target;
+          const taskIdToCancel = parseInt(buttonElement.dataset.taskId, 10);
+          console.log(`Cancel requested for task ID: ${taskIdToCancel}`);
+
+          // Find the task in the main array
+          const taskToCancel = activeTasks.find(task => task.id === taskIdToCancel);
+
+          // IMPORTANT: Only cancel if the task is still 'Pending'
+          if (taskToCancel && taskToCancel.status === 'Pending') {
+            taskToCancel.status = 'Cancelled';
+            taskToCancel.message = 'Cancelled by user before start.';
+            renderTasksList(); // Update UI to show 'Cancelled' and remove the button
+            console.log(`Task #${taskIdToCancel} status set to Cancelled.`);
+          } else {
+            console.log(`Task #${taskIdToCancel} could not be cancelled (Status: ${taskToCancel?.status})`);
+            // Optionally provide user feedback e.g., briefly disable button
+            buttonElement.disabled = true; // Visually disable button if clicked when not pending
+            setTimeout(() => buttonElement.disabled = false, 500);
+          }
+        }
+      });
 
       // Add listeners for Batch Run buttons in options panel
       runPlanOnAllBtn.addEventListener('click', () => runBatchTask(promptCreatePlanEl, 'Create Plan Prompt'));
@@ -1016,7 +1043,8 @@
       const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
       /**
-       * Runs a specified task on all textareas in the preview with a delay.
+       * Runs a specified task on all textareas in the preview with a delay,
+       * adding tasks as 'Pending' first and allowing individual cancellation.
        * @param {HTMLTextAreaElement} promptElement - The textarea element containing the prompt to use.
        * @param {string} promptLabel - The user-friendly label for the prompt/task type.
        */
@@ -1032,69 +1060,84 @@
         const textareas = document.querySelectorAll('#output .content-textarea');
         if (textareas.length === 0) {
           alert("No text areas found in the preview to process.");
-          return;
+          return; // Exit if no textareas
         }
 
-        // Add a parent task entry for the batch job
-        const batchTaskId = nextTaskId++;
-        const batchTask = {
-          id: batchTaskId,
-          type: `Batch: ${promptLabel.replace(/ Prompt/, '')}`, // Use label for type
-          status: 'Running...',
-          message: `Starting ${textareas.length} sections...`,
-          timestamp: new Date(),
-          model: geminiModelSelect.value // Store model used for batch
-        };
-        activeTasks.push(batchTask);
-        renderTasksList();
+        const batchTimestamp = new Date(); // Use same timestamp for all related tasks
+        const batchModel = geminiModelSelect.value; // Use same model
+        const tasksForThisBatch = []; // Array to hold the task objects created for this run
+
+        // --- Create all task objects as 'Pending' first ---
+        textareas.forEach((textarea, index) => {
+          const taskId = nextTaskId++;
+          const taskType = `${promptLabel.replace(/ Prompt/, '')} (Section ${index + 1})`;
+          const newTask = {
+            id: taskId,
+            type: taskType,
+            status: 'Pending', // Initial status
+            message: '',
+            timestamp: batchTimestamp,
+            model: batchModel
+          };
+          activeTasks.push(newTask);
+          tasksForThisBatch.push(newTask); // Keep track of tasks for this specific batch run
+        });
+
+        renderTasksList(); // Render all newly added 'Pending' tasks at once
         // Optional: ensure panel is visible
         if (taskListPanel.classList.contains('invisible')) {
-          taskListButton.click(); // Simulate click to toggle panel open
+          taskListButton.click();
         }
+        // --- End Create Pending Tasks ---
 
-        let errorOccurred = false;
+        console.log(`Batch loop starting for ${tasksForThisBatch.length} tasks.`);
         try {
-          for (const [index, textarea] of textareas.entries()) {
-            console.log(`Processing section ${index + 1} of ${textareas.length} with task: ${promptLabel}`);
-            // Update batch task status
-            const currentTask = activeTasks.find(t => t.id === batchTaskId);
-            if(currentTask) {
-                currentTask.message = `Processing section ${index + 1} of ${textareas.length}...`;
-                renderTasksList(); // Update immediately before starting the sub-task
+          // Loop through the tasks created specifically for this batch
+          for (const [index, taskToRun] of tasksForThisBatch.entries()) {
+
+            // Find the task's current state in the main activeTasks array
+            const currentTaskState = activeTasks.find(t => t.id === taskToRun.id);
+
+            // Check if task was cancelled while pending or doesn't exist anymore
+            if (!currentTaskState || currentTaskState.status !== 'Pending') {
+              console.log(`Skipping task #${taskToRun.id} as its status is ${currentTaskState?.status || 'unknown (removed?)'}.`);
+              continue; // Skip to the next task in the loop
             }
 
-            // Call the actual handler (which will create its own task entry)
-            // Pass null for event, the current textarea, and the specific task info
-            await handleMainViewPrompt(null, textarea, promptElement, promptLabel);
+            // Update status to Running *before* execution
+            currentTaskState.status = 'Running...';
+            currentTaskState.message = `Processing section ${index + 1}...`;
+            renderTasksList(); // Show it's running
+
+            console.log(`Processing section ${index + 1} of ${tasksForThisBatch.length} with task: ${promptLabel}`);
+
+            // Call the actual handler, passing the task ID so it updates the correct task object
+            // NOTE: Assumes handleMainViewPrompt is modified to accept taskId as the last argument
+            await handleMainViewPrompt(null, textareas[index], promptElement, promptLabel, taskToRun.id);
 
             // Add delay if not the last item
-            if (index < textareas.length - 1) {
+            if (index < tasksForThisBatch.length - 1) {
               console.log(`Waiting ${delaySeconds}s...`);
-              const nextTask = activeTasks.find(t => t.id === batchTaskId);
-              if(nextTask) {
-                  nextTask.message = `Waiting ${delaySeconds}s before section ${index + 2}...`;
-                  renderTasksList(); // Update before delay
+              // Find task again in case handleMainViewPrompt already updated it
+              const taskAfterRun = activeTasks.find(t => t.id === taskToRun.id);
+              if(taskAfterRun) { // Check if task still exists
+                  // Avoid overwriting final status message if already completed/failed quickly
+                  if (taskAfterRun.status === 'Running...') {
+                    taskAfterRun.message = `Waiting ${delaySeconds}s before next section...`;
+                    renderTasksList(); // Update before delay
+                  }
               }
               await delay(delayMs);
             }
           }
         } catch (batchError) {
-          console.error("Error during batch processing:", batchError);
-          const finalBatchTask = activeTasks.find(t => t.id === batchTaskId);
-          if (finalBatchTask) {
-              finalBatchTask.status = 'Failed';
-              finalBatchTask.message = `Error during batch: ${batchError.message}`;
-          }
-          errorOccurred = true;
+          // This catch block handles errors in the loop itself, not errors within handleMainViewPrompt
+          console.error("Error during batch processing loop:", batchError);
+          // Individual task failures should be handled within handleMainViewPrompt
         } finally {
-          // Update final status of batch task
-          const finalBatchTask = activeTasks.find(t => t.id === batchTaskId);
-          if (finalBatchTask && !errorOccurred) {
-              finalBatchTask.status = 'Completed';
-              finalBatchTask.message = `Finished processing ${textareas.length} sections.`;
-          }
-          renderTasksList(); // Final update for the batch task
-          console.log("Batch job finished.");
+          console.log("Batch processing loop finished.");
+          renderTasksList(); // Final render to ensure UI is up-to-date
+          // No isBatchJobRunning flag to reset in this version
         }
       }
 
@@ -1120,11 +1163,23 @@
           // Add styling for each task item
           taskDiv.className = 'p-2 border border-gray-200 rounded text-xs mb-2 bg-gray-50'; // Light background and border
 
-          let statusColor = 'text-yellow-600'; // Darker yellow for Running
-          if (task.status === 'Completed') {
-            statusColor = 'text-green-600'; // Darker green
+// NEW: Add individual Cancel button HTML conditionally for PENDING tasks
+const cancelButtonHtml = (task.status === 'Pending')
+  ? `<button class="cancel-task-btn ml-2 text-red-500 hover:text-red-700 font-bold" data-task-id="${task.id}" title="Cancel Task">✖</button>`
+  : ''; // No button for other statuses
+
+          // Determine status color (using light theme colors)
+          let statusColor = '';
+          if (task.status === 'Pending') {
+              statusColor = 'text-blue-600'; // Color for Pending
+          } else if (task.status === 'Running...') {
+              statusColor = 'text-yellow-600';
+          } else if (task.status === 'Completed') {
+              statusColor = 'text-green-600';
           } else if (task.status === 'Failed') {
-            statusColor = 'text-red-600'; // Darker red
+              statusColor = 'text-red-600';
+          } else if (task.status === 'Cancelled') {
+              statusColor = 'text-gray-500'; // Color for Cancelled
           }
 
           // Sanitize message content before inserting as HTML to prevent XSS
@@ -1137,8 +1192,10 @@
               <div class="text-gray-500 text-[10px]">${task.model.split('/')[1]}</span></div>
               <div class="text-gray-500 text-[10px]"><span class="math-inline">${task.timestamp.toLocaleTimeString()}</span></div>
             </div>
-            <div class="text-gray-700">Status: <span class="font-medium ${statusColor}">${task.status}</span></div>
-            ${sanitizedMessage ? `<div class="mt-1 pt-1 border-t border-gray-200 text-gray-600 text-[11px] whitespace-pre-wrap break-words">${sanitizedMessage}</div>` : ''}`
+            <div class="text-gray-700">Status: <span class="font-medium ${statusColor}">${task.status}</span>${cancelButtonHtml}</div>
+            
+            ${sanitizedMessage ? `<div class="mt-1 pt-1 border-t border-gray-200 text-gray-600 text-[11px] whitespace-pre-wrap break-words">${sanitizedMessage}</div>` : ''}
+            `
           taskListContainer.appendChild(taskDiv);
         });
       }
@@ -2456,7 +2513,7 @@
        * @param {HTMLTextAreaElement} customPromptElement - The corresponding custom prompt textarea from the options panel.
        * @param {string} promptLabel - A user-friendly label for the custom prompt (used in error messages).
        */
-      async function handleMainViewPrompt(event, textareaElement, customPromptElement, promptLabel) {
+      async function handleMainViewPrompt(event, textareaElement, customPromptElement, promptLabel, taskIdToUpdate = null) {
         
           const clickedButton = event ? event.currentTarget : null; // Get button only if event exists
           const originalButtonText = clickedButton ? clickedButton.textContent : ''; // Store original text (e.g., "1")
@@ -2513,15 +2570,26 @@
             clickedButton.textContent = '...'; // Indicate loading
           }
 
-          const taskId = nextTaskId++; // Get unique ID
-          const taskType = promptLabel.replace(/ Prompt/, '') || 'Unknown'; // Use the prompt label passed in
-          const newTask = { id: taskId, type: taskType, status: 'Running...', message: '', timestamp: new Date(), model: selectedModel };
-          activeTasks.push(newTask);
-          renderTasksList(); // Update the task list display
-          // Optional: Show panel if hidden - uncomment if desired
-          // if (taskListPanel.classList.contains('invisible')) {
-          //   taskListButton.click(); // Simulate click to toggle panel open
-          // }
+          let currentTaskId = taskIdToUpdate; // Use passed ID if available
+
+          if (!currentTaskId) { // If called directly by user click (no ID passed)
+            currentTaskId = nextTaskId++; // Generate new ID
+            const taskType = promptLabel.replace(/ Prompt/, '') || 'Unknown';
+            const newTask = {
+              id: currentTaskId,
+              type: taskType,
+              status: 'Running...', // Direct clicks start as Running
+              message: '',
+              timestamp: new Date(),
+              model: selectedModel // Use model selected when clicked
+            };
+            activeTasks.push(newTask);
+            renderTasksList(); // Show the new 'Running' task
+            // Optional: Show panel if hidden
+            // if (taskListPanel.classList.contains('invisible')) { taskListButton.click(); }
+          }
+          // If taskIdToUpdate was provided, the task already exists (as Pending or Running)
+          // and we'll update it using currentTaskId within the try/catch blocks.
 
           // --- API Call ---
           try {
@@ -2571,7 +2639,7 @@
               reconstructRawContent();
 
               // Update task status to Completed
-              const completedTask = activeTasks.find(task => task.id === taskId);
+              const completedTask = activeTasks.find(task => task.id === currentTaskId);
               if (completedTask) {
                 completedTask.status = 'Completed';
                 // Provide a more informative success message if possible
@@ -2617,7 +2685,7 @@
               totalTokenCountEl.textContent = cumulativeTotalTokens;
 
               // Update task status to Failed
-              const failedTask = activeTasks.find(task => task.id === taskId);
+              const failedTask = activeTasks.find(task => task.id === currentTaskId);
               if (failedTask) {
                 failedTask.status = 'Failed';
                 failedTask.message = error.message || 'An unknown error occurred.';
