@@ -1,4 +1,3 @@
-```markdown
 # TypeScript #Language #Superset #JavaScript
 TypeScript is a strongly typed programming language that builds on JavaScript, giving you better tooling at any scale. It acts as a superset of JavaScript, adding optional static types.
 
@@ -382,4 +381,3 @@ Keeping TypeScript aligned with JavaScript standards and proposals.
 ### Performance Improvements #Compiler #Runtime
 
 ### New Type System Features #Enhancements
-```
