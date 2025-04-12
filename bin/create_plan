@@ -1,142 +1,265 @@
 #!/bin/zsh
 
+# =====================================
+# Course Plan Generator
+# =====================================
+# 
+# Description: 
+#   This script generates a course plan using the Google Gemini API.
+#   It reads a mindmap from standard input and generates a markdown file
+#   using the 'ask-google-gemini' command.
+#
+# Usage:
+#   cat mindmap.txt | ./course_plan_generator.sh [base_filename]
+#   
+# Arguments:
+#   base_filename - Optional. If provided, output will be written to a file
+#                   named <base_filename>.course_plan.<model>.md.
+#                   Otherwise, a default name will be used.
+#
+# Dependencies:
+#   - ask-google-gemini command must be installed and in PATH
+#   - zsh shell
+#
+# Author: Updated by Claude on April 12, 2025
+# =====================================
+
+# --- Terminal Colors ---
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+BLUE='\033[0;34m'
+MAGENTA='\033[0;35m'
+CYAN='\033[0;36m'
+NC='\033[0m' # No Color
+
 # --- Configuration ---
-prompt_file="prompts/course-syllabus-agenda-prompt.txt"
-gemini_model="gemini-2.5-pro-exp-03-25"
-sleep_duration=15 # Sleep duration in seconds
+CONFIG_DIR="${HOME}/.config/course_generator"
+CONFIG_FILE="${CONFIG_DIR}/config.zsh"
+
+# Default values
+DEFAULT_PROMPT_FILE="prompts/course-syllabus-agenda-prompt.txt"
+DEFAULT_GEMINI_MODEL="gemini-2.5-pro-exp-03-25"
+DEFAULT_OUTPUT_DIR="./output"
+DEFAULT_MAX_RETRIES=3
+
+# Create config file if it doesn't exist
+if [[ ! -f "$CONFIG_FILE" ]]; then
+  mkdir -p "$CONFIG_DIR"
+  cat > "$CONFIG_FILE" << EOF
+# Course Plan Generator Configuration
+PROMPT_FILE="$DEFAULT_PROMPT_FILE"
+GEMINI_MODEL="$DEFAULT_GEMINI_MODEL"
+OUTPUT_DIR="$DEFAULT_OUTPUT_DIR"
+MAX_RETRIES=$DEFAULT_MAX_RETRIES
+EOF
+  echo -e "${YELLOW}Created default configuration file at $CONFIG_FILE${NC}"
+fi
+
+# Load configuration
+source "$CONFIG_FILE"
 
 # --- Argument Handling ---
+# First argument is optional base filename
 base_filename_arg="$1"
 
-# --- Helper Function ---
+# Process command line options
+while getopts ":m:p:o:r:h" opt; do
+  case ${opt} in
+    m )
+      GEMINI_MODEL="$OPTARG"
+      ;;
+    p )
+      PROMPT_FILE="$OPTARG"
+      ;;
+    # Sleep parameter removed
+    ;
+    o )
+      OUTPUT_DIR="$OPTARG"
+      ;;
+    r )
+      MAX_RETRIES="$OPTARG"
+      ;;
+    h )
+      echo "Usage: $(basename $0) [OPTIONS] [base_filename]"
+      echo
+      echo "Options:"
+      echo "  -m MODEL     Set Gemini model (default: $DEFAULT_GEMINI_MODEL)"
+      echo "  -p FILE      Set prompt file (default: $DEFAULT_PROMPT_FILE)"
+      # Sleep option removed from help
+      echo "  -o DIR       Set output directory (default: $DEFAULT_OUTPUT_DIR)"
+      echo "  -r NUM       Set max retries for failed requests (default: $DEFAULT_MAX_RETRIES)"
+      echo "  -h           Display this help message"
+      exit 0
+      ;;
+    \? )
+      echo -e "${RED}Invalid option: -$OPTARG${NC}" >&2
+      echo "Use -h for help"
+      exit 1
+      ;;
+    : )
+      echo -e "${RED}Option -$OPTARG requires an argument.${NC}" >&2
+      exit 1
+      ;;
+  esac
+done
+shift $((OPTIND -1))
+
+# --- Helper Functions ---
+# Print message with timestamp
+log() {
+  local level="$1"
+  local message="$2"
+  local timestamp=$(date "+%Y-%m-%d %H:%M:%S")
+  
+  case "$level" in
+    "INFO")
+      echo -e "${BLUE}[$timestamp] [INFO] $message${NC}"
+      ;;
+    "SUCCESS")
+      echo -e "${GREEN}[$timestamp] [SUCCESS] $message${NC}"
+      ;;
+    "WARNING")
+      echo -e "${YELLOW}[$timestamp] [WARNING] $message${NC}"
+      ;;
+    "ERROR")
+      echo -e "${RED}[$timestamp] [ERROR] $message${NC}" >&2
+      ;;
+    *)
+      echo -e "[$timestamp] $message"
+      ;;
+  esac
+}
+
+# Create a safe filename from arbitrary input
 sanitize_filename() {
   local input_string="$1"
   local sanitized
+  
   # Remove control characters, replace non-alphanumeric/dot/hyphen with underscore
   sanitized=$(echo "$input_string" | tr -d '\0-\31\177' | tr -c '[:alnum:]_.-' '_')
+  
   # Condense multiple underscores
   sanitized=$(echo "$sanitized" | tr -s '_')
+  
   # Remove leading/trailing underscores
   sanitized=$(echo "$sanitized" | sed -e 's/^_*//' -e 's/_*$//')
+  
   # Default filename if sanitization results in empty string
   if [[ -z "$sanitized" ]]; then
-    sanitized="untitled_topic"
+    sanitized="untitled_mindmap"
   fi
+  
   echo "$sanitized"
 }
 
+# Function removed - no progress bar needed
+
 # --- Pre-checks ---
+# Create output directory if it doesn't exist
+mkdir -p "$OUTPUT_DIR"
+
 # Check if the prompt file exists
-if [[ ! -f "$prompt_file" ]]; then
-  echo "Error: Prompt file not found at '$prompt_file'" >&2
+if [[ ! -f "$PROMPT_FILE" ]]; then
+  log "ERROR" "Prompt file not found at '$PROMPT_FILE'"
   exit 1
 fi
+
 # Check if ask-google-gemini command exists
 if ! command -v ask-google-gemini &> /dev/null; then
-    echo "Error: 'ask-google-gemini' command not found." >&2
-    exit 1
+  log "ERROR" "'ask-google-gemini' command not found"
+  exit 1
 fi
 
-# --- Main Processing Loop ---
-echo "Waiting for topics via standard input..."
-last_successful_topic=""
-processed_count=0
-error_count=0
+# --- Main Processing ---
+log "INFO" "Starting course plan generator with model: $GEMINI_MODEL"
+log "INFO" "Using prompt file: $PROMPT_FILE"
+log "INFO" "Reading mindmap from standard input..."
+
+# Read the entire mindmap content from stdin
+mindmap_content=$(cat)
+
+# Check if the input is empty
+if [[ -z "$mindmap_content" ]]; then
+  log "ERROR" "No mindmap content provided via standard input"
+  exit 1
+fi
+
+log "INFO" "Received mindmap content (${#mindmap_content} characters)"
+
+# Determine output path based on whether a base filename argument was given
+if [ -n "$base_filename_arg" ]; then
+  sanitized_base=$(sanitize_filename "$base_filename_arg")
+  output_path="${OUTPUT_DIR}/${sanitized_base}.course_plan.${GEMINI_MODEL}.md"
+else
+  # Use a default name with timestamp if no base filename is provided
+  timestamp=$(date "+%Y%m%d_%H%M%S")
+  output_path="${OUTPUT_DIR}/mindmap_course_plan_${timestamp}.${GEMINI_MODEL}.md"
+fi
+
+log "INFO" "Output file: ${output_path}"
+
+# Construct the prompt argument carefully
 newline=$'\n' # Define newline character for clarity
+prompt_argument="${newline}Mindmap ${newline}${mindmap_content}"
 
-# Read topics line by line from standard input
-while IFS= read -r topic; do
-  processed_count=$((processed_count + 1))
-  echo "----------------------------------------"
-  echo "Processing item #${processed_count}..."
+# Process this mindmap with retries
+retry_count=0
+success=false
 
-  # Trim leading/trailing whitespace
-  topic=$(echo "$topic" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
-  # Skip empty lines
-  if [[ -z "$topic" ]]; then
-    echo "Skipping empty line."
-    continue
+while [[ $retry_count -lt $MAX_RETRIES && $success == false ]]; do
+  if [[ $retry_count -gt 0 ]]; then
+    log "WARNING" "Retry #${retry_count}..."
+    sleep 3  # Brief pause before retrying
   fi
-  echo "Raw topic: '${topic}'"
-
-  # Determine output path based on whether a base filename argument was given
-  output_path=""
-  if [ -n "$base_filename_arg" ]; then
-    output_path="./$(echo $base_filename_arg | tr ' ' '_').course_plan.${gemini_model}.md"
-    echo "Output file (overwrite): ${output_path}"
-  else
-    sanitized_name=$(sanitize_filename "$topic")
-    output_path="./$(echo $sanitized_name | tr ' ' '_').course_plan.${gemini_model}.md"
-    echo "Output file (topic-based): ${output_path}"
-  fi
-
-  # Construct the prompt argument carefully
-  prompt_argument="${newline}Topic ${topic}"
-
-  echo "Running ask-google-gemini for topic '${topic}'..."
+  
+  log "INFO" "Running ask-google-gemini with the mindmap..."
+  
   # Execute command:
-  # - Redirect command's stdin from /dev/null to prevent interference with the loop's read
   # - Redirect stdout to the output file
   # - Redirect stderr to a temporary log file
-  if ! ask-google-gemini -s -m "$gemini_model" -p "$prompt_file" "$prompt_argument" < /dev/null > "$output_path" 2> ask_gemini_error.log; then
-      exit_code=$?
-      error_count=$((error_count + 1))
-      echo "Error: 'ask-google-gemini' command failed with exit code ${exit_code} for topic '${topic}'." >&2
-      # Display captured stderr output
-      if [[ -s ask_gemini_error.log ]]; then
-          echo "--- Error Log (ask_gemini_error.log) ---" >&2
-          cat ask_gemini_error.log >&2
-          echo "---------------------------------------" >&2
-      else
-          echo "(No stderr output captured)" >&2
-      fi
-      rm -f ask_gemini_error.log # Clean up log file
-      # Continue to the next topic despite the error
-      echo "Continuing to next topic..."
-      sleep 1 # Brief pause on error
-      continue
+  if ! ask-google-gemini -s -m "$GEMINI_MODEL" -p "$PROMPT_FILE" "$prompt_argument" > "$output_path" 2> ask_gemini_error.log; then
+    exit_code=$?
+    log "ERROR" "'ask-google-gemini' command failed with exit code ${exit_code}"
+    
+    # Display captured stderr output
+    if [[ -s ask_gemini_error.log ]]; then
+      log "ERROR" "--- Error Log ---"
+      cat ask_gemini_error.log >&2
+      log "ERROR" "----------------"
+    else
+      log "WARNING" "(No stderr output captured)"
+    fi
+    
+    rm -f ask_gemini_error.log # Clean up log file
+    retry_count=$((retry_count + 1))
+    continue
   else
-      # Command succeeded, clear potential old error log
-      rm -f ask_gemini_error.log
+    # Command succeeded, clear potential old error log
+    rm -f ask_gemini_error.log
   fi
 
   # Verify the output file was created and is not empty
   if [[ ! -s "$output_path" ]]; then
-      error_count=$((error_count + 1))
-      echo "Error: Output file '${output_path}' was not created or is empty for topic '${topic}' (ask-google-gemini command succeeded)." >&2
-      echo "Last successful topic processed: ${last_successful_topic:-'None'}"
-      # Continue to the next topic
-      echo "Continuing to next topic..."
-      sleep 1
-      continue
+    log "ERROR" "Output file '${output_path}' was not created or is empty"
+    retry_count=$((retry_count + 1))
+    continue
   else
-      echo "Successfully generated: ${output_path}"
-      last_successful_topic="$topic" # Update last successful topic
+    log "SUCCESS" "Generated: ${output_path}"
+    success=true
   fi
-
-  # Pause before processing the next topic
-  echo "Pausing for ${sleep_duration} seconds..."
-  sleep "$sleep_duration"
-
 done
 
-# --- Completion Message ---
-echo "========================================"
-echo "Processing complete."
-echo "Total items read from input: ${processed_count}"
-echo "Errors encountered: ${error_count}"
-successful_count=$((processed_count - error_count))
-echo "Successfully processed items: ${successful_count}"
-
-if [[ -n "$last_successful_topic" ]]; then
-  echo "Last successful topic processed: ${last_successful_topic}"
-elif [[ $processed_count -gt 0 && $error_count -ge $processed_count ]]; then
-  # Handle case where errors occurred for every item read
-  echo "No topics were successfully processed due to errors."
-elif [[ $processed_count -eq 0 ]]; then
-  echo "No topics were provided via standard input."
+# Check if all retries were exhausted
+if [[ $success == false ]]; then
+  log "ERROR" "Failed to process mindmap after ${MAX_RETRIES} attempts"
+  exit 1
 fi
-echo "========================================"
+
+# --- Completion Message ---
+log "INFO" "========================================"
+log "SUCCESS" "Processing complete"
+log "INFO" "Output file is located at: ${output_path}"
+log "INFO" "========================================"
 
 exit 0
-
