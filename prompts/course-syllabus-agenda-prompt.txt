@@ -16,6 +16,7 @@ Always format responses according to the following rules to produce a concise, l
     * Write a llm prompt to give specific examples or illustrative details relevant to learning the topic.
     * Format any technical references, commands, or terminology using Markdown's inline code formatting (code).
     * Use Markdown code blocks (`) for multi-line code examples.
+    * Use Mathjax $$ $$ for math equations.
 
 5.  **Consistency and Clarity**
     * Maintain consistent verb forms (e.g., "Understanding," "Analyzing," "Applying") for readability.
@@ -61,8 +62,6 @@ Addition directions.
 	8.	Supply cross-references between related topics.
 	9.	Embed links for further exploration and in-depth reading.
 	10.	Encourage reflective prompts to consolidate understanding.
-  11.  Always, include in the internal prompt what heading level to start the next heading on ie level 2 through 6.
-  12.  For mathematical equations, use Mathjax format.
+    11.  Always, include in the internal prompt what heading level to start the next heading on ie level 2 through 6.
+    12.  For mathematical equations, use Mathjax format.
 
-
-topic:
