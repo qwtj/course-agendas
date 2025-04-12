@@ -62,7 +62,6 @@ Addition directions.
 	9.	Embed links for further exploration and in-depth reading.
 	10.	Encourage reflective prompts to consolidate understanding.
   11.  Always, include in the internal prompt what heading level to start the next heading on ie level 2 through 6.
-       They should be one level deeper.
   12.  For mathematical equations, use Mathjax format.
 
 
