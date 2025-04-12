@@ -43,6 +43,11 @@
         border: 1px solid #e5e7eb; /* gray-200 */
         margin: 1.5rem 0 !important;
       }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        margin: 1rem 0;
+      }
       /* Unordered list styling */
       ul {
         margin-bottom: 0.5rem;
@@ -275,7 +280,8 @@
         color: #333;
         line-height: 1.4;         /* Better readability */
         border: 1px solid #ddd;   /* Subtle border */
-        margin-block: 5px;
+        margin-block: 1rem;
+        margin-inline: 2rem;
       }
       /* Modal footer styling */
       .modal-footer {
@@ -1177,32 +1183,44 @@
 
                   // Add 5 action buttons (linked to Gemini prompts)
                   for (let i = 0; i < 5; i++) {
-                      const btn = document.createElement('button');
-                      btn.className = 'main-view-action-button'; // Apply styling
-                      btn.textContent = `${i + 1}`; // Placeholder label
-                      btn.title = `Action ${i + 1}`; // Default tooltip
+                    const btn = document.createElement('button');
+                    btn.className = 'main-view-action-button'; // Apply styling
 
-                      // Assign specific actions and tooltips based on button index
-                      if (i === 0) { // Button 1 -> Create Plan Prompt
-                          btn.addEventListener('click', (event) => handleMainViewPrompt(event, textareaElem, promptCreatePlanEl, 'Create Plan Prompt'));
-                          btn.title = `Send with Create Plan Prompt`;
-                      } else if (i === 1) { // Button 2 -> Generate Content Prompt
-                           btn.addEventListener('click', (event) => handleMainViewPrompt(event, textareaElem, promptGenerateContentEl, 'Generate Content Prompt'));
-                           btn.title = `Send with Generate Content Prompt`;
-                      } else if (i === 2) { // Button 3 -> Fact Check Prompt
-                           btn.addEventListener('click', (event) => handleMainViewPrompt(event, textareaElem, promptFactCheckEl, 'Fact Check Prompt'));
-                           btn.title = `Send with Fact Check Prompt`;
-                      } else if (i === 3) { // Button 4 -> Custom 1 Prompt
-                           btn.addEventListener('click', (event) => handleMainViewPrompt(event, textareaElem, promptCustom1El, 'Custom 1 Prompt'));
-                           btn.title = `Send with Custom 1 Prompt`;
-                      } else if (i === 4) { // Button 5 -> Custom 2 Prompt
-                           btn.addEventListener('click', (event) => handleMainViewPrompt(event, textareaElem, promptCustom2El, 'Custom 2 Prompt'));
-                           btn.title = `Send with Custom 2 Prompt`;
-                      }
-
-                      buttonColumn.appendChild(btn); // Add button to the column
+                    // Assign specific actions and tooltips based on button index
+                    if (i === 0) { // Button 1 -> Create Plan Prompt
+                        let icon = '🗺️';
+                        btn.textContent = `${icon}`; // Placeholder label
+                        btn.title = `Action ${icon}`; // Default tooltip
+                        btn.addEventListener('click', (event) => handleMainViewPrompt(event, textareaElem, promptCreatePlanEl, 'Create Plan Prompt'));
+                        btn.title = `Send with Create Plan Prompt`;
+                    } else if (i === 1) { // Button 2 -> Generate Content Prompt
+                          let icon = '✨';
+                          btn.textContent = `${icon}`; // Placeholder label
+                          btn.title = `Action ${icon}`; // Default tooltip
+                          btn.addEventListener('click', (event) => handleMainViewPrompt(event, textareaElem, promptGenerateContentEl, 'Generate Content Prompt'));
+                          btn.title = `Send with Generate Content Prompt`;
+                    } else if (i === 2) { // Button 3 -> Fact Check Prompt
+                          let icon = '❓';
+                          btn.textContent = `${icon}`; // Placeholder label
+                          btn.title = `Action ${icon}`; // Default tooltip
+                          btn.addEventListener('click', (event) => handleMainViewPrompt(event, textareaElem, promptFactCheckEl, 'Fact Check Prompt'));
+                          btn.title = `Send with Fact Check Prompt`;
+                    } else if (i === 3) { // Button 4 -> Custom 1 Prompt
+                          let icon = '▶️';
+                          btn.textContent = `${icon}`; // Placeholder label
+                          btn.title = `Action ${icon}`; // Default tooltip
+                          btn.addEventListener('click', (event) => handleMainViewPrompt(event, textareaElem, promptCustom1El, 'Custom 1 Prompt'));
+                          btn.title = `Send with Custom 1 Prompt`;
+                    } else if (i === 4) { // Button 5 -> Custom 2 Prompt
+                          let icon = '▶️';
+                          btn.textContent = `${icon}`; // Placeholder label
+                          btn.title = `Action ${icon}`; // Default tooltip
+                          btn.addEventListener('click', (event) => handleMainViewPrompt(event, textareaElem, promptCustom2El, 'Custom 2 Prompt'));
+                          btn.title = `Send with Custom 2 Prompt`;
+                    }
+                    buttonColumn.appendChild(btn); // Add button to the column
                   }
-
+                  
                   textActionContainer.appendChild(buttonColumn); // Add button column to the container
                   wrapperDiv.appendChild(textActionContainer); // Add the container to the main wrapper
               }
