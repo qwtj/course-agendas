@@ -43,11 +43,6 @@
         border: 1px solid #e5e7eb; /* gray-200 */
         margin: 1.5rem 0 !important;
       }
-      table {
-        border-collapse: collapse;
-        width: 100%;
-        margin: 1rem 0;
-      }
       /* Unordered list styling */
       ul {
         margin-bottom: 0.5rem;
@@ -280,8 +275,7 @@
         color: #333;
         line-height: 1.4;         /* Better readability */
         border: 1px solid #ddd;   /* Subtle border */
-        margin-block: 1rem;
-        margin-inline: 2rem;
+        margin-block: 5px;
       }
       /* Modal footer styling */
       .modal-footer {
@@ -434,11 +428,27 @@
     </style>
   </head>
   <body class="bg-gray-100 p-4 md:p-8">
+    <button
+      type="button"
+      id="taskListButton"
+      title="Show Task List"
+      class="fixed top-1/2 left-0 transform -translate-y-1/2 z-50 w-16 h-16 bg-blue-500 hover:bg-blue-600 text-white rounded-md shadow-lg flex items-center justify-center text-3xl transition duration-150 ease-in-out"
+    >
+      📧
+    </button>
     <div class="max-w-4xl mx-auto bg-white p-6 md:p-8 rounded-lg shadow-md relative">
       <h1 class="text-2xl font-bold mb-6 text-center text-gray-800">
         Interactive Course
       </h1>
-
+      <div
+        id="taskListPanel"
+        class="fixed bottom-4 left-[80px] z-40 w-[200px] max-h-[60vh] overflow-y-auto p-4 bg-white rounded-lg shadow-xl transform translate-y-full opacity-0 invisible transition-all duration-300 ease-in-out"
+      >
+        <h4 class="text-lg font-semibold mb-2 text-gray-800">Task List</h4>
+        <div id="taskListContainer">
+          <p class="text-sm text-gray-500">No active tasks.</p>
+        </div>
+      </div>
       <div class="mb-6">
         <div class="border-b border-gray-200">
           <nav class="-mb-px flex space-x-8" aria-label="Tabs">
@@ -569,7 +579,7 @@
           <button id="closeRawMdModalButton" class="modal-close-button">&times;</button>
         </div>
         <div class="modal-body">
-          <textarea id="rawMdEditorTextarea" spellcheck="false"></textarea>
+          <textarea id="rawMdEditorTextarea" spellcheck="false" placeholder="Insert Subject Matter."></textarea>
         </div>
         <div class="modal-footer">
           <button
@@ -734,6 +744,39 @@
                      <div>Total: <span id="totalTokenCount" class="font-medium">0</span></div>
                  </div>
             </div>
+
+            <div class="mb-4 border-t pt-4">
+                <label for="batchDelayInput" class="block text-sm font-medium text-gray-600 mb-1">Delay Between Batch Tasks (seconds):</label>
+                <input
+                  type="number"
+                  id="batchDelayInput"
+                  name="batchDelayInput"
+                  min="0"
+                  value="15" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 text-sm"
+                >
+            </div>
+
+            <div class="mt-4 border-t pt-4">
+              <h4 class="text-sm font-semibold text-gray-700 mb-2">Run Task on All Sections</h4>
+              <div class="space-y-2">
+                <button id="runPlanOnAllBtn" class="w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 px-4 rounded-md shadow text-sm transition duration-150 ease-in-out">
+                  Run Plan on All
+                </button>
+                <button id="runGenerateOnAllBtn" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-4 rounded-md shadow text-sm transition duration-150 ease-in-out">
+                  Run Generate on All
+                </button>
+                <button id="runCheckOnAllBtn" class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-md shadow text-sm transition duration-150 ease-in-out">
+                  Run Check on All
+                </button>
+                <button id="runCustom1OnAllBtn" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md shadow text-sm transition duration-150 ease-in-out">
+                  Run Custom 1 on All
+                </button>
+                <button id="runCustom2OnAllBtn" class="w-full bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 px-4 rounded-md shadow text-sm transition duration-150 ease-in-out">
+                  Run Custom 2 on All
+                </button>
+              </div>
+            </div>
+
             <div class="mt-4 border-t pt-4">
                  <h4 class="text-sm font-semibold text-gray-700 mb-2">Version: 1</h4>
                  <ul>
@@ -748,7 +791,9 @@
                     <li class="text-sm font-semibold text-gray-400 mb-2">Add load markdown remotely.</li>
                     <li class="text-sm font-semibold text-gray-400 mb-2">Add load by #markdownUrl paramoutside of Gemini</li>
                     <li class="text-sm font-semibold text-gray-400 mb-2">Add tabs to change load markdown ui.</li>
-                  </ul>
+                    <li class="text-sm font-semibold text-gray-400 mb-2">Add button emoji instead of numbers.</li>
+                    <li class="text-sm font-semibold text-gray-400 mb-2">Add tasks panel and tracking</li>
+                 </ul>
             </div>
         </div>
     </div>
@@ -816,6 +861,19 @@
       const tabButtonUrl = document.getElementById("tabButtonUrl");
       const tabPanelFile = document.getElementById("tabPanelFile");
       const tabPanelUrl = document.getElementById("tabPanelUrl");
+      // Get reference for Task List Panel
+      const taskListPanel = document.getElementById("taskListPanel");
+      // Ensure taskListButton reference exists from previous step
+      const taskListButton = document.getElementById("taskListButton");
+      const taskListContainer = document.getElementById("taskListContainer");
+      // Get references for Batch Job elements
+      const batchDelayInput = document.getElementById("batchDelayInput");
+      // Get references for Batch Run buttons
+      const runPlanOnAllBtn = document.getElementById("runPlanOnAllBtn");
+      const runGenerateOnAllBtn = document.getElementById("runGenerateOnAllBtn");
+      const runCheckOnAllBtn = document.getElementById("runCheckOnAllBtn");
+      const runCustom1OnAllBtn = document.getElementById("runCustom1OnAllBtn");
+      const runCustom2OnAllBtn = document.getElementById("runCustom2OnAllBtn");
 
       // --- State ---
       // Variables to hold the application's current state
@@ -825,6 +883,9 @@
       let cumulativeInTokens = 0;
       let cumulativeOutTokens = 0;
       let cumulativeTotalTokens = 0;
+      // State for tracking jobs
+      let activeTasks = []; // Array to hold job objects
+      let nextTaskId = 1;   // Counter for unique job IDs
 
       // --- Config ---
       // Configuration constants for the application
@@ -837,6 +898,28 @@
 
       // --- Event Listeners ---
       // Attach functions to UI events (clicks, changes, etc.)
+
+      // Add listeners for Batch Run buttons in options panel
+      runPlanOnAllBtn.addEventListener('click', () => runBatchTask(promptCreatePlanEl, 'Create Plan Prompt'));
+      runGenerateOnAllBtn.addEventListener('click', () => runBatchTask(promptGenerateContentEl, 'Generate Content Prompt'));
+      runCheckOnAllBtn.addEventListener('click', () => runBatchTask(promptFactCheckEl, 'Fact Check Prompt'));
+      runCustom1OnAllBtn.addEventListener('click', () => runBatchTask(promptCustom1El, 'Custom 1 Prompt'));
+      runCustom2OnAllBtn.addEventListener('click', () => runBatchTask(promptCustom2El, 'Custom 2 Prompt'));
+
+      // Save batch delay setting on change
+      batchDelayInput.addEventListener('input', (e) => {
+        localStorage.setItem('batchDelayValue', e.target.value);
+      });
+
+      // Add listener for the Task List Button to toggle the panel
+      taskListButton.addEventListener('click', () => {
+        console.log("Task list button clicked. Toggling panel visibility."); // Optional log
+        // Toggle classes for visibility and position
+        taskListPanel.classList.toggle('invisible'); // Toggle accessibility/interaction hiding
+        taskListPanel.classList.toggle('opacity-0'); // Toggle transparency
+        taskListPanel.classList.toggle('translate-y-full'); // Toggle off-screen position
+        // Optionally toggle a visible state class if preferred, e.g., taskListPanel.classList.toggle('visible-state');
+      });
 
       // Add listener for the Load from URL button
       loadFromUrlButton.addEventListener("click", () => {
@@ -928,6 +1011,137 @@
       });
 
       // --- Functions ---
+
+      /** Simple delay function */
+      const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+      /**
+       * Runs a specified task on all textareas in the preview with a delay.
+       * @param {HTMLTextAreaElement} promptElement - The textarea element containing the prompt to use.
+       * @param {string} promptLabel - The user-friendly label for the prompt/task type.
+       */
+      async function runBatchTask(promptElement, promptLabel) {
+        // Get delay, default to 1 second if input is invalid or empty
+        let delaySeconds = parseInt(batchDelayInput.value, 10);
+        if (isNaN(delaySeconds) || delaySeconds < 0) {
+          delaySeconds = 1; // Default to 1 second
+        }
+        const delayMs = delaySeconds * 1000;
+        console.log(`Starting batch job: ${promptLabel} with ${delaySeconds}s delay.`);
+
+        const textareas = document.querySelectorAll('#output .content-textarea');
+        if (textareas.length === 0) {
+          alert("No text areas found in the preview to process.");
+          return;
+        }
+
+        // Add a parent task entry for the batch job
+        const batchTaskId = nextTaskId++;
+        const batchTask = {
+          id: batchTaskId,
+          type: `Batch: ${promptLabel.replace(/ Prompt/, '')}`, // Use label for type
+          status: 'Running...',
+          message: `Starting ${textareas.length} sections...`,
+          timestamp: new Date(),
+          model: geminiModelSelect.value // Store model used for batch
+        };
+        activeTasks.push(batchTask);
+        renderTasksList();
+        // Optional: ensure panel is visible
+        if (taskListPanel.classList.contains('invisible')) {
+          taskListButton.click(); // Simulate click to toggle panel open
+        }
+
+        let errorOccurred = false;
+        try {
+          for (const [index, textarea] of textareas.entries()) {
+            console.log(`Processing section ${index + 1} of ${textareas.length} with task: ${promptLabel}`);
+            // Update batch task status
+            const currentTask = activeTasks.find(t => t.id === batchTaskId);
+            if(currentTask) {
+                currentTask.message = `Processing section ${index + 1} of ${textareas.length}...`;
+                renderTasksList(); // Update immediately before starting the sub-task
+            }
+
+            // Call the actual handler (which will create its own task entry)
+            // Pass null for event, the current textarea, and the specific task info
+            await handleMainViewPrompt(null, textarea, promptElement, promptLabel);
+
+            // Add delay if not the last item
+            if (index < textareas.length - 1) {
+              console.log(`Waiting ${delaySeconds}s...`);
+              const nextTask = activeTasks.find(t => t.id === batchTaskId);
+              if(nextTask) {
+                  nextTask.message = `Waiting ${delaySeconds}s before section ${index + 2}...`;
+                  renderTasksList(); // Update before delay
+              }
+              await delay(delayMs);
+            }
+          }
+        } catch (batchError) {
+          console.error("Error during batch processing:", batchError);
+          const finalBatchTask = activeTasks.find(t => t.id === batchTaskId);
+          if (finalBatchTask) {
+              finalBatchTask.status = 'Failed';
+              finalBatchTask.message = `Error during batch: ${batchError.message}`;
+          }
+          errorOccurred = true;
+        } finally {
+          // Update final status of batch task
+          const finalBatchTask = activeTasks.find(t => t.id === batchTaskId);
+          if (finalBatchTask && !errorOccurred) {
+              finalBatchTask.status = 'Completed';
+              finalBatchTask.message = `Finished processing ${textareas.length} sections.`;
+          }
+          renderTasksList(); // Final update for the batch task
+          console.log("Batch job finished.");
+        }
+      }
+
+      /**
+       * Renders the current list of tasks into the task list panel.
+       */
+      function renderTasksList() {
+        // Ensure the container element exists before proceeding
+        if (!taskListContainer) {
+            console.error("Task list container not found.");
+            return;
+        }
+        taskListContainer.innerHTML = ''; // Clear previous list
+
+        if (activeTasks.length === 0) {
+          taskListContainer.innerHTML = '<p class="text-sm text-gray-500">No active tasks.</p>';
+          return;
+        }
+
+        // Render tasks (newest first is often helpful)
+        [...activeTasks].reverse().forEach(task => {
+          const taskDiv = document.createElement('div');
+          // Add styling for each task item
+          taskDiv.className = 'p-2 border border-gray-200 rounded text-xs mb-2 bg-gray-50'; // Light background and border
+
+          let statusColor = 'text-yellow-600'; // Darker yellow for Running
+          if (task.status === 'Completed') {
+            statusColor = 'text-green-600'; // Darker green
+          } else if (task.status === 'Failed') {
+            statusColor = 'text-red-600'; // Darker red
+          }
+
+          // Sanitize message content before inserting as HTML to prevent XSS
+          // A simple text replacement is shown here, consider a more robust sanitizer if needed
+          const sanitizedMessage = (task.message || '').replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+          taskDiv.innerHTML = `
+            <div class="mb-1">
+              <div class="font-semibold text-gray-900">Task #<span class="math-inline">${task.id}</span>: ${task.type}</div>
+              <div class="text-gray-500 text-[10px]">${task.model.split('/')[1]}</span></div>
+              <div class="text-gray-500 text-[10px]"><span class="math-inline">${task.timestamp.toLocaleTimeString()}</span></div>
+            </div>
+            <div class="text-gray-700">Status: <span class="font-medium ${statusColor}">${task.status}</span></div>
+            ${sanitizedMessage ? `<div class="mt-1 pt-1 border-t border-gray-200 text-gray-600 text-[11px] whitespace-pre-wrap break-words">${sanitizedMessage}</div>` : ''}`
+          taskListContainer.appendChild(taskDiv);
+        });
+      }
 
       /**
        * Switches the active tab and panel for file/URL loading.
@@ -1183,44 +1397,45 @@
 
                   // Add 5 action buttons (linked to Gemini prompts)
                   for (let i = 0; i < 5; i++) {
-                    const btn = document.createElement('button');
-                    btn.className = 'main-view-action-button'; // Apply styling
+                      const btn = document.createElement('button');
+                      btn.className = 'main-view-action-button'; // Apply styling
 
-                    // Assign specific actions and tooltips based on button index
-                    if (i === 0) { // Button 1 -> Create Plan Prompt
-                        let icon = '🗺️';
-                        btn.textContent = `${icon}`; // Placeholder label
-                        btn.title = `Action ${icon}`; // Default tooltip
-                        btn.addEventListener('click', (event) => handleMainViewPrompt(event, textareaElem, promptCreatePlanEl, 'Create Plan Prompt'));
-                        btn.title = `Send with Create Plan Prompt`;
-                    } else if (i === 1) { // Button 2 -> Generate Content Prompt
-                          let icon = '✨';
+                      // Assign specific actions and tooltips based on button index
+                      if (i === 0) { // Button 1 -> Create Plan Prompt
+                          let icon = '🗺️';
                           btn.textContent = `${icon}`; // Placeholder label
                           btn.title = `Action ${icon}`; // Default tooltip
-                          btn.addEventListener('click', (event) => handleMainViewPrompt(event, textareaElem, promptGenerateContentEl, 'Generate Content Prompt'));
-                          btn.title = `Send with Generate Content Prompt`;
-                    } else if (i === 2) { // Button 3 -> Fact Check Prompt
-                          let icon = '❓';
-                          btn.textContent = `${icon}`; // Placeholder label
-                          btn.title = `Action ${icon}`; // Default tooltip
-                          btn.addEventListener('click', (event) => handleMainViewPrompt(event, textareaElem, promptFactCheckEl, 'Fact Check Prompt'));
-                          btn.title = `Send with Fact Check Prompt`;
-                    } else if (i === 3) { // Button 4 -> Custom 1 Prompt
-                          let icon = '▶️';
-                          btn.textContent = `${icon}`; // Placeholder label
-                          btn.title = `Action ${icon}`; // Default tooltip
-                          btn.addEventListener('click', (event) => handleMainViewPrompt(event, textareaElem, promptCustom1El, 'Custom 1 Prompt'));
-                          btn.title = `Send with Custom 1 Prompt`;
-                    } else if (i === 4) { // Button 5 -> Custom 2 Prompt
-                          let icon = '▶️';
-                          btn.textContent = `${icon}`; // Placeholder label
-                          btn.title = `Action ${icon}`; // Default tooltip
-                          btn.addEventListener('click', (event) => handleMainViewPrompt(event, textareaElem, promptCustom2El, 'Custom 2 Prompt'));
-                          btn.title = `Send with Custom 2 Prompt`;
-                    }
-                    buttonColumn.appendChild(btn); // Add button to the column
+                          btn.addEventListener('click', (event) => handleMainViewPrompt(event, textareaElem, promptCreatePlanEl, 'Create Plan Prompt'));
+                          btn.title = `Send with Create Plan Prompt`;
+                      } else if (i === 1) { // Button 2 -> Generate Content Prompt
+                           let icon = '✨';
+                           btn.textContent = `${icon}`; // Placeholder label
+                           btn.title = `Action ${icon}`; // Default tooltip
+                           btn.addEventListener('click', (event) => handleMainViewPrompt(event, textareaElem, promptGenerateContentEl, 'Generate Content Prompt'));
+                           btn.title = `Send with Generate Content Prompt`;
+                      } else if (i === 2) { // Button 3 -> Fact Check Prompt
+                           let icon = '❓';
+                           btn.textContent = `${icon}`; // Placeholder label
+                           btn.title = `Action ${icon}`; // Default tooltip
+                           btn.addEventListener('click', (event) => handleMainViewPrompt(event, textareaElem, promptFactCheckEl, 'Fact Check Prompt'));
+                           btn.title = `Send with Fact Check Prompt`;
+                      } else if (i === 3) { // Button 4 -> Custom 1 Prompt
+                           let icon = '▶️';
+                           btn.textContent = `${icon}`; // Placeholder label
+                           btn.title = `Action ${icon}`; // Default tooltip
+                           btn.addEventListener('click', (event) => handleMainViewPrompt(event, textareaElem, promptCustom1El, 'Custom 1 Prompt'));
+                           btn.title = `Send with Custom 1 Prompt`;
+                      } else if (i === 4) { // Button 5 -> Custom 2 Prompt
+                           let icon = '▶️';
+                           btn.textContent = `${icon}`; // Placeholder label
+                           btn.title = `Action ${icon}`; // Default tooltip
+                           btn.addEventListener('click', (event) => handleMainViewPrompt(event, textareaElem, promptCustom2El, 'Custom 2 Prompt'));
+                           btn.title = `Send with Custom 2 Prompt`;
+                      }
+
+                      buttonColumn.appendChild(btn); // Add button to the column
                   }
-                  
+
                   textActionContainer.appendChild(buttonColumn); // Add button column to the container
                   wrapperDiv.appendChild(textActionContainer); // Add the container to the main wrapper
               }
@@ -2117,6 +2332,16 @@
           sendPromptButton.disabled = true;
           sendPromptButton.textContent = 'Sending...';
 
+          const taskId = nextTaskId++; // Get unique ID
+          const taskType = 'Test';
+          const newTask = { id: taskId, type: taskType, status: 'Running...', message: '', timestamp: new Date(), model: selectedModel};
+          activeTasks.push(newTask);
+          renderTasksList(); // Update the task list display
+          // Optional: Show panel if hidden - uncomment if desired
+          // if (taskListPanel.classList.contains('invisible')) {
+          //   taskListButton.click(); // Simulate click to toggle panel open
+          // }
+
           // --- API Call ---
           try {
               console.log(`Sending prompt to ${selectedModel}...`);
@@ -2188,6 +2413,15 @@
                   totalTokenCountEl.textContent = cumulativeTotalTokens;
               }
 
+              // Update task status to Completed
+              const completedTask = activeTasks.find(task => task.id === taskId);
+              if (completedTask) {
+                completedTask.status = 'Completed';
+                // Provide a more informative success message if possible
+                completedTask.message = `Success. Response length: ${responseText.trim().length}`;
+              }
+              renderTasksList(); // Update UI
+
           } catch (error) {
               // Handle fetch errors or errors thrown from response checking
               console.error("Failed to send prompt:", error);
@@ -2197,6 +2431,14 @@
               promptTokenCountEl.textContent = cumulativeInTokens;
               completionTokenCountEl.textContent = cumulativeOutTokens;
               totalTokenCountEl.textContent = cumulativeTotalTokens;
+              
+              // Update task status to Failed
+              const failedTask = activeTasks.find(task => task.id === taskId);
+              if (failedTask) {
+                failedTask.status = 'Failed';
+                failedTask.message = error.message || 'An unknown error occurred.';
+              }
+              renderTasksList(); // Update UI
           } finally {
               // --- Reset Loading State ---
               sendPromptButton.disabled = false; // Re-enable button
@@ -2215,8 +2457,9 @@
        * @param {string} promptLabel - A user-friendly label for the custom prompt (used in error messages).
        */
       async function handleMainViewPrompt(event, textareaElement, customPromptElement, promptLabel) {
-          const clickedButton = event.currentTarget; // Get the button that was clicked
-          const originalButtonText = clickedButton.textContent; // Store original text (e.g., "1")
+        
+          const clickedButton = event ? event.currentTarget : null; // Get button only if event exists
+          const originalButtonText = clickedButton ? clickedButton.textContent : ''; // Store original text (e.g., "1")
 
           // --- Get Settings and Content ---
           const apiKey = geminiApiKeyInput.value.trim();
@@ -2265,8 +2508,20 @@
           };
 
           // --- Loading State ---
-          clickedButton.disabled = true; // Disable the small action button
-          clickedButton.textContent = '...'; // Indicate loading
+          if (clickedButton) {
+            clickedButton.disabled = true; // Disable the small action button
+            clickedButton.textContent = '...'; // Indicate loading
+          }
+
+          const taskId = nextTaskId++; // Get unique ID
+          const taskType = promptLabel.replace(/ Prompt/, '') || 'Unknown'; // Use the prompt label passed in
+          const newTask = { id: taskId, type: taskType, status: 'Running...', message: '', timestamp: new Date(), model: selectedModel };
+          activeTasks.push(newTask);
+          renderTasksList(); // Update the task list display
+          // Optional: Show panel if hidden - uncomment if desired
+          // if (taskListPanel.classList.contains('invisible')) {
+          //   taskListButton.click(); // Simulate click to toggle panel open
+          // }
 
           // --- API Call ---
           try {
@@ -2309,12 +2564,20 @@
               textareaElement.focus(); // Focus textarea A
               textareaElement.select(); // Select existing content (optional, to replace it)
               document.execCommand('insertText', false, responseText.trim()); // Insert new content
-
               // Trigger blur event manually to ensure any related logic (like saving) runs
               textareaElement.dispatchEvent(new Event('blur'));
 
               // Manually trigger content reconstruction as blur might not be sufficient if focus doesn't change
               reconstructRawContent();
+
+              // Update task status to Completed
+              const completedTask = activeTasks.find(task => task.id === taskId);
+              if (completedTask) {
+                completedTask.status = 'Completed';
+                // Provide a more informative success message if possible
+                completedTask.message = `Success. Response length: ${responseText.trim().length}`;
+              }
+              renderTasksList(); // Update UI
 
 
               // --- Update Token Counts (Cumulative) ---
@@ -2352,10 +2615,22 @@
               promptTokenCountEl.textContent = cumulativeInTokens;
               completionTokenCountEl.textContent = cumulativeOutTokens;
               totalTokenCountEl.textContent = cumulativeTotalTokens;
+
+              // Update task status to Failed
+              const failedTask = activeTasks.find(task => task.id === taskId);
+              if (failedTask) {
+                failedTask.status = 'Failed';
+                failedTask.message = error.message || 'An unknown error occurred.';
+              }
+              renderTasksList(); // Update UI
           } finally {
               // --- Reset Loading State ---
-              clickedButton.disabled = false; // Re-enable the button
-              clickedButton.textContent = originalButtonText; // Restore original text (e.g., "1")
+              if (clickedButton) { // Check if button exists (i.e., called by direct click)
+                clickedButton.disabled = false;
+                // Ensure originalButtonText was declared outside the earlier 'if' block
+                // let originalButtonText = null; // Should be declared higher up
+                clickedButton.textContent = originalButtonText;
+              }
           }
       }
 
@@ -2388,6 +2663,10 @@
           promptCustom1El.value = localStorage.getItem('promptCustom1Value') || '';
           promptCustom2El.value = localStorage.getItem('promptCustom2Value') || '';
           console.log('Custom prompts loaded.');
+
+          // Load Batch Delay
+          batchDelayInput.value = localStorage.getItem('batchDelayValue') || '15'; // Load saved delay or default to 15
+          console.log('Batch delay loaded.');
       }
 
       // --- Initial Setup ---
