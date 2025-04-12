@@ -24,8 +24,11 @@ template_content=$(<"$template_file_path")
 
 prompt="${template_content//'${topic}'/$topic}"
 
-echo "$prompt" | ask-google-gemini -s -m $gemini_model > "$mindmap_file"
-
-echo "Mindmap created: $mindmap_file"
+if [ "$filename" != "-" ]; then
+  echo "$prompt" | ask-google-gemini -s -m $gemini_model > "$mindmap_file"
+  echo "Mindmap created: $mindmap_file"
+else
+  echo "$prompt"
+fi
 
 exit 0
