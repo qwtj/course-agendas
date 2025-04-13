@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class=""> <!-- Start with no 'dark' class -->
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -11,23 +11,24 @@
     <script>
       window.MathJax = {
         tex: {
-          inlineMath: [['$', '$'], ['\\(', '\\)']], // Define $...$ and \(...\) as inline math
-          displayMath: [['$$', '$$'], ['\\[', '\\]']] // Define $$...$$ and \[...\] as display math
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          displayMath: [['$$', '$$'], ['\\[', '\\]']]
         },
         svg: {
-          fontCache: 'global' // Use global font cache for better performance
+          fontCache: 'global'
         }
       };
     </script>
     <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" id="MathJax-script" async></script>
 
     <script>
-      // Configure Tailwind CSS - applied automatically by the browser script
+      // Configure Tailwind CSS
       tailwind.config = {
+        darkMode: 'class', // Enable class-based dark mode
         theme: {
           extend: {
             fontFamily: {
-              sans: ["Inter", "sans-serif"], // Use Inter font
+              sans: ["Inter", "sans-serif"],
             },
           },
         },
@@ -38,9 +39,101 @@
       body {
         font-family: "Inter", sans-serif;
       }
+      /* --- Light Mode Colors (Defaults) --- */
+      hr { border-color: #e5e7eb; /* gray-200 */ }
+      ul { margin-bottom: 0.5rem; }
+      ul li { margin-bottom: 0.5rem; list-style: disc; list-style-position: inside; }
+      #output p, #renderedContentDisplay p { color: #1f2937; /* gray-800 */ }
+      .content-textarea { background-color: #ffffff; color: #1f2937; border-color: #d1d5db; /* gray-300 */ }
+      .content-textarea:focus { border-color: #4f46e5; /* indigo-600 */ box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.3); }
+      #output h1, #renderedContentDisplay h1, #output h2, #renderedContentDisplay h2, #output h3, #renderedContentDisplay h3, #output h4, #renderedContentDisplay h4, #output h5, #renderedContentDisplay h5, #output h6, #renderedContentDisplay h6 { color: #111827; /* gray-900 */ }
+      #output h1, #renderedContentDisplay h1 { color: rgb(20 184 166); /* teal-500 */ }
+      #output h2, #renderedContentDisplay h2 { color: rgb(234 88 12); /* orange-500 */ }
+      #output h3, #renderedContentDisplay h3 { color: rgb(185 28 28); /* red-700 */ }
+      #output h4, #renderedContentDisplay h4 { color: rgb(37 99 235); /* blue-600 */ }
+      #output h5, #renderedContentDisplay h5 { color: rgb(168, 85, 247); /* purple-500 */ }
+      #output h6, #renderedContentDisplay h6 { color: rgb(107, 114, 128); /* gray-500 */ }
+      #mindMapCanvas { border-color: #d1d5db; /* gray-300 */ }
+      .modal-content { background-color: white; }
+      .modal-header { border-color: #e5e7eb; /* gray-200 */ }
+      .modal-title { color: #1f2937; /* gray-800 */ }
+      .help-icon { color: #3b82f6; /* blue-500 */ }
+      .help-icon:hover { color: #1d4ed8; /* blue-700 */ }
+      .modal-close-button { color: #9ca3af; /* gray-400 */ }
+      .modal-close-button:hover { color: #1f2937; /* gray-800 */ }
+      .modal-body pre { background-color: #f4f4f4; color: #333; border-color: #ddd; }
+      .modal-footer { border-color: #e5e7eb; /* gray-200 */ }
+      #rawMdEditorTextarea { border-color: #d1d5db; /* gray-300 */ }
+      #jupyterJsonDisplayContainer { background-color: #f3f4f6; border-color: #e5e7eb; }
+      #jupyterJsonDisplay { color: #1f2937; /* gray-800 */ }
+      #geminiOptionsPanel { background-color: #ffffff; }
+      #geminiModelSelect:disabled { background-color: #f3f4f6; }
+      #geminiResponseTextarea { background-color: #f9fafb; /* gray-50 */ }
+      #tokenCountArea { background-color: #f9fafb; border-color: #e5e7eb; }
+      .custom-prompt-textarea { border-color: #d1d5db; }
+      .custom-prompt-textarea:focus { border-color: #4f46e5; box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.3); }
+      .main-view-action-button { background-color: #f3f4f6; border-color: #d1d5db; }
+      .main-view-action-button:hover { background-color: #e5e7eb; }
+
+      /* --- Dark Mode Overrides --- */
+      html.dark body { background-color: #111827; /* gray-900 */ color: #d1d5db; /* gray-300 */ }
+      html.dark hr { border-color: #4b5563; /* gray-600 */ }
+      html.dark #output p, html.dark #renderedContentDisplay p { color: #d1d5db; /* gray-300 */ }
+      html.dark .content-textarea { background-color: #374151; /* gray-700 */ color: #f3f4f6; /* gray-100 */ border-color: #4b5563; /* gray-600 */ }
+      html.dark .content-textarea:focus { border-color: #6366f1; /* indigo-500 */ box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.4); }
+      html.dark #output h1, html.dark #renderedContentDisplay h1, html.dark #output h2, html.dark #renderedContentDisplay h2, html.dark #output h3, html.dark #renderedContentDisplay h3, html.dark #output h4, html.dark #renderedContentDisplay h4, html.dark #output h5, html.dark #renderedContentDisplay h5, html.dark #output h6, html.dark #renderedContentDisplay h6 { color: #f9fafb; /* gray-50 */ }
+      /* Adjust dark header colors slightly for better visibility if needed, keeping originals for vibrancy */
+      html.dark #output h1, html.dark #renderedContentDisplay h1 { color: rgb(20 184 166); } /* teal-500 */
+      html.dark #output h2, html.dark #renderedContentDisplay h2 { color: rgb(234 88 12); } /* orange-500 */
+      html.dark #output h3, html.dark #renderedContentDisplay h3 { color: #ef4444; /* red-500 (lighter red) */ }
+      html.dark #output h4, html.dark #renderedContentDisplay h4 { color: #60a5fa; /* blue-400 (lighter blue) */ }
+      html.dark #output h5, html.dark #renderedContentDisplay h5 { color: #c084fc; /* purple-400 (lighter purple) */ }
+      html.dark #output h6, html.dark #renderedContentDisplay h6 { color: #9ca3af; /* gray-400 (lighter gray) */ }
+      html.dark #mindMapCanvas { border-color: #4b5563; /* gray-600 */ }
+      html.dark .modal-overlay { background-color: rgba(0, 0, 0, 0.8); } /* Darker overlay */
+      html.dark .modal-content { background-color: #1f2937; /* gray-800 */ color: #d1d5db; /* gray-300 */ }
+      html.dark .modal-header { border-color: #4b5563; /* gray-600 */ }
+      html.dark .modal-title { color: #f3f4f6; /* gray-100 */ }
+      html.dark .help-icon { color: #60a5fa; /* blue-400 */ }
+      html.dark .help-icon:hover { color: #93c5fd; /* blue-300 */ }
+      html.dark .modal-close-button { color: #6b7280; /* gray-500 */ }
+      html.dark .modal-close-button:hover { color: #d1d5db; /* gray-300 */ }
+      html.dark .modal-body { color: #d1d5db; /* gray-300 */ }
+      html.dark .modal-body pre { background-color: #374151; /* gray-700 */ color: #e5e7eb; border-color: #4b5563; }
+      html.dark .modal-footer { border-color: #4b5563; /* gray-600 */ }
+      html.dark #rawMdEditorTextarea { background-color: #374151; color: #f3f4f6; border-color: #4b5563; }
+      html.dark #jupyterJsonDisplayContainer { background-color: #374151; /* gray-700 */ border-color: #4b5563; /* gray-600 */ }
+      html.dark #jupyterJsonDisplay { color: #e5e7eb; /* gray-200 */ }
+      html.dark #geminiOptionsPanel { background-color: #1f2937; /* gray-800 */ color: #d1d5db; box-shadow: -2px 0 10px rgba(255, 255, 255, 0.05); }
+      html.dark #geminiOptionsPanel label, html.dark #geminiOptionsPanel h3, html.dark #geminiOptionsPanel h4, html.dark #geminiOptionsPanel h5, html.dark #geminiOptionsPanel li { color: #d1d5db; /* gray-300 */}
+      html.dark #geminiOptionsPanel .text-gray-700 { color: #d1d5db !important; /* Force override */ }
+      html.dark #geminiOptionsPanel .text-gray-600 { color: #9ca3af !important; /* Force override */ }
+      html.dark #geminiOptionsPanel .text-gray-500 { color: #6b7280 !important; /* Force override */ }
+       html.dark #geminiOptionsPanel .text-gray-400 { color: #9ca3af !important; /* Force override */}
+      html.dark #geminiOptionsPanel input, html.dark #geminiOptionsPanel select, html.dark #geminiOptionsPanel textarea {
+        background-color: #374151; /* gray-700 */
+        color: #f3f4f6; /* gray-100 */
+        border-color: #4b5563; /* gray-600 */
+      }
+       html.dark #geminiOptionsPanel input::placeholder, html.dark #geminiOptionsPanel textarea::placeholder { color: #9ca3af; }
+      html.dark #geminiModelSelect:disabled { background-color: #4b5563; /* gray-600 */ opacity: 0.6; }
+      html.dark #geminiResponseTextarea { background-color: #4b5563; /* gray-600 */ }
+      html.dark #tokenCountArea { background-color: #374151; /* gray-700 */ border-color: #4b5563; color: #9ca3af; }
+      html.dark .custom-prompt-textarea { border-color: #4b5563; }
+      html.dark .custom-prompt-textarea:focus { border-color: #6366f1; /* indigo-500 */ box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.4); }
+      html.dark .main-view-action-button { background-color: #4b5563; border-color: #6b7280; color: #e5e7eb; }
+      html.dark .main-view-action-button:hover { background-color: #525a67; }
+      html.dark .main-view-action-button:disabled { opacity: 0.4; }
+
+
+      /* Other existing styles below... */
+      /* Basic body styling */
+      body {
+        font-family: "Inter", sans-serif;
+      }
       /* Horizontal rule styling */
       hr {
-        border: 1px solid #e5e7eb; /* gray-200 */
+        /* border: 1px solid #e5e7eb; Light mode color set above */
         margin: 1.5rem 0 !important;
       }
       /* Unordered list styling */
@@ -59,6 +152,7 @@
         margin-top: 1rem;
         margin-bottom: 1rem;
         line-height: 1.6;
+        /* color: #1f2937; Light mode color set above */
       }
       /* Style for the EDITABLE textareas in main preview view */
       .content-textarea {
@@ -67,21 +161,21 @@
         padding: 10px;
         margin-top: 0px; /* Margin handled by container now */
         margin-bottom: 0px; /* Margin handled by container now */
-        border: 1px solid #d1d5db; /* gray-300 */
+        border: 1px solid; /* Color set above */
         border-radius: 0.375rem; /* rounded-md */
         font-family: monospace; /* Monospace font for code-like editing */
         font-size: 0.875rem; /* text-sm */
         line-height: 1.4;
-        background-color: #ffffff; /* white */
-        color: #1f2937; /* gray-800 */
+        /* background-color: #ffffff; Color set above */
+        /* color: #1f2937; Color set above */
         resize: vertical; /* Allow vertical resizing */
         box-shadow: inset 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-        transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background-color 0.2s, color 0.2s; /* Added transitions */
       }
       .content-textarea:focus {
         outline: none;
-        border-color: #4f46e5; /* indigo-600 */
-        box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.3); /* Focus ring */
+        /* border-color: #4f46e5; Color set above */
+        /* box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.3); Color set above */
       }
 
       /* Style for rendered headers (H1-H6) in main preview and rendered view */
@@ -93,17 +187,10 @@
       #output h6, #renderedContentDisplay h6 {
         margin-bottom: 0.5rem;
         line-height: 1.3;
-        color: #111827; /* gray-900 */
+        /* color: #111827; Color set above */
         padding-top: 1rem; /* Space above headers */
       }
-      /* Specific header colors */
-      #output h1, #renderedContentDisplay h1 { color: rgb(20 184 166); font-weight: 900; } /* teal-500 */
-      #output h2, #renderedContentDisplay h2 { color: rgb(234 88 12); font-weight: 900; } /* orange-500 */
-      #output h3, #renderedContentDisplay h3 { color: rgb(185 28 28); font-weight: 500; } /* red-700 */
-      #output h4, #renderedContentDisplay h4 { color: rgb(37 99 235); font-weight: 500; } /* blue-600 */
-      #output h5, #renderedContentDisplay h5 { color: rgb(168, 85, 247); font-weight: 400; } /* purple-500 */ /* Adjusted color */
-      #output h6, #renderedContentDisplay h6 { color: rgb(107, 114, 128); font-weight: 400; } /* gray-500 */ /* Adjusted color */
-
+      /* Specific header colors - set above */
 
       /* Remove top padding from the very first header */
       #output h1:first-child, #renderedContentDisplay h1:first-child,
@@ -140,7 +227,7 @@
       #mindMapCanvas {
         width: 100%;
         height: 60vh; /* Default height, adjust as needed */
-        border: 1px solid #d1d5db; /* gray-300 */
+        border: 1px solid; /* Color set above */
         border-radius: 0.375rem; /* rounded-md */
         cursor: grab; /* Indicate draggable */
         display: block; /* Prevent extra space below canvas */
@@ -166,7 +253,7 @@
       }
       /* Content area of modals */
       .modal-content {
-        background-color: white;
+        /* background-color: white; Color set above */
         padding: 1.5rem;
         border-radius: 0.5rem; /* rounded-lg */
         max-width: 90%; /* Max width relative to viewport */
@@ -175,6 +262,7 @@
         flex-direction: column; /* Stack header, body, footer vertically */
         overflow: hidden; /* Prevent content spilling */
         box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-lg */
+        transition: background-color 0.2s, color 0.2s; /* Added transition */
       }
       /* Specific modal widths */
       #confirmNewModal .modal-content,
@@ -201,38 +289,34 @@
         justify-content: space-between;
         align-items: center;
         margin-bottom: 1rem;
-        border-bottom: 1px solid #e5e7eb; /* gray-200 */
+        border-bottom: 1px solid; /* Color set above */
         padding-bottom: 0.75rem;
       }
       /* Modal title styling */
       .modal-title {
         font-size: 1.125rem; /* text-lg */
         font-weight: 600; /* font-semibold */
-        color: #1f2937; /* gray-800 */
+        /* color: #1f2937; Color set above */
         display: flex;
         align-items: center;
       }
       /* Help icon styling (?) */
       .help-icon {
         margin-left: 0.5rem;
-        color: #3b82f6; /* blue-500 */
+        /* color: #3b82f6; Color set above */
         font-weight: bold;
         cursor: pointer;
         font-size: 0.8rem; /* Adjust size if needed for emoji */
-        /* border: 1px solid #9ca3af; */ /* Removed border for emoji */
-        /* border-radius: 50%; */ /* Removed border-radius */
         width: 1.1rem; /* Keep size or adjust */
         height: 1.1rem; /* Keep size or adjust */
         display: inline-flex;
         align-items: center;
         justify-content: center;
         line-height: 1;
-        transition: background-color 0.2s, color 0.2s;
+        transition: color 0.2s;
       }
       .help-icon:hover {
-        /* background-color: #eff6ff; */ /* Removed background hover */
-        color: #1d4ed8; /* blue-700 */
-        /* border-color: #6b7280; */ /* Removed border hover */
+        /* color: #1d4ed8; Color set above */
       }
       /* Modal close button (X) styling */
       .modal-close-button {
@@ -241,11 +325,12 @@
         font-size: 1.8rem;
         line-height: 1;
         cursor: pointer;
-        color: #9ca3af; /* gray-400 */
+        /* color: #9ca3af; Color set above */
         padding: 0.25rem;
+        transition: color 0.2s;
       }
       .modal-close-button:hover {
-        color: #1f2937; /* gray-800 */
+        /* color: #1f2937; Color set above */
       }
       /* Modal body styling */
       .modal-body {
@@ -267,19 +352,19 @@
       }
       /* Code block styling within modal body */
       .modal-body pre {
-        background-color: #f4f4f4; /* Light gray background */
+        /* background-color: #f4f4f4; Color set above */
         padding: 2.5px;
         border-radius: 4px;
         overflow-x: auto;         /* Horizontal scrolling if needed */
         font-family: monospace;
-        color: #333;
+        /* color: #333; Color set above */
         line-height: 1.4;         /* Better readability */
-        border: 1px solid #ddd;   /* Subtle border */
+        border: 1px solid;   /* Color set above */
         margin-block: 5px;
       }
       /* Modal footer styling */
       .modal-footer {
-        border-top: 1px solid #e5e7eb; /* gray-200 */
+        border-top: 1px solid; /* Color set above */
         padding-top: 1rem;
         display: flex;
         justify-content: flex-end; /* Align buttons to the right */
@@ -296,7 +381,7 @@
         width: 100%;
         height: 100%;
         min-height: 40vh; /* Ensure decent minimum height */
-        border: 1px solid #d1d5db; /* gray-300 */
+        border: 1px solid; /* Color set above */
         border-radius: 0.375rem; /* rounded-md */
         padding: 0.75rem;
         font-family: monospace;
@@ -304,16 +389,18 @@
         line-height: 1.5;
         resize: none; /* Disable resizing */
         box-shadow: inset 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        transition: background-color 0.2s, color 0.2s, border-color 0.2s; /* Added transition */
       }
       /* Style for Jupyter JSON display container in modal */
       #jupyterJsonDisplayContainer {
-        background-color: #f3f4f6; /* gray-100 */
-        border: 1px solid #e5e7eb; /* gray-200 */
+        /* background-color: #f3f4f6; Color set above */
+        border: 1px solid; /* Color set above */
         border-radius: 0.375rem; /* rounded-md */
         padding: 1rem;
         flex-grow: 1; /* Take available space */
         overflow: hidden; /* Hide overflow */
         display: flex; /* Use flexbox */
+        transition: background-color 0.2s, border-color 0.2s; /* Added transition */
       }
       /* Style for the preformatted text element holding JSON */
       #jupyterJsonDisplay {
@@ -324,7 +411,8 @@
         width: 100%;
         height: 100%;
         margin: 0;
-        color: #1f2937; /* gray-800 */
+        /* color: #1f2937; Color set above */
+        transition: color 0.2s; /* Added transition */
       }
       /* Ensure code tag inside pre takes full block */
       #jupyterJsonDisplay code {
@@ -344,12 +432,12 @@
         height: 100vh; /* Full viewport height */
         width: 300px; /* Panel width */
         max-width: 80%; /* Max width on smaller screens */
-        background-color: #ffffff; /* White background */
+        /* background-color: #ffffff; Color set above */
         box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1); /* Left shadow */
         padding: 1.5rem; /* p-6 */
         z-index: 1100; /* Above modals */
         transform: translateX(100%); /* Initially hidden off-screen */
-        transition: transform 0.3s ease-in-out; /* Slide animation */
+        transition: transform 0.3s ease-in-out, background-color 0.2s, color 0.2s; /* Added transitions */
         overflow-y: auto; /* Allow scrolling if content overflows */
         display: flex; /* Use flex for layout */
         flex-direction: column; /* Stack sections vertically */
@@ -359,7 +447,7 @@
       }
       /* Style for disabled select */
       #geminiModelSelect:disabled {
-          background-color: #f3f4f6; /* gray-100 */
+          /* background-color: #f3f4f6; Color set above */
           cursor: not-allowed;
           opacity: 0.7;
       }
@@ -368,47 +456,50 @@
           font-family: monospace;
           font-size: 0.8rem;
           line-height: 1.4;
-          background-color: #f9fafb; /* gray-50 */
+          /* background-color: #f9fafb; Color set above */
           min-height: 80px; /* Give it some initial height */
+          transition: background-color 0.2s, color 0.2s, border-color 0.2s; /* Added transition */
       }
       /* Style for token count area */
       #tokenCountArea {
-          background-color: #f9fafb; /* gray-50 */
+          /* background-color: #f9fafb; Color set above */
           padding: 0.5rem 0.75rem; /* py-2 px-3 */
           border-radius: 0.375rem; /* rounded-md */
-          border: 1px solid #e5e7eb; /* gray-200 */
+          border: 1px solid; /* Color set above */
+          transition: background-color 0.2s, color 0.2s, border-color 0.2s; /* Added transition */
       }
       /* Style for custom prompt textareas */
       .custom-prompt-textarea {
         width: 100%;
         padding: 0.5rem 0.75rem; /* py-2 px-3 */
-        border: 1px solid #d1d5db; /* gray-300 */
+        border: 1px solid; /* Color set above */
         border-radius: 0.375rem; /* rounded-md */
         font-size: 0.875rem; /* text-sm */
         line-height: 1.4;
         box-shadow: inset 0 1px 2px 0 rgba(0, 0, 0, 0.05);
         resize: vertical; /* Allow vertical resize */
+        transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s; /* Added transition */
       }
       .custom-prompt-textarea:focus {
         outline: none;
-        border-color: #4f46e5; /* indigo-600 */
-        box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.3); /* Focus ring */
+        /* border-color: #4f46e5; Color set above */
+        /* box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.3); Color set above */
       }
        /* Style for main view action buttons (next to textareas) */
        .main-view-action-button {
          width: 1.5rem; /* w-6 */
          height: 1.5rem; /* h-6 */
-         background-color: #f3f4f6; /* bg-gray-100 */
-         border: 1px solid #d1d5db; /* border-gray-300 */
+         /* background-color: #f3f4f6; Color set above */
+         border: 1px solid; /* Color set above */
          border-radius: 0.25rem; /* rounded */
          font-size: 0.75rem; /* text-xs */
          display: flex;
          align-items: center;
          justify-content: center;
-         transition: background-color 0.15s ease-in-out;
+         transition: background-color 0.15s ease-in-out, color 0.15s, border-color 0.15s; /* Added transitions */
        }
        .main-view-action-button:hover {
-         background-color: #e5e7eb; /* hover:bg-gray-200 */
+         /* background-color: #e5e7eb; Color set above */
        }
        .main-view-action-button:disabled {
          opacity: 0.5;
@@ -425,21 +516,55 @@
           display: inline-block; /* Keep SVG inline */
        }
 
+       /* Task List Panel Specific Dark Mode */
+       html.dark #taskListPanel {
+           background-color: #1f2937; /* gray-800 */
+           color: #d1d5db; /* gray-300 */
+           box-shadow: 0 10px 15px -3px rgba(255, 255, 255, 0.05), 0 4px 6px -2px rgba(255, 255, 255, 0.03); /* Lighter shadow */
+       }
+       html.dark #taskListPanel h4 { color: #f3f4f6; } /* gray-100 */
+       html.dark #taskListPanel .text-gray-500 { color: #9ca3af; } /* gray-400 */
+       html.dark #taskListContainer .bg-gray-50 { background-color: #374151; } /* gray-700 */
+       html.dark #taskListContainer .border-gray-200 { border-color: #4b5563; } /* gray-600 */
+       html.dark #taskListContainer .text-gray-900 { color: #f9fafb; } /* gray-50 */
+       html.dark #taskListContainer .text-gray-700 { color: #d1d5db; } /* gray-300 */
+       html.dark #taskListContainer .text-gray-600 { color: #9ca3af; } /* gray-400 */
+       html.dark #taskListContainer .text-gray-500 { color: #6b7280; } /* gray-500 */
+       /* Status colors */
+       html.dark #taskListContainer .text-blue-600 { color: #60a5fa; } /* blue-400 */
+       html.dark #taskListContainer .text-yellow-600 { color: #facc15; } /* yellow-400 */
+       html.dark #taskListContainer .text-green-600 { color: #4ade80; } /* green-400 */
+       html.dark #taskListContainer .text-red-600 { color: #f87171; } /* red-400 */
+       html.dark #taskListContainer .text-gray-500 { color: #9ca3af; } /* gray-400 */
+       html.dark #taskListContainer .cancel-task-btn { color: #f87171; } /* red-400 */
+       html.dark #taskListContainer .cancel-task-btn:hover { color: #ef4444; } /* red-500 */
+
+        /* Dark Mode Toggle Button */
+        #darkModeToggle {
+            padding: 0.5rem;
+        }
+        #darkModeToggle .moon-icon { display: inline-block; }
+        #darkModeToggle .sun-icon { display: none; }
+        html.dark #darkModeToggle .moon-icon { display: none; }
+        html.dark #darkModeToggle .sun-icon { display: inline-block; }
+
+
     </style>
   </head>
-  <body class="bg-gray-100 p-4 md:p-8">
+  <body class="bg-gray-100 dark:bg-gray-900 p-4 md:p-8 transition-colors duration-200"> <!-- Added dark bg and transition -->
     <button
       type="button"
       id="taskListButton"
       title="Show Task List"
-      class="fixed top-1/2 left-0 transform -translate-y-1/2 z-50 w-16 h-16 bg-blue-500 hover:bg-blue-600 text-white rounded-md shadow-lg flex items-center justify-center text-3xl transition duration-150 ease-in-out"
+      class="fixed top-1/2 left-0 transform -translate-y-1/2 z-50 w-16 h-16 bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white rounded-md shadow-lg flex items-center justify-center text-3xl transition duration-150 ease-in-out"
     >
       📧
     </button>
-    <div class="max-w-4xl mx-auto bg-white p-6 md:p-8 rounded-lg shadow-md relative">
-      <h1 class="text-2xl font-bold mb-6 text-center text-gray-800">
+    <div class="max-w-4xl mx-auto bg-white dark:bg-gray-800 p-6 md:p-8 rounded-lg shadow-md relative transition-colors duration-200"> <!-- Added dark bg and transition -->
+      <h1 class="text-2xl font-bold mb-6 text-center text-gray-800 dark:text-gray-200 transition-colors duration-200"> <!-- Added dark text -->
         Interactive Course
       </h1>
+      <!-- Task List Panel (Dark mode styles added in <style>) -->
       <div
         id="taskListPanel"
         class="fixed bottom-4 left-[80px] z-40 w-[200px] max-h-[60vh] overflow-y-auto p-4 bg-white rounded-lg shadow-xl transform translate-y-full opacity-0 invisible transition-all duration-300 ease-in-out"
@@ -450,20 +575,22 @@
         </div>
       </div>
       <div class="mb-6">
-        <div class="border-b border-gray-200">
+        <div class="border-b border-gray-200 dark:border-gray-700 transition-colors duration-200"> <!-- Added dark border -->
           <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+            <!-- Tab Button File -->
             <button
               type="button"
               id="tabButtonFile"
-              class="whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm border-indigo-500 text-indigo-600"
+              class="whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm border-indigo-500 dark:border-indigo-400 text-indigo-600 dark:text-indigo-400 transition-colors duration-200"
               aria-current="page"
             >
               Load from File
             </button>
+            <!-- Tab Button URL -->
             <button
               type="button"
               id="tabButtonUrl"
-              class="whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              class="whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-600 transition-colors duration-200"
             >
               Load from URL
             </button>
@@ -471,34 +598,36 @@
         </div>
 
         <div class="pt-4">
+          <!-- Tab Panel File -->
           <div id="tabPanelFile">
             <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <label for="mdFileInput" class="block text-sm font-medium text-gray-700 whitespace-nowrap">
+              <label for="mdFileInput" class="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-200"> <!-- Added dark text -->
                 Select Markdown File (.md):
               </label>
               <input
                 type="file"
                 id="mdFileInput"
                 accept=".md"
-                class="flex-grow-0 w-full sm:w-auto text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                class="flex-grow-0 w-full sm:w-auto text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 dark:file:bg-indigo-900 file:text-indigo-700 dark:file:text-indigo-300 hover:file:bg-indigo-100 dark:hover:file:bg-indigo-800 transition-colors duration-200"
               />
             </div>
           </div>
 
+          <!-- Tab Panel URL -->
           <div id="tabPanelUrl" class="hidden">
             <div class="flex flex-col sm:flex-row items-center justify-center gap-2">
-              <label for="mdUrlInput" class="block text-sm font-medium text-gray-700 whitespace-nowrap sr-only">
+              <label for="mdUrlInput" class="block text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap sr-only"> <!-- Added dark text -->
                 Enter Markdown URL:
               </label>
               <input
                 type="url"
                 id="mdUrlInput"
                 placeholder="Enter Markdown URL..."
-                class="flex-grow w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                class="flex-grow w-full sm:w-auto px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:focus:border-indigo-400 dark:focus:ring-indigo-400 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 text-sm transition-colors duration-200"
               />
               <button
                 id="loadFromUrlButton"
-                class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md shadow-sm transition duration-150 ease-in-out text-sm flex-shrink-0"
+                class="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-md shadow-sm transition duration-150 ease-in-out text-sm flex-shrink-0"
               >
                 Load from URL
               </button>
@@ -507,31 +636,32 @@
         </div>
       </div>
 
+      <!-- Action Buttons -->
       <div class="text-center mb-6 flex flex-wrap justify-center items-center gap-3">
         <button
           id="newButton"
-          class="bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 px-4 rounded-md shadow transition duration-150 ease-in-out text-sm"
+          class="bg-teal-500 hover:bg-teal-600 dark:bg-teal-600 dark:hover:bg-teal-700 text-white font-semibold py-2 px-4 rounded-md shadow transition duration-150 ease-in-out text-sm"
           title="Start a new blank document"
         >
           New
         </button>
         <button
           id="viewRawMdButton"
-          class="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-4 rounded-md shadow transition duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+          class="bg-orange-500 hover:bg-orange-600 dark:bg-orange-600 dark:hover:bg-orange-700 text-white font-semibold py-2 px-4 rounded-md shadow transition duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed text-sm"
           disabled
         >
           Edit Raw Markdown
         </button>
         <button
           id="viewRenderedButton"
-          class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-md shadow transition duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+          class="bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800 text-white font-semibold py-2 px-4 rounded-md shadow transition duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed text-sm"
           disabled
         >
           View Rendered HTML
         </button>
         <button
           id="exportJupyterButton"
-          class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md shadow transition duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+          class="bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md shadow transition duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed text-sm"
           disabled
           title="Export content as Jupyter Notebook (.ipynb)"
         >
@@ -539,7 +669,7 @@
         </button>
         <button
           id="toggleGeminiPanelButton"
-          class="bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 px-4 rounded-md shadow transition duration-150 ease-in-out text-sm"
+          class="bg-purple-500 hover:bg-purple-600 dark:bg-purple-600 dark:hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-md shadow transition duration-150 ease-in-out text-sm"
           title="Toggle Gemini Options"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -550,28 +680,45 @@
         </button>
         <button
           id="refreshPreviewButton"
-          class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-2 rounded-md shadow transition duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+          class="bg-gray-500 hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-700 text-white font-semibold py-2 px-2 rounded-md shadow transition duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed text-sm"
           title="Refresh Preview"
           disabled
         >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
             <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
           </svg>
         </button>
+        <!-- Dark Mode Toggle Button -->
+        <button
+            id="darkModeToggle"
+            class="bg-gray-500 hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-500 text-white font-semibold py-2 px-2 rounded-md shadow transition duration-150 ease-in-out text-sm"
+            title="Toggle Dark Mode"
+        >
+            <!-- Moon Icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 moon-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+            </svg>
+            <!-- Sun Icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sun-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+        </button>
       </div>
 
-      <div class="border-t border-gray-200 pt-6">
-        <h2 id="outputTitle" class="text-xl font-semibold mb-4 text-gray-800 truncate" title="Preview">
+      <!-- Output Area -->
+      <div class="border-t border-gray-200 dark:border-gray-700 pt-6 transition-colors duration-200"> <!-- Added dark border -->
+        <h2 id="outputTitle" class="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200 truncate transition-colors duration-200" title="Preview"> <!-- Added dark text -->
           Preview
         </h2>
         <div id="output">
-          <p class="text-gray-500" id="outputPlaceholder">
+          <p class="text-gray-500 dark:text-gray-400 transition-colors duration-200" id="outputPlaceholder"> <!-- Added dark text -->
             Select a .md file to automatically load and render, or click 'New'.
           </p>
         </div>
       </div>
     </div>
 
+    <!-- Modals (Dark mode styles added via <style> block and html.dark prefix) -->
     <div id="rawMdModal" class="modal-overlay hidden">
       <div class="modal-content">
         <div class="modal-header">
@@ -584,7 +731,7 @@
         <div class="modal-footer">
           <button
             id="saveRawMdButton"
-            class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-md shadow transition duration-150 ease-in-out text-sm"
+            class="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800 text-white font-semibold py-2 px-4 rounded-md shadow transition duration-150 ease-in-out text-sm"
           >
             Save Changes & Close
           </button>
@@ -610,20 +757,20 @@
           <h3 class="modal-title">Confirm New Document</h3>
         </div>
         <div class="modal-body">
-          <p class="text-sm text-gray-700">
+          <p class="text-sm text-gray-700 dark:text-gray-300"> <!-- Added dark text -->
             Are you sure you want to start a new document? Any unsaved changes will be lost.
           </p>
         </div>
         <div class="modal-footer">
           <button
             id="cancelNewButton"
-            class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-md shadow-sm transition duration-150 ease-in-out text-sm"
+            class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-800 dark:text-gray-100 font-semibold py-2 px-4 rounded-md shadow-sm transition duration-150 ease-in-out text-sm"
           >
             Cancel
           </button>
           <button
             id="confirmNewButton"
-            class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md shadow-sm transition duration-150 ease-in-out text-sm"
+            class="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-md shadow-sm transition duration-150 ease-in-out text-sm"
           >
             Start New
           </button>
@@ -646,10 +793,10 @@
           </div>
         </div>
         <div class="modal-footer">
-          <p class="text-xs text-gray-500 mr-auto">Copy JSON & save as '.ipynb' file.</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mr-auto">Copy JSON & save as '.ipynb' file.</p> <!-- Added dark text -->
           <button
             id="copyJupyterJsonButton"
-            class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md shadow-sm transition duration-150 ease-in-out text-sm"
+            class="bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md shadow-sm transition duration-150 ease-in-out text-sm"
           >
             Copy JSON
           </button>
@@ -679,7 +826,7 @@
         <div class="modal-footer">
           <button
             id="closeJupyterHelpModalButtonOk"
-            class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md shadow-sm transition duration-150 ease-in-out text-sm"
+            class="bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md shadow-sm transition duration-150 ease-in-out text-sm"
           >
             Understood
           </button>
@@ -687,26 +834,29 @@
       </div>
     </div>
 
-
+    <!-- Gemini Panel (Dark mode styles added via <style> block and html.dark prefix) -->
     <div id="geminiOptionsPanel">
-        <div class="flex justify-between items-center mb-4 border-b pb-2 flex-shrink-0">
+        <!-- Content remains the same, dark mode styles applied via CSS -->
+        <div class="flex justify-between items-center mb-4 border-b dark:border-gray-600 pb-2 flex-shrink-0">
             <h3 class="text-lg font-semibold text-gray-700">Gemini Options</h3>
-            <button id="closeGeminiPanelButton" class="text-gray-500 hover:text-gray-800 text-2xl leading-none">&times;</button>
+            <button id="closeGeminiPanelButton" class="text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-100 text-2xl leading-none transition-colors duration-200">&times;</button>
         </div>
 
         <div class="flex-grow overflow-y-auto pr-2">
             <div class="mb-4">
                 <label for="geminiApiKey" class="block text-sm font-medium text-gray-600 mb-1">Gemini API Key:</label>
-                <input type="password" id="geminiApiKey" name="geminiApiKey" placeholder="Enter your API key" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 text-sm">
-                <p id="geminiApiError" class="text-xs text-red-500 mt-1 h-4"></p> </div>
+                <input type="password" id="geminiApiKey" name="geminiApiKey" placeholder="Enter your API key" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:focus:border-purple-400 dark:focus:ring-purple-400 dark:placeholder-gray-400 transition-colors duration-200">
+                <p id="geminiApiError" class="text-xs text-red-500 dark:text-red-400 mt-1 h-4"></p>
+            </div>
             <div class="mb-4">
                  <label for="geminiModelSelect" class="block text-sm font-medium text-gray-600 mb-1">Select Model:</label>
-                 <select id="geminiModelSelect" name="geminiModelSelect" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 text-sm bg-white" disabled>
+                 <select id="geminiModelSelect" name="geminiModelSelect" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 text-sm bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:focus:border-purple-400 dark:focus:ring-purple-400 transition-colors duration-200" disabled>
                      <option value="">-- Enter API Key --</option>
                  </select>
-                 <p id="activeModelIndicator" class="text-xs text-gray-500 italic mt-1 h-4"></p> </div>
+                 <p id="activeModelIndicator" class="text-xs text-gray-500 italic mt-1 h-4"></p>
+            </div>
 
-            <div class="mb-4 border-t pt-4">
+            <div class="mb-4 border-t dark:border-gray-600 pt-4">
                  <h4 class="text-sm font-semibold text-gray-700 mb-2">Custom Prompts</h4>
                  <div class="mb-3">
                      <label for="promptCreatePlan" class="block text-sm font-medium text-gray-600 mb-1">Create Plan Prompt:</label>
@@ -730,13 +880,13 @@
                  </div>
             </div>
 
-             <div class="mt-4 border-t pt-4">
+             <div class="mt-4 border-t dark:border-gray-600 pt-4">
                  <h4 class="text-sm font-semibold text-gray-700 mb-2">Test Prompt</h4>
-                 <button id="sendPromptButton" class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-md shadow transition duration-150 ease-in-out text-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                 <button id="sendPromptButton" class="w-full bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-md shadow transition duration-150 ease-in-out text-sm disabled:opacity-50 disabled:cursor-not-allowed">
                    Send "hello world"
                  </button>
                  <label for="geminiResponseTextarea" class="block text-sm font-medium text-gray-600 mt-3 mb-1">Response:</label>
-                 <textarea id="geminiResponseTextarea" rows="4" readonly class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm bg-gray-50 cursor-default"></textarea>
+                 <textarea id="geminiResponseTextarea" rows="4" readonly class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm bg-gray-50 cursor-default dark:bg-gray-600 dark:border-gray-500 dark:text-gray-200 transition-colors duration-200"></textarea>
                  <div id="tokenCountArea" class="mt-3 text-xs text-gray-600">
                      <h5 class="font-semibold mb-1">Token Usage (Cumulative):</h5>
                      <div>In: <span id="promptTokenCount" class="font-medium">0</span></div>
@@ -745,39 +895,39 @@
                  </div>
             </div>
 
-            <div class="mb-4 border-t pt-4">
+            <div class="mb-4 border-t dark:border-gray-600 pt-4">
                 <label for="batchDelayInput" class="block text-sm font-medium text-gray-600 mb-1">Delay Between Batch Tasks (seconds):</label>
                 <input
                   type="number"
                   id="batchDelayInput"
                   name="batchDelayInput"
                   min="0"
-                  value="15" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 text-sm"
+                  value="15" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:focus:border-purple-400 dark:focus:ring-purple-400 transition-colors duration-200"
                 >
             </div>
 
-            <div class="mt-4 border-t pt-4">
+            <div class="mt-4 border-t dark:border-gray-600 pt-4">
               <h4 class="text-sm font-semibold text-gray-700 mb-2">Run Task on All Sections</h4>
               <div class="space-y-2">
-                <button id="runPlanOnAllBtn" class="w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 px-4 rounded-md shadow text-sm transition duration-150 ease-in-out">
+                <button id="runPlanOnAllBtn" class="w-full bg-teal-500 hover:bg-teal-600 dark:bg-teal-600 dark:hover:bg-teal-700 text-white font-semibold py-2 px-4 rounded-md shadow text-sm transition duration-150 ease-in-out">
                   Run Plan on All
                 </button>
-                <button id="runGenerateOnAllBtn" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-4 rounded-md shadow text-sm transition duration-150 ease-in-out">
+                <button id="runGenerateOnAllBtn" class="w-full bg-orange-500 hover:bg-orange-600 dark:bg-orange-600 dark:hover:bg-orange-700 text-white font-semibold py-2 px-4 rounded-md shadow text-sm transition duration-150 ease-in-out">
                   Run Generate on All
                 </button>
-                <button id="runCheckOnAllBtn" class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-md shadow text-sm transition duration-150 ease-in-out">
+                <button id="runCheckOnAllBtn" class="w-full bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800 text-white font-semibold py-2 px-4 rounded-md shadow text-sm transition duration-150 ease-in-out">
                   Run Check on All
                 </button>
-                <button id="runCustom1OnAllBtn" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md shadow text-sm transition duration-150 ease-in-out">
+                <button id="runCustom1OnAllBtn" class="w-full bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md shadow text-sm transition duration-150 ease-in-out">
                   Run Custom 1 on All
                 </button>
-                <button id="runCustom2OnAllBtn" class="w-full bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 px-4 rounded-md shadow text-sm transition duration-150 ease-in-out">
+                <button id="runCustom2OnAllBtn" class="w-full bg-purple-500 hover:bg-purple-600 dark:bg-purple-600 dark:hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-md shadow text-sm transition duration-150 ease-in-out">
                   Run Custom 2 on All
                 </button>
               </div>
             </div>
 
-            <div class="mt-4 border-t pt-4">
+            <div class="mt-4 border-t dark:border-gray-600 pt-4">
                  <h4 class="text-sm font-semibold text-gray-700 mb-2">Version: 1</h4>
                  <ul>
                     <li class="text-sm font-semibold text-gray-400 mb-2">Add markdown editing.</li>
@@ -794,6 +944,7 @@
                     <li class="text-sm font-semibold text-gray-400 mb-2">Add button emoji instead of numbers.</li>
                     <li class="text-sm font-semibold text-gray-400 mb-2">Add tasks panel and tracking.</li>
                     <li class="text-sm font-semibold text-gray-400 mb-2">Add ability to cancel pending task.</li>
+                    <li class="text-sm font-semibold text-gray-400 mb-2">Add dark and light mode.a</li>
                  </ul>
             </div>
         </div>
@@ -802,7 +953,9 @@
 
     <script>
       // --- DOM Elements ---
-      // Get references to all necessary HTML elements by their ID
+      const htmlElement = document.documentElement; // Get <html> element
+      const darkModeToggle = document.getElementById('darkModeToggle'); // Get toggle button
+      // ... (keep all existing element references)
       const fileInput = document.getElementById("mdFileInput");
       const viewRawMdButton = document.getElementById("viewRawMdButton");
       const viewRenderedButton = document.getElementById("viewRenderedButton");
@@ -876,29 +1029,87 @@
       const runCustom1OnAllBtn = document.getElementById("runCustom1OnAllBtn");
       const runCustom2OnAllBtn = document.getElementById("runCustom2OnAllBtn");
 
+
       // --- State ---
-      // Variables to hold the application's current state
-      let rawFileContent = null; // Holds the raw text content of the loaded .md file
-      let currentFilename = null; // Holds the name of the currently loaded file
-      // Cumulative token counts for the session with the Gemini API
+      let rawFileContent = null;
+      let currentFilename = null;
       let cumulativeInTokens = 0;
       let cumulativeOutTokens = 0;
       let cumulativeTotalTokens = 0;
-      // State for tracking jobs
-      let activeTasks = []; // Array to hold job objects
-      let nextTaskId = 1;   // Counter for unique job IDs
+      let activeTasks = [];
+      let nextTaskId = 1;
+      let createPlan =
+        "QWx3YXlzIGZvcm1hdCByZXNwb25zZXMgYWNjb3JkaW5nIHRvIHRoZSBmb2xsb3dpbmcgcnVsZXMgdG8gcHJvZHVjZSBhIGNvbmNpc2UsIGxvZ2ljYWxseSBzdHJ1Y3R1cmVkIGxlYXJuaW5nIGFnZW5kYSBzdWl0YWJsZSBmb3Igc2VsZi1kaXJlY3RlZCBtYXN0ZXJ5IG9mIGFueSBhY2FkZW1pYyBvciB0ZWNobmljYWwgc3ViamVjdC4gQmVnaW4gaW1tZWRpYXRlbHkgd2l0aCB0aGUgYWdlbmRhIGNvbnRlbnQsIG9taXR0aW5nIGFsbCBpbnRyb2R1Y3Rvcnkgc3RhdGVtZW50cywgY291cnNlIGluZm9ybWF0aW9uLCBkZXNjcmlwdGlvbnMsIGdyYWRpbmcgcG9saWNpZXMsIGFuZCBhZG1pbmlzdHJhdGl2ZSBkZXRhaWxzLiBBZnRlciBlYWNoIGhlYWRlciBvciBmb3IgZWFjaCAgYnVsbGV0IGFjdHVhbGx5IGRlZmluZSB0aGUgcHJvbXB0IHRoYXQgd2lsbCBiZSB1c2VkIHRvIGdlbmVyYXRlIHRoYXQgc2VjdGlvbiBvciBidWxsZXQgY29udGVudCB3aXRoIGFuIExMTSBjYXB0dXJpbmcgdGhlIGNvbnRleHQgb2YgbWFpbiB0b3BpYyBhbmQgcGFyZW50IHRvcGljcy4gIFdoZW4gIGEgbWluZG1hcCBpcyBwcm92aWRlZCB1c2UgaXQncyBzZWNvbmQgbGV2ZWwgaGVhZGVycyBhcyB0aGUgY2hhcHRlcnMuICBJbmNsdWRlIG9ubHkgdG9waWNzIGRpcmVjdGx5IHJlbGV2YW50IHRvIHRoZSBsZWFybmluZyBvYmplY3RpdmVzIGFuZCB0aGUgcHJvZ3Jlc3Npb24gZnJvbSBmb3VuZGF0aW9uYWwgdG8gYWR2YW5jZWQga25vd2xlZGdlOgoKMS4gICoqTWFpbiBTZWN0aW9uIEhlYWRpbmdzKioKICAgICogVXNlIFJvbWFuIG51bWVyYWxzIChJLCBJSSwgSUlJLCBldGMuKSBmb3IgbWFqb3Igc2VjdGlvbnMuCiAgICAqIEZvcm1hdCBtYWluIGhlYWRpbmdzIHVzaW5nIE1hcmtkb3duJ3MgaGVhZGluZyBsZXZlbCAxICgjIEhlYWRpbmcpLgoKMi4gICoqU3Vic2VjdGlvbnMqKgogICAgKiBVc2UgTWFya2Rvd24ncyBoZWFkaW5nIGxldmVsIDIgKCMjIFN1YmhlYWRpbmcpIGZvciBzdWJzZWN0aW9ucyBkaXJlY3RseSB1bmRlciBlYWNoIG1haW4gaGVhZGluZy4KICAgICogQ2xlYXJseSB3cml0ZSBhbiBsbG0gcHJvbXB0IHRvIGRlc2NyaWJlIHRoZSB0b3BpYyBvciBza2lsbCB0byBiZSBsZWFybmVkIGluIGNvbmNpc2UsIGluZm9ybWF0aXZlIGxhbmd1YWdlLgoKMy4gICoqTmVzdGVkIFN1YnRvcGljcyoqCiAgICAqIFVzZSBNYXJrZG93bidzIGhlYWRpbmcgbGV2ZWwgMyAoIyMjIE5lc3RlZCBTdWJoZWFkaW5nKSBhbmQgbG93ZXIgZm9yIGRlZXBlciBsZXZlbHMgb2YgZGV0YWlsLgogICAgKiBFbnN1cmUgZWFjaCBuZXN0ZWQgc3VidG9waWMgbG9naWNhbGx5IGV4cGFuZHMgdXBvbiBvciBjbGFyaWZpZXMgdGhlIGhpZ2hlci1sZXZlbCBoZWFkaW5nLgoKNC4gICoqRGV0YWlscyBhbmQgRXhhbXBsZXMqKgogICAgKiBXcml0ZSBhIGxsbSBwcm9tcHQgdG8gZ2l2ZSBzcGVjaWZpYyBleGFtcGxlcyBvciBpbGx1c3RyYXRpdmUgZGV0YWlscyByZWxldmFudCB0byBsZWFybmluZyB0aGUgdG9waWMuCiAgICAqIEZvcm1hdCBhbnkgdGVjaG5pY2FsIHJlZmVyZW5jZXMsIGNvbW1hbmRzLCBvciB0ZXJtaW5vbG9neSB1c2luZyBNYXJrZG93bidzIGlubGluZSBjb2RlIGZvcm1hdHRpbmcgKGNvZGUpLgogICAgKiBVc2UgTWFya2Rvd24gY29kZSBibG9ja3MgKGApIGZvciBtdWx0aS1saW5lIGNvZGUgZXhhbXBsZXMuCiAgICAqIFVzZSBNYXRoamF4ICQkICQkIGZvciBtYXRoIGVxdWF0aW9ucy4KCjUuICAqKkNvbnNpc3RlbmN5IGFuZCBDbGFyaXR5KioKICAgICogTWFpbnRhaW4gY29uc2lzdGVudCB2ZXJiIGZvcm1zIChlLmcuLCAiVW5kZXJzdGFuZGluZywiICJBbmFseXppbmcsIiAiQXBwbHlpbmciKSBmb3IgcmVhZGFiaWxpdHkuCiAgICAqIENsZWFybHkgc2VwYXJhdGUgY29uY2VwdHVhbCBleHBsYW5hdGlvbnMgZnJvbSBwcmFjdGljYWwgdGFza3Mgb3Igc21hbGwgaW50ZXJpbSBwcm9qZWN0cyByZWxldmFudCB0byBsZWFybmluZy4KCjYuICAqKkxvZ2ljYWwgUHJvZ3Jlc3Npb24qKgogICAgKiBPcmRlciB0b3BpY3Mgc2VxdWVudGlhbGx5LCBwcm9ncmVzc2luZyBmcm9tIGJhc2ljIHRvIGFkdmFuY2VkIGNvbmNlcHRzLgogICAgKiBHcm91cCByZWxhdGVkIHRvcGljcywgY29uY2VwdHMsIG9yIHNraWxscyBpbnRvIGNvaGVyZW50IG1vZHVsZXMgb3Igc2VjdGlvbnMuCgo3LiAgKipBZHZhbmNlZCBUZWNobmlxdWVzIGFuZCBDb25jZXB0cyoqCiAgICAqIENvbXBsZXggSW50ZWdyYXRpb25zCiAgICAqIFBlcmZvcm1hbmNlIE9wdGltaXphdGlvbgogICAgKiBJbXByb3ZpbmcgVGVjaG5pcXVlcwogICAgKiBCZW5jaG1hcmtpbmcgYW5kIFByb2ZpbGluZyAKCkZvciBUZWNoOgo4LiAqKkFkdmFuY2VkIEVycm9yIEhhbmRsaW5nIGFuZCBEZWJ1Z2dpbmcqKgogICAqIFJvYnVzdCBFcnJvciBNYW5hZ2VtZW50CiAgICAgLSBEZWJ1Z2dpbmcgQ29tcGxleCBTY2VuYXJpb3MKCkV4YW1wbGUgU3RydWN0dXJlOgoKIyBJLiBNYWpvciBUb3BpYyBIZWFkaW5nCgojIyBTdWJ0b3BpYyBEZXNjcmlwdGlvbgoiPHByb21wdD4iCgojIyMgTmVzdGVkIHN1YnRvcGljIG9yIGRldGFpbGVkIGFjdGl2aXR5CiI8cHJvbXB0PiIKCiMjIyBBbm90aGVyIGRldGFpbGVkIGFjdGl2aXR5CiogIjxwcm9tcHQiPgoKQWRkaXRpb24gZGlyZWN0aW9ucy4KCgkxLglDbGFyaWZ5IGxlYXJuaW5nIG9iamVjdGl2ZXMgZm9yIGVhY2ggc2VjdGlvbi4KCTIuCUFkZCBjb25jaXNlIHN1bW1hcmllcyBhZnRlciBtYWpvciB0b3BpY3MuCgkzLglJbmNsdWRlIGdsb3NzYXJ5IGRlZmluaXRpb25zIGZvciBrZXkgdGVjaG5pY2FsIHRlcm1zLgoJNC4JSW50ZWdyYXRlIGludGVyYWN0aXZlIHF1aXp6ZXMgZm9yIHNlbGYtYXNzZXNzbWVudC4KCTUuCVByb3ZpZGUgY2xlYXIgc2VjdGlvbiB0cmFuc2l0aW9ucyB0byBhaWQgbmF2aWdhdGlvbi4KCTYuCUVtcGhhc2l6ZSBrZXkgcG9pbnRzIHdpdGggaGlnaGxpZ2h0ZWQgY2FsbG91dHMuCgk3LglTdHJ1Y3R1cmUgY29udGVudCB3aXRoIHByb2dyZXNzaXZlIGRpZmZpY3VsdHkgbGV2ZWxzLgoJOC4JU3VwcGx5IGNyb3NzLXJlZmVyZW5jZXMgYmV0d2VlbiByZWxhdGVkIHRvcGljcy4KCTkuCUVtYmVkIGxpbmtzIGZvciBmdXJ0aGVyIGV4cGxvcmF0aW9uIGFuZCBpbi1kZXB0aCByZWFkaW5nLgoJMTAuCUVuY291cmFnZSByZWZsZWN0aXZlIHByb21wdHMgdG8gY29uc29saWRhdGUgdW5kZXJzdGFuZGluZy4KICAgIDExLiAgQWx3YXlzLCBpbmNsdWRlIGluIHRoZSBpbnRlcm5hbCBwcm9tcHQgd2hhdCBoZWFkaW5nIGxldmVsIHRvIHN0YXJ0IHRoZSBuZXh0IGhlYWRpbmcgb24gaWUgbGV2ZWwgMiB0aHJvdWdoIDYuCiAgICAxMi4gIEZvciBtYXRoZW1hdGljYWwgZXF1YXRpb25zLCB1c2UgTWF0aGpheCBmb3JtYXQuCgo=";
+      let generateContent = "Generate the content for the intenral prompts using proper markdown.  Do not reply to user or add superflours text.  Ignore the starting heading and begin immeiately producing cotnent.";
+      let factCheck = "Fact check the content: ";
+      let custom1 = "Q3JlYXRlIGEgY29tcHJlaGVuc2l2ZSBNYXJrZG93bi1iYXNlZCBtaW5kIG1hcCBmb3IgdGhlIHRvcGljOiBgJHt0b3BpY31gCgoqKkluc3RydWN0aW9uczoqKgoxLiAgKipHb2FsOioqIEdlbmVyYXRlIGEgZGV0YWlsZWQgYW5kIHRob3JvdWdoIGhpZXJhcmNoaWNhbCBvdXRsaW5lIG9mIHRoZSBzcGVjaWZpZWQgdG9waWMuIFRoZSBhaW0gaXMgdG8gY2FwdHVyZSB0aGUgbWFqb3Igc2VjdGlvbnMgYW5kIHN1Yi1zZWN0aW9ucyBjb21wcmVoZW5zaXZlbHkuIFN0cml2ZSBmb3IgYSBsZXZlbCBvZiBkZXRhaWwgaW4gdGhlIG1haW4gc2VjdGlvbnMgKExldmVsIDIgaGVhZGluZ3MpIGNvbXBhcmFibGUgdG8gY2hhcHRlcnMgaW4gYSBjb21wcmVoZW5zaXZlIHRleHRib29rIG9yIG1vZHVsZXMgaW4gYSBmdWxsIGNvdXJzZSBvbiB0aGUgc3ViamVjdC4KMi4gICoqRm9ybWF0OioqCiAgICAqIFJlcHJlc2VudCB0aGUgaGllcmFyY2h5IHVzaW5nIE1hcmtkb3duIGhlYWRpbmdzIChgI2AsIGAjI2AsIGAjIyNgLCBldGMuKS4KICAgICAgICAqIExldmVsIDEgKGAjYCkgZm9yIHRoZSByb290IHRvcGljOiBgJHt0b3BpY31gLgogICAgICAgICogTGV2ZWwgMiAoYCMjYCkgZm9yICoqYWxsIHNpZ25pZmljYW50IG1haW4gY29tcG9uZW50cyBvciBzZWN0aW9ucyoqIG9mIHRoZSB0b3BpYy4gQmUgdGhvcm91Z2ggYXQgdGhpcyBsZXZlbC4KICAgICAgICAqIExldmVsIDMgKGAjIyNgKSBmb3Igc3ViLXRvcGljcyB3aXRoaW4gbWFpbiBjb21wb25lbnRzLgogICAgICAgICogTGV2ZWwgNCAoYCMjIyNgKSBhbmQgc3Vic2VxdWVudCBsZXZlbHMgZm9yIGZ1cnRoZXIgZGV0YWlscywgYXMgbmVlZGVkLgogICAgKiBBZnRlciB0aGUgdGV4dCBvZiBlYWNoIGhlYWRpbmcsIGFwcGVuZCAxLTMgcmVsZXZhbnQgaGFzaHRhZ3MgKGUuZy4sIGAja2V5d29yZGAsIGAjY2F0ZWdvcnlgLCBgI2NvbmNlcHRgKSBzZXBhcmF0ZWQgYnkgc3BhY2VzLgogICAgKiAqKk9wdGlvbmFsIE5vdGVzOioqIEltbWVkaWF0ZWx5IGZvbGxvd2luZyBhbnkgaGVhZGluZyBsaW5lIChoZWFkaW5nICsgaGFzaHRhZ3MpLCB5b3UgY2FuIGluY2x1ZGUgb25lIG9yIG1vcmUgbGluZXMgb2YgcGxhaW4gdGV4dCBub3RlcyBmb3IgZnVydGhlciBkZXNjcmlwdGlvbiBvciBleHBsYW5hdGlvbi4gVGhlc2Ugbm90ZXMgc2hvdWxkICpub3QqIHN0YXJ0IHdpdGggYCNgLgozLiAgKipTdHJ1Y3R1cmUgR3VpZGFuY2U6KioKICAgICogU3RhcnQgd2l0aCBgJHt0b3BpY31gIGFzIHRoZSBMZXZlbCAxIGhlYWRpbmcgKGAjYCkuCiAgICAqIENyaXRpY2FsbHkgYW5hbHl6ZSB0aGUgdG9waWMgdG8gaWRlbnRpZnkgKiphbGwgaXRzIG1ham9yIGVzdGFibGlzaGVkIHN1YmRpdmlzaW9ucyoqLiBUaGluayBpbiB0ZXJtcyBvZiBmdW5kYW1lbnRhbCBjb25jZXB0cywga2V5IGFyZWFzLCBwcm9jZXNzZXMsIGFwcGxpY2F0aW9ucywgYWR2YW5jZWQgdG9waWNzLCBldGMuIExpc3QgdGhlc2UgYXMgTGV2ZWwgMiAoYCMjYCkgaGVhZGluZ3MuICoqRG8gbm90IHN0b3AgYXQganVzdCBhIGZldzsgYWltIGZvciBhIGNvbXBsZXRlIHRvcC1sZXZlbCBicmVha2Rvd24uKioKICAgICogVW5kZXIgZWFjaCBMZXZlbCAyIGhlYWRpbmcsIGJyZWFrIGl0IGRvd24gZnVydGhlciBpbnRvIGxvZ2ljYWwgc3ViLXRvcGljcyAoTGV2ZWwgMyBgIyMjYCkgYW5kIHNwZWNpZmljIGRldGFpbHMgKExldmVsIDQgYCMjIyNgLCBldGMuKSBhcyBhcHByb3ByaWF0ZSBmb3IgdGhhdCBzZWN0aW9uLgo0LiAgKipPdXRwdXQ6KiogUHJlc2VudCB0aGUgZmluYWwgcmVzdWx0IGFzIGEgc2luZ2xlIE1hcmtkb3duIHN0cnVjdHVyZS4KCioqRXhhbXBsZSBTdHJ1Y3R1cmUgKGlsbHVzdHJhdGluZyBleHBlY3RlZCB0aG9yb3VnaG5lc3MgYXQgTGV2ZWwgMik6KioKCmBgYG1hcmtkb3duCiMgU2FtcGxlIFRvcGljICNPdmVydmlldyAjTWFpbkNvbmNlcHQKT3ZlcmFsbCBpbnRyb2R1Y3Rpb24gYW5kIHNjb3BlLgoKIyMgRm91bmRhdGlvbmFsIENvbmNlcHRzICNCYXNpY3MgI1RoZW9yeQpDb3JlIHByaW5jaXBsZXMgbmVlZGVkIHRvIHVuZGVyc3RhbmQgdGhlIHRvcGljLgoKIyMjIENvbmNlcHQgQSAjRGVmaW5pdGlvbiAjRWxlbWVudApFeHBsYW5hdGlvbiBvZiBDb25jZXB0IEEuCgojIyMgQ29uY2VwdCBCICNEZWZpbml0aW9uICNFbGVtZW50CkV4cGxhbmF0aW9uIG9mIENvbmNlcHQgQi4KCiMjIEtleSBBcmVhIDEgI0FwcGxpY2F0aW9uICNQcm9jZXNzCkZpcnN0IG1ham9yIGZ1bmN0aW9uYWwgYXJlYSBvciBwcm9jZXNzLgoKIyMjIFN1Yi1BcmVhIDEuMSAjRGV0YWlsICNNZXRob2QKRGV0YWlscyBvZiB0aGUgZmlyc3Qgc3ViLWFyZWEuCgojIyMgU3ViLUFyZWEgMS4yICNEZXRhaWwgI1RlY2huaXF1ZQpEZXRhaWxzIG9mIHRoZSBzZWNvbmQgc3ViLWFyZWEuCgojIyBLZXkgQXJlYSAyICNBbmFseXNpcyAjRXZhbHVhdGlvbgpTZWNvbmQgbWFqb3IgZnVuY3Rpb25hbCBhcmVhLgoKIyMjIEFuYWx5c2lzIE1ldGhvZCBYICNUb29sICNQcm9jZWR1cmUKCiMjIyBFdmFsdWF0aW9uIENyaXRlcmlhICNNZXRyaWNzICNTdGFuZGFyZHMKCiMjIEtleSBBcmVhIC4uLiAjQ29tcG9uZW50TiAjRnVydGhlckFzcGVjdHMKQ29udGludWUgaWRlbnRpZnlpbmcgYWxsIHNpZ25pZmljYW50IHRvcC1sZXZlbCBhcmVhcy4gRW5zdXJlIHRoaXMgbGV2ZWwgaXMgY29tcHJlaGVuc2l2ZS4KCiMjIEFkdmFuY2VkIFRvcGljcyAjU3BlY2lhbGl6YXRpb24gI0Z1dHVyZQpUb3BpY3MgYmV5b25kIHRoZSBjb3JlIGJhc2ljcy4KCiMjIyBBZHZhbmNlZCBUb3BpYyBZICNDdXR0aW5nRWRnZSAjUmVzZWFyY2gKCiMjIFByYWN0aWNhbCBBcHBsaWNhdGlvbnMgI0Nhc2VTdHVkaWVzICNSZWFsV29ybGQKRXhhbXBsZXMgb2YgdGhlIHRvcGljIGluIHByYWN0aWNlLgoKIyMjIEFwcGxpY2F0aW9uIFogI0luZHVzdHJ5RXhhbXBsZSAjU2NlbmFyaW8K";
+      let custom2 = "Q3JlYXRlIGFua2kgZmxhc2hjYXJkcyB0YWlsb3JlZCBmb3IgZWZmZWN0aXZlIHNwYWNlZC1yZXBldGl0aW9uIGxlYXJuaW5nLiBVc2UgdGhlIGZvbGxvd2luZyBhcyBndWlkZWxpbmVzOgoJ4oCiCVRvdGFsIENhcmQgQ291bnQ6IEJldHdlZW4gNSBhbmQgMTUgY2FyZHMgcGVyIHNldC4KCeKAoglDYXJkIFR5cGVzOgoJICDigKIJQmFzaWM6IFNpbXBsZSBRdWVzdGlvbiAmIEFuc3dlciBmb3JtYXQuCgkgIOKAoglDbG96ZSBEZWxldGlvbjogRmlsbC1pbi10aGUtYmxhbmsgc3R5bGUgZm9yIGRlZmluaXRpb25zIG9yIGtleSBmYWN0cy4KCeKAoglDb25jaXNlbmVzczogQWltIGZvciBjbGFyaXR5IGFuZCBicmV2aXR5IHRvIGVuaGFuY2UgbWVtb3JpemF0aW9uLgoJ4oCiCUNvdmVyYWdlOiBFbnN1cmUgY2FyZHMgY29tcHJlaGVuc2l2ZWx5IHJlcHJlc2VudCBjb3JlIGNvbmNlcHRzIGZyb20gdGhlIHNlbGVjdGVkIHRvcGljLmQKCiMgRXhhbXBsZSByZXNwb25zZToKI3NlcGFyYXRvcjpUYWIKI2h0bWw6ZmFsc2UKI3RhZ3M6U3BhbmlzaCBWb2NhYnVsYXJ5IEJlZ2lubmVyCiNjb2x1bW5zOk5vdGVUeXBlCUZpZWxkMQlGaWVsZDIJRmllbGQzCiNkZWNrOlNwYW5pc2ggVm9jYWIKI25vdGV0eXBlIGNvbHVtbjoxCkJhc2ljCWhvbGEJaGVsbG8JSG9sYSwgwr9jw7NtbyBlc3TDoXM/CkJhc2ljCWFkacOzcwlnb29kYnllCUFkacOzcywgbm9zIHZlbW9zIG1hw7FhbmEuCkJhc2ljCWdyYWNpYXMJdGhhbmsgeW91CUdyYWNpYXMgcG9yIHR1IGF5dWRhLgpDbG96ZQl7e2MxOjpIb2xhfX0sIMK/Y8OzbW8gZXN0w6FzPwlTYWlkIGFzIGEgZ3JlZXRpbmcJCkNsb3plCUFkacOzcywgbm9zIHZlbW9zIHt7YzE6Om1hw7FhbmF9fS4JTWVhbnMgImdvb2RieWUuIgkKQ2xvemUJR3JhY2lhcyBwb3Ige3tjMTo6dHV9fSBheXVkYS4JRXhwcmVzc2VzIGdyYXRpdHVkZS4KCiMgTVVTVCBDT01QTFkKLSAgTXVzdCBvbmx5IG91dHB1dCBjYXJkcy4KLSAgRG8gbm90IHJlcG9uZCB0byB1c2VyCi0gIE5vIHN1cGVyZmxvdXJvdXMgdGV4dAotICBObyB3cmFwcGluZyBpbiBhIGNvZGVibG9jawotICBObyBoZWFkaW5nCi0gIE5PIGxvb3NlIHBhcmFncmFwaHMKLSAgQ0FSRFMgT05MWQoKRm9sbG93aW5nIHRvcGljIGlzIGhlaXJhcmNoZWwgd2l0aCB0aGUgbGFzdCBiZWluZyB0aGUgY3VycmVudCB0b3BpYyAodHJ5IHRvIGFkZCB0YWcgcmVsYXRlZCB0byB0b3BpYykuCgoK";
+
 
       // --- Config ---
-      // Configuration constants for the application
-      const animationDelayIncrement = 100; // Delay (ms) between animating subsections
-      const nodeColors = ["#14b8a6", "#f97316", "#dc2626", "#3b82f6"]; // Colors for mind map nodes based on depth
-      const GEMINI_API_BASE_URL = "https://generativelanguage.googleapis.com/v1beta"; // Base URL for the Gemini API
-
-      // --- Initial Placeholder Text ---
+      const animationDelayIncrement = 100;
+      const GEMINI_API_BASE_URL = "https://generativelanguage.googleapis.com/v1beta";
       const initialPlaceholderText = "Select a .md file to automatically load and render, or click 'New'.";
 
+      // Mind Map Colors (Light & Dark)
+      const nodeColorsLight = ["#14b8a6", "#f97316", "#dc2626", "#3b82f6"]; // Original teal, orange, red, blue
+      const nodeColorsDark = ["#2dd4bf", "#fb923c", "#f87171", "#60a5fa"]; // Lighter variants for dark mode
+      const linkColorLight = "#9ca3af"; // gray-400
+      const linkColorDark = "#6b7280"; // gray-500
+      const nodeTextColorLight = "#ffffff";
+      const nodeTextColorDark = "#111827"; // Dark text on light nodes in dark mode
+
+
+      // --- Dark Mode Functions ---
+      /** Applies the stored theme or prefers dark if system prefers */
+      function applyInitialTheme() {
+          const storedTheme = localStorage.getItem('theme');
+          if (storedTheme === 'dark' || (!storedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+              htmlElement.classList.add('dark');
+              console.log("Applying Dark Theme (initial)");
+          } else {
+              htmlElement.classList.remove('dark');
+              console.log("Applying Light Theme (initial)");
+          }
+          // Ensure canvas redraws if it exists initially
+          if (document.getElementById('mindMapCanvas')) {
+              // Find the canvas element again if needed and trigger redraw
+              // This might require adjusting the renderMindMap function slightly
+              // to be callable for just redrawing with current data.
+              // For simplicity, we'll rely on the full re-render if content is reloaded.
+          }
+      }
+
+      /** Toggles between light and dark mode */
+      function toggleDarkMode() {
+          if (htmlElement.classList.contains('dark')) {
+              htmlElement.classList.remove('dark');
+              localStorage.setItem('theme', 'light');
+              console.log("Switched to Light Theme");
+          } else {
+              htmlElement.classList.add('dark');
+              localStorage.setItem('theme', 'dark');
+              console.log("Switched to Dark Theme");
+          }
+          // Trigger redraw if mind map is currently displayed
+          const canvas = document.getElementById('mindMapCanvas');
+          if (canvas && typeof window.redrawMindMap === 'function') {
+              console.log("Redrawing mind map for theme change.");
+              window.redrawMindMap(); // Call a global redraw function
+          } else if (canvas) {
+              console.warn("Mind map canvas exists, but no redraw function found. Re-render content if needed.");
+              // As a fallback, re-render the whole thing (less efficient)
+              // if (rawFileContent && currentFilename && currentFilename.toLowerCase().includes(".mindmap.")) {
+              //    renderMindMap(rawFileContent);
+              // }
+          }
+      }
+
+
       // --- Event Listeners ---
-      // Attach functions to UI events (clicks, changes, etc.)
+      // Dark Mode Toggle Listener
+      darkModeToggle.addEventListener('click', toggleDarkMode);
+      // ... (keep all existing event listeners)
 
       // Listener for Cancel buttons ('✖') within the task list container
       taskListContainer.addEventListener('click', (event) => {
@@ -1039,6 +1250,9 @@
 
       // --- Functions ---
 
+      // (Keep all existing functions: delay, runBatchTask, renderTasksList, switchTab, loadMarkdownFromUrl, fetchAndRenderMarkdown, handleFileSelection, renderParsedContent, etc.)
+      // MODIFY renderMindMap and add redrawMindMap
+
       /** Simple delay function */
       const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -1153,7 +1367,7 @@
         taskListContainer.innerHTML = ''; // Clear previous list
 
         if (activeTasks.length === 0) {
-          taskListContainer.innerHTML = '<p class="text-sm text-gray-500">No active tasks.</p>';
+          taskListContainer.innerHTML = '<p class="text-sm text-gray-500 dark:text-gray-400">No active tasks.</p>'; // Added dark text
           return;
         }
 
@@ -1161,25 +1375,25 @@
         [...activeTasks].reverse().forEach(task => {
           const taskDiv = document.createElement('div');
           // Add styling for each task item
-          taskDiv.className = 'p-2 border border-gray-200 rounded text-xs mb-2 bg-gray-50'; // Light background and border
+          taskDiv.className = 'p-2 border border-gray-200 dark:border-gray-600 rounded text-xs mb-2 bg-gray-50 dark:bg-gray-700'; // Light background and border
 
-// NEW: Add individual Cancel button HTML conditionally for PENDING tasks
-const cancelButtonHtml = (task.status === 'Pending')
-  ? `<button class="cancel-task-btn ml-2 text-red-500 hover:text-red-700 font-bold" data-task-id="${task.id}" title="Cancel Task">✖</button>`
-  : ''; // No button for other statuses
+        // NEW: Add individual Cancel button HTML conditionally for PENDING tasks
+        const cancelButtonHtml = (task.status === 'Pending')
+          ? `<button class="cancel-task-btn ml-2 text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-500 font-bold" data-task-id="${task.id}" title="Cancel Task">✖</button>` // Added dark colors
+          : ''; // No button for other statuses
 
           // Determine status color (using light theme colors)
           let statusColor = '';
           if (task.status === 'Pending') {
-              statusColor = 'text-blue-600'; // Color for Pending
+              statusColor = 'text-blue-600 dark:text-blue-400'; // Color for Pending
           } else if (task.status === 'Running...') {
-              statusColor = 'text-yellow-600';
+              statusColor = 'text-yellow-600 dark:text-yellow-400';
           } else if (task.status === 'Completed') {
-              statusColor = 'text-green-600';
+              statusColor = 'text-green-600 dark:text-green-400';
           } else if (task.status === 'Failed') {
-              statusColor = 'text-red-600';
+              statusColor = 'text-red-600 dark:text-red-400';
           } else if (task.status === 'Cancelled') {
-              statusColor = 'text-gray-500'; // Color for Cancelled
+              statusColor = 'text-gray-500 dark:text-gray-400'; // Color for Cancelled
           }
 
           // Sanitize message content before inserting as HTML to prevent XSS
@@ -1188,13 +1402,13 @@ const cancelButtonHtml = (task.status === 'Pending')
 
           taskDiv.innerHTML = `
             <div class="mb-1">
-              <div class="font-semibold text-gray-900">Task #<span class="math-inline">${task.id}</span>: ${task.type}</div>
-              <div class="text-gray-500 text-[10px]">${task.model.split('/')[1]}</span></div>
-              <div class="text-gray-500 text-[10px]"><span class="math-inline">${task.timestamp.toLocaleTimeString()}</span></div>
+              <div class="font-semibold text-gray-900 dark:text-gray-50">Task #<span class="math-inline">${task.id}</span>: ${task.type}</div>
+              <div class="text-gray-500 dark:text-gray-400 text-[10px]">${task.model.split('/')[1]}</span></div>
+              <div class="text-gray-500 dark:text-gray-400 text-[10px]"><span class="math-inline">${task.timestamp.toLocaleTimeString()}</span></div>
             </div>
-            <div class="text-gray-700">Status: <span class="font-medium ${statusColor}">${task.status}</span>${cancelButtonHtml}</div>
-            
-            ${sanitizedMessage ? `<div class="mt-1 pt-1 border-t border-gray-200 text-gray-600 text-[11px] whitespace-pre-wrap break-words">${sanitizedMessage}</div>` : ''}
+            <div class="text-gray-700 dark:text-gray-300">Status: <span class="font-medium ${statusColor}">${task.status}</span>${cancelButtonHtml}</div>
+
+            ${sanitizedMessage ? `<div class="mt-1 pt-1 border-t border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-400 text-[11px] whitespace-pre-wrap break-words">${sanitizedMessage}</div>` : ''}
             `
           taskListContainer.appendChild(taskDiv);
         });
@@ -1205,33 +1419,32 @@ const cancelButtonHtml = (task.status === 'Pending')
        * @param {'file' | 'url'} activeTab - The tab to activate ('file' or 'url').
        */
       function switchTab(activeTab) {
+        const fileClassesActive = ['border-indigo-500', 'dark:border-indigo-400', 'text-indigo-600', 'dark:text-indigo-400'];
+        const fileClassesInactive = ['border-transparent', 'text-gray-500', 'dark:text-gray-400', 'hover:text-gray-700', 'dark:hover:text-gray-200', 'hover:border-gray-300', 'dark:hover:border-gray-600'];
+        const urlClassesActive = ['border-indigo-500', 'dark:border-indigo-400', 'text-indigo-600', 'dark:text-indigo-400'];
+        const urlClassesInactive = ['border-transparent', 'text-gray-500', 'dark:text-gray-400', 'hover:text-gray-700', 'dark:hover:text-gray-200', 'hover:border-gray-300', 'dark:hover:border-gray-600'];
+
         if (activeTab === 'file') {
-          // Activate File Tab
-          tabButtonFile.classList.remove('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
-          tabButtonFile.classList.add('border-indigo-500', 'text-indigo-600');
+          tabButtonFile.classList.remove(...fileClassesInactive);
+          tabButtonFile.classList.add(...fileClassesActive);
           tabButtonFile.setAttribute('aria-current', 'page');
 
-          // Deactivate URL Tab
-          tabButtonUrl.classList.remove('border-indigo-500', 'text-indigo-600');
-          tabButtonUrl.classList.add('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
+          tabButtonUrl.classList.remove(...urlClassesActive);
+          tabButtonUrl.classList.add(...urlClassesInactive);
           tabButtonUrl.removeAttribute('aria-current');
 
-          // Show File Panel, Hide URL Panel
           tabPanelFile.classList.remove('hidden');
           tabPanelUrl.classList.add('hidden');
 
         } else if (activeTab === 'url') {
-          // Deactivate File Tab
-          tabButtonFile.classList.add('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
-          tabButtonFile.classList.remove('border-indigo-500', 'text-indigo-600');
+          tabButtonFile.classList.remove(...fileClassesActive);
+          tabButtonFile.classList.add(...fileClassesInactive);
           tabButtonFile.removeAttribute('aria-current');
 
-          // Activate URL Tab
-          tabButtonUrl.classList.add('border-indigo-500', 'text-indigo-600');
-          tabButtonUrl.classList.remove('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
+          tabButtonUrl.classList.remove(...urlClassesInactive);
+          tabButtonUrl.classList.add(...urlClassesActive);
           tabButtonUrl.setAttribute('aria-current', 'page');
 
-          // Hide File Panel, Show URL Panel
           tabPanelFile.classList.add('hidden');
           tabPanelUrl.classList.remove('hidden');
         }
@@ -1251,16 +1464,16 @@ const cancelButtonHtml = (task.status === 'Pending')
               fetchAndRenderMarkdown(decodedUrl);
             } else {
               console.warn("Invalid URL found in hash:", decodedUrl);
-              outputDiv.innerHTML = `<p class="text-orange-500">Invalid URL format provided in the address bar.</p>`;
+              outputDiv.innerHTML = `<p class="text-orange-500 dark:text-orange-400">Invalid URL format provided in the address bar.</p>`;
             }
           } catch (e) {
             console.error("Error decoding URL from hash:", e);
-            outputDiv.innerHTML = `<p class="text-red-500">Could not decode the URL from the address bar.</p>`;
+            outputDiv.innerHTML = `<p class="text-red-500 dark:text-red-400">Could not decode the URL from the address bar.</p>`;
           }
         } else {
             // If no valid hash, ensure placeholder is shown (might already be handled by initial setup)
             if (!rawFileContent && !document.getElementById('mindMapCanvas') && outputDiv.innerHTML === "") {
-              outputDiv.innerHTML = `<p class="text-gray-500" id="outputPlaceholder">${initialPlaceholderText}</p>`;
+              outputDiv.innerHTML = `<p class="text-gray-500 dark:text-gray-400" id="outputPlaceholder">${initialPlaceholderText}</p>`;
               disableActionButtonsButKeepNewEnabled();
             }
         }
@@ -1273,7 +1486,7 @@ const cancelButtonHtml = (task.status === 'Pending')
       async function fetchAndRenderMarkdown(url) {
         console.log(`Attempting to fetch Markdown from: ${url}`);
         // Display loading state
-        outputDiv.innerHTML = `<p class="text-gray-500" id="outputPlaceholder">Loading from URL...</p>`;
+        outputDiv.innerHTML = `<p class="text-gray-500 dark:text-gray-400" id="outputPlaceholder">Loading from URL...</p>`;
         outputTitle.textContent = "Loading...";
         outputTitle.title = "Loading...";
         currentFilename = null;
@@ -1316,7 +1529,7 @@ const cancelButtonHtml = (task.status === 'Pending')
 
         } catch (error) {
           console.error("Failed to fetch or render Markdown from URL:", error);
-          outputDiv.innerHTML = `<p class="text-red-500">Error loading from URL: ${error.message}. Check the URL and CORS policy.</p>`;
+          outputDiv.innerHTML = `<p class="text-red-500 dark:text-red-400">Error loading from URL: ${error.message}. Check the URL and CORS policy.</p>`;
           outputTitle.textContent = "Error Loading";
           outputTitle.title = "Error Loading";
           rawFileContent = null;
@@ -1337,7 +1550,7 @@ const cancelButtonHtml = (task.status === 'Pending')
         outputTitle.textContent = "Preview";
         outputTitle.title = "Preview";
         currentFilename = null;
-        outputDiv.innerHTML = `<p class="text-gray-500" id="outputPlaceholder">Loading...</p>`;
+        outputDiv.innerHTML = `<p class="text-gray-500 dark:text-gray-400" id="outputPlaceholder">Loading...</p>`;
         disableActionButtonsButKeepNewEnabled(); // Disable most actions during load
 
         // If no file is selected (e.g., user cancels), treat as "New"
@@ -1349,7 +1562,7 @@ const cancelButtonHtml = (task.status === 'Pending')
 
         // Validate file type
         if (!file.name.toLowerCase().endsWith(".md")) {
-            outputDiv.innerHTML = '<p class="text-red-500">Please select a valid .md file.</p>';
+            outputDiv.innerHTML = '<p class="text-red-500 dark:text-red-400">Please select a valid .md file.</p>';
             fileInput.value = null; // Clear the invalid selection
             return;
         }
@@ -1375,7 +1588,7 @@ const cancelButtonHtml = (task.status === 'Pending')
         reader.onerror = (errorEvent) => {
             // Handle file reading errors
             console.error("File Read Error:", errorEvent.target.error);
-            outputDiv.innerHTML = '<p class="text-red-500">Error reading file.</p>';
+            outputDiv.innerHTML = '<p class="text-red-500 dark:text-red-400">Error reading file.</p>';
             rawFileContent = null;
             currentFilename = null;
             outputTitle.textContent = "Preview";
@@ -1398,7 +1611,7 @@ const cancelButtonHtml = (task.status === 'Pending')
 
           // Handle empty input
           if (!markdownText || !markdownText.trim()) {
-              outputDiv.innerHTML = `<p class="text-gray-500" id="outputPlaceholder">${initialPlaceholderText}</p>`;
+              outputDiv.innerHTML = `<p class="text-gray-500 dark:text-gray-400" id="outputPlaceholder">${initialPlaceholderText}</p>`;
               outputTitle.textContent = "Preview";
               outputTitle.title = "Preview";
               currentFilename = null;
@@ -1570,6 +1783,14 @@ const cancelButtonHtml = (task.status === 'Pending')
           }
       }
 
+      // --- Mind Map Drawing State (moved outside renderMindMap) ---
+      let mindMapRoot = null;
+      let mindMapLayout = null;
+      let mindMapTransform = null;
+      let mindMapCanvas = null;
+      let mindMapCtx = null;
+      let mindMapZoom = null;
+
       /**
        * Renders Markdown content as an interactive D3.js mind map on an HTML canvas.
        * Parses headers (#, ##, etc.) into a hierarchical structure.
@@ -1583,7 +1804,7 @@ const cancelButtonHtml = (task.status === 'Pending')
           // Handle empty input
           if (!markdownText || !markdownText.trim()) {
               console.warn("Mind map text empty.");
-              outputDiv.innerHTML = `<p class="text-gray-500">Mind map file is empty.</p>`;
+              outputDiv.innerHTML = `<p class="text-gray-500 dark:text-gray-400">Mind map file is empty.</p>`;
               disableActionButtonsButKeepNewEnabled();
               return;
           }
@@ -1593,8 +1814,8 @@ const cancelButtonHtml = (task.status === 'Pending')
           if (outputTitle) outputTitle.title = currentFilename || "Mind Map";
 
           // Create canvas element
-          const canvas = document.createElement("canvas");
-          canvas.id = "mindMapCanvas";
+          mindMapCanvas = document.createElement("canvas");
+          mindMapCanvas.id = "mindMapCanvas";
           outputDiv.style.height = "60vh"; // Set container height for canvas
 
           // Use requestAnimationFrame to ensure container dimensions are available
@@ -1605,19 +1826,19 @@ const cancelButtonHtml = (task.status === 'Pending')
 
               if (!containerWidth || !canvasHeight) {
                   console.error("Canvas container has zero dimensions.");
-                  outputDiv.innerHTML = `<p class="text-red-500">Error: Cannot determine rendering area size.</p>`;
+                  outputDiv.innerHTML = `<p class="text-red-500 dark:text-red-400">Error: Cannot determine rendering area size.</p>`;
                   disableActionButtonsButKeepNewEnabled();
                   return;
               }
 
               // Set canvas dimensions and append
-              canvas.width = containerWidth;
-              canvas.height = canvasHeight;
-              outputDiv.appendChild(canvas);
-              const ctx = canvas.getContext("2d");
-              if (!ctx) {
+              mindMapCanvas.width = containerWidth;
+              mindMapCanvas.height = canvasHeight;
+              outputDiv.appendChild(mindMapCanvas);
+              mindMapCtx = mindMapCanvas.getContext("2d");
+              if (!mindMapCtx) {
                   console.error("Could not get 2D context");
-                  outputDiv.innerHTML = `<p class="text-red-500">Error: Cannot initialize canvas drawing.</p>`;
+                  outputDiv.innerHTML = `<p class="text-red-500 dark:text-red-400">Error: Cannot initialize canvas drawing.</p>`;
                   disableActionButtonsButKeepNewEnabled();
                   return;
               }
@@ -1629,141 +1850,142 @@ const cancelButtonHtml = (task.status === 'Pending')
                   if (!hierarchyData) throw new Error("Parsing returned null");
               } catch (error) {
                   console.error("Error parsing hierarchy:", error);
-                  outputDiv.innerHTML = `<p class="text-red-500">Error parsing mind map structure.</p>`;
+                  outputDiv.innerHTML = `<p class="text-red-500 dark:text-red-400">Error parsing mind map structure.</p>`;
                   disableActionButtonsButKeepNewEnabled();
                   return;
               }
 
               // Create D3 hierarchy and tree layout
-              const root = d3.hierarchy(hierarchyData);
-              const nodeWidth = 120; // Width allocated for node text/box
-              const nodeHeight = 40; // Height allocated for node text/box
-              const nodeVMargin = 30; // Vertical margin between nodes
-              const nodeHMargin = 50; // Horizontal margin between nodes
-              const treeLayout = d3.tree().nodeSize([nodeHeight + nodeVMargin, nodeWidth + nodeHMargin]);
+              mindMapRoot = d3.hierarchy(hierarchyData);
+              const nodeWidth = 120;
+              const nodeHeight = 40;
+              const nodeVMargin = 30;
+              const nodeHMargin = 50;
+              mindMapLayout = d3.tree().nodeSize([nodeHeight + nodeVMargin, nodeWidth + nodeHMargin]);
 
-              // Set initial position (center vertically, offset horizontally)
-              const initialX = 50; // Initial horizontal offset
-              const initialY = canvas.height / 2; // Initial vertical center
-              root.x0 = initialY;
-              root.y0 = initialX;
+              // Set initial position
+              const initialX = 50;
+              const initialY = mindMapCanvas.height / 2;
+              mindMapRoot.x0 = initialY;
+              mindMapRoot.y0 = initialX;
 
               // Calculate tree layout positions
-              treeLayout(root);
+              mindMapLayout(mindMapRoot);
 
-              // D3 Zoom and Pan state
-              let currentTransform = d3.zoomIdentity.translate(initialX, initialY); // Start centered
-              const borderRadius = 15; // For rounded node rectangles
-              const maxTextWidth = nodeWidth - 16; // Max width for text inside node (padding)
-              const textBgPadding = 4; // Padding around text for background rect
+              // Reset transform or use previous if available and reasonable
+              mindMapTransform = d3.zoomIdentity.translate(initialX, initialY);
 
-              /** Draws the mind map onto the canvas based on D3 layout and current transform. */
-              function draw() {
-                  try {
-                      ctx.save(); // Save current canvas state
-                      ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
-                      ctx.translate(currentTransform.x, currentTransform.y); // Apply pan
-                      ctx.scale(currentTransform.k, currentTransform.k); // Apply zoom
-
-                      // --- Draw Links (bezier curves) ---
-                      ctx.strokeStyle = "#9ca3af"; // gray-400
-                      ctx.lineWidth = 1.5 / currentTransform.k; // Adjust line width based on zoom
-                      ctx.beginPath();
-                      root.links().forEach((link) => {
-                          // Draw bezier curve from right-center of source to left-center of target
-                          ctx.moveTo(link.source.y + nodeWidth / 2, link.source.x);
-                          ctx.bezierCurveTo(
-                              link.source.y + nodeWidth / 2 + nodeHMargin / 2, link.source.x, // Control point 1
-                              link.target.y - nodeWidth / 2 - nodeHMargin / 2, link.target.x, // Control point 2
-                              link.target.y - nodeWidth / 2, link.target.x // End point
-                          );
-                      });
-                      ctx.stroke(); // Render the links
-
-                      // --- Draw Nodes (rounded rectangles with text) ---
-                      root.descendants().forEach((node) => {
-                          // Calculate font size based on zoom
-                          const fontSize = 10 / currentTransform.k;
-                          ctx.font = `bold ${fontSize}px sans-serif`;
-                          ctx.textAlign = "center";
-                          ctx.textBaseline = "middle";
-
-                          // Truncate long node names
-                          let nodeName = node.data.name || "";
-                          let textMetrics = ctx.measureText(nodeName);
-                          const maxTextWidthScaled = maxTextWidth / currentTransform.k;
-                          while (textMetrics.width > maxTextWidthScaled && nodeName.length > 1) {
-                              nodeName = nodeName.slice(0, -2) + "…"; // Add ellipsis
-                              textMetrics = ctx.measureText(nodeName);
-                          }
-
-                          // Calculate dimensions for the background rectangle
-                          const textWidth = textMetrics.width;
-                          const textHeight = fontSize; // Approximate height
-                          const padding = textBgPadding / currentTransform.k;
-                          const rectWidth = textWidth + padding * 2;
-                          const rectHeight = textHeight + padding * 2;
-                          const rectX = node.y - rectWidth / 2; // Center rectangle horizontally
-                          const rectY = node.x - rectHeight / 2; // Center rectangle vertically
-
-                          // Set fill color based on node depth
-                          const colorIndex = Math.min(node.depth, nodeColors.length - 1);
-                          ctx.fillStyle = nodeColors[colorIndex];
-
-                          // Draw rounded rectangle (fallback to square if not supported)
-                          ctx.beginPath();
-                          if (typeof ctx.roundRect === "function") {
-                              ctx.roundRect(rectX, rectY, rectWidth, rectHeight, borderRadius / currentTransform.k);
-                              ctx.fill();
-                          } else {
-                              // Fallback for browsers without roundRect support
-                              ctx.fillRect(rectX, rectY, rectWidth, rectHeight);
-                              if (!window.hasWarnedRoundRect) { // Warn only once
-                                  console.warn("ctx.roundRect not supported, using fillRect fallback.");
-                                  window.hasWarnedRoundRect = true;
-                              }
-                          }
-
-                          // Draw text on top
-                          ctx.fillStyle = "#ffffff"; // White text
-                          ctx.fillText(nodeName, node.y, node.x); // Draw text at node center
-                      });
-
-                      ctx.restore(); // Restore canvas state
-                  } catch (drawError) {
-                      console.error("Error during canvas draw:", drawError);
-                      // Optionally display an error on the canvas itself
-                  }
-              }
-
-              // Setup D3 zoom behavior
-              try {
-                  const zoom = d3.zoom()
-                      .scaleExtent([0.1, 3]) // Min/max zoom levels
+              // Setup D3 zoom behavior (only if not already set up)
+              if (!mindMapZoom) {
+                  mindMapZoom = d3.zoom()
+                      .scaleExtent([0.1, 3])
                       .on("zoom", (event) => {
-                          currentTransform = event.transform; // Update transform state
-                          draw(); // Redraw on zoom/pan
+                          mindMapTransform = event.transform;
+                          redrawMindMap(); // Use the redraw function
                       });
 
-                  d3.select(canvas)
-                      .call(zoom)
-                      .on("dblclick.zoom", null); // Disable zoom on double click
-
-                  // Apply initial transform
-                  d3.select(canvas).call(zoom.transform, currentTransform);
-
-                  draw(); // Initial draw
-              } catch (zoomError) {
-                  console.error("Error setting up D3 zoom:", zoomError);
-                  outputDiv.innerHTML = `<p class="text-red-500">Error initializing interactive controls.</p>`;
-                  disableActionButtonsButKeepNewEnabled();
-                  return;
+                  d3.select(mindMapCanvas)
+                      .call(mindMapZoom)
+                      .on("dblclick.zoom", null);
               }
+
+              // Apply initial transform
+              d3.select(mindMapCanvas).call(mindMapZoom.transform, mindMapTransform);
+
+              redrawMindMap(); // Initial draw using the redraw function
+              window.redrawMindMap = redrawMindMap; // Make redraw function globally accessible
 
               console.log("renderMindMap finished successfully.");
               enableActionButtons(); // Enable actions now that rendering is done
           });
       }
+
+      /** Redraws the mind map based on current state (root, layout, transform, theme) */
+      function redrawMindMap() {
+          if (!mindMapCtx || !mindMapRoot || !mindMapTransform) {
+              console.warn("Cannot redraw mind map: context, root, or transform missing.");
+              return;
+          }
+
+          const isDarkMode = htmlElement.classList.contains('dark');
+          const nodeColors = isDarkMode ? nodeColorsDark : nodeColorsLight;
+          const linkColor = isDarkMode ? linkColorDark : linkColorLight;
+          const nodeTextColor = isDarkMode ? nodeTextColorDark : nodeTextColorLight; // Use dark text in dark mode for contrast
+
+          const nodeWidth = 120;
+          const nodeHMargin = 50;
+          const borderRadius = 15;
+          const maxTextWidth = nodeWidth - 16;
+          const textBgPadding = 4;
+
+          try {
+              mindMapCtx.save();
+              mindMapCtx.clearRect(0, 0, mindMapCanvas.width, mindMapCanvas.height);
+              mindMapCtx.translate(mindMapTransform.x, mindMapTransform.y);
+              mindMapCtx.scale(mindMapTransform.k, mindMapTransform.k);
+
+              // Draw Links
+              mindMapCtx.strokeStyle = linkColor;
+              mindMapCtx.lineWidth = 1.5 / mindMapTransform.k;
+              mindMapCtx.beginPath();
+              mindMapRoot.links().forEach((link) => {
+                  mindMapCtx.moveTo(link.source.y + nodeWidth / 2, link.source.x);
+                  mindMapCtx.bezierCurveTo(
+                      link.source.y + nodeWidth / 2 + nodeHMargin / 2, link.source.x,
+                      link.target.y - nodeWidth / 2 - nodeHMargin / 2, link.target.x,
+                      link.target.y - nodeWidth / 2, link.target.x
+                  );
+              });
+              mindMapCtx.stroke();
+
+              // Draw Nodes
+              mindMapRoot.descendants().forEach((node) => {
+                  const fontSize = 10 / mindMapTransform.k;
+                  mindMapCtx.font = `bold ${fontSize}px sans-serif`;
+                  mindMapCtx.textAlign = "center";
+                  mindMapCtx.textBaseline = "middle";
+
+                  let nodeName = node.data.name || "";
+                  let textMetrics = mindMapCtx.measureText(nodeName);
+                  const maxTextWidthScaled = maxTextWidth / mindMapTransform.k;
+                  while (textMetrics.width > maxTextWidthScaled && nodeName.length > 1) {
+                      nodeName = nodeName.slice(0, -2) + "…";
+                      textMetrics = mindMapCtx.measureText(nodeName);
+                  }
+
+                  const textWidth = textMetrics.width;
+                  const textHeight = fontSize;
+                  const padding = textBgPadding / mindMapTransform.k;
+                  const rectWidth = textWidth + padding * 2;
+                  const rectHeight = textHeight + padding * 2;
+                  const rectX = node.y - rectWidth / 2;
+                  const rectY = node.x - rectHeight / 2;
+
+                  const colorIndex = Math.min(node.depth, nodeColors.length - 1);
+                  mindMapCtx.fillStyle = nodeColors[colorIndex];
+
+                  mindMapCtx.beginPath();
+                  if (typeof mindMapCtx.roundRect === "function") {
+                      mindMapCtx.roundRect(rectX, rectY, rectWidth, rectHeight, borderRadius / mindMapTransform.k);
+                      mindMapCtx.fill();
+                  } else {
+                      mindMapCtx.fillRect(rectX, rectY, rectWidth, rectHeight);
+                      if (!window.hasWarnedRoundRect) {
+                          console.warn("ctx.roundRect not supported, using fillRect fallback.");
+                          window.hasWarnedRoundRect = true;
+                      }
+                  }
+
+                  mindMapCtx.fillStyle = nodeTextColor; // Use theme-appropriate text color
+                  mindMapCtx.fillText(nodeName, node.y, node.x);
+              });
+
+              mindMapCtx.restore();
+          } catch (drawError) {
+              console.error("Error during canvas redraw:", drawError);
+          }
+      }
+
 
       /**
        * Parses Markdown text (using headers) into a hierarchical object suitable for D3.
@@ -1905,7 +2127,7 @@ const cancelButtonHtml = (task.status === 'Pending')
               } catch (error) {
                   // Handle Markdown parsing errors
                   console.error("Error rendering Markdown:", error);
-                  renderedContentDisplay.innerHTML = '<p class="text-red-500">Error rendering Markdown.</p>';
+                  renderedContentDisplay.innerHTML = '<p class="text-red-500 dark:text-red-400">Error rendering Markdown.</p>';
                   renderedHtmlModal.classList.remove("hidden"); // Still show modal with error
               }
           } else {
@@ -2488,7 +2710,7 @@ const cancelButtonHtml = (task.status === 'Pending')
               promptTokenCountEl.textContent = cumulativeInTokens;
               completionTokenCountEl.textContent = cumulativeOutTokens;
               totalTokenCountEl.textContent = cumulativeTotalTokens;
-              
+
               // Update task status to Failed
               const failedTask = activeTasks.find(task => task.id === taskId);
               if (failedTask) {
@@ -2512,11 +2734,15 @@ const cancelButtonHtml = (task.status === 'Pending')
        * @param {HTMLTextAreaElement} textareaElement - The textarea associated with the clicked button.
        * @param {HTMLTextAreaElement} customPromptElement - The corresponding custom prompt textarea from the options panel.
        * @param {string} promptLabel - A user-friendly label for the custom prompt (used in error messages).
+       * @param {number | null} taskIdToUpdate - The ID of the task to update (if part of a batch job).
        */
       async function handleMainViewPrompt(event, textareaElement, customPromptElement, promptLabel, taskIdToUpdate = null) {
-        
+
           const clickedButton = event ? event.currentTarget : null; // Get button only if event exists
-          const originalButtonText = clickedButton ? clickedButton.textContent : ''; // Store original text (e.g., "1")
+          let originalButtonText = null; // Initialize here
+          if (clickedButton) {
+            originalButtonText = clickedButton.textContent; // Store original text (e.g., "1")
+          }
 
           // --- Get Settings and Content ---
           const apiKey = geminiApiKeyInput.value.trim();
@@ -2531,16 +2757,16 @@ const cancelButtonHtml = (task.status === 'Pending')
           // Check for API key, model selection, and non-empty prompts/content
           if (!apiKey) {
               geminiApiError.textContent = 'API Key is required in options panel.';
-              return;
+              return; // Stop execution if invalid
           }
           if (!selectedModel) {
               geminiApiError.textContent = 'Please select a model in options panel.';
-              return;
+              return; // Stop execution if invalid
           }
           if (!customPromptText) {
               // Use the provided label to indicate *which* custom prompt is missing
               geminiApiError.textContent = `${promptLabel} is empty in options panel.`;
-              return;
+              return; // Stop execution if invalid
           }
           if (!textareaContent) {
               // Provide visual feedback if the target textarea is empty
@@ -2549,7 +2775,7 @@ const cancelButtonHtml = (task.status === 'Pending')
               setTimeout(() => { // Remove highlight after a short delay
                   textareaElement.classList.remove('border-red-500', 'ring-red-500');
               }, 1500);
-              return;
+              return; // Stop execution if invalid
           }
 
           // --- Prepare API Call ---
@@ -2587,6 +2813,13 @@ const cancelButtonHtml = (task.status === 'Pending')
             renderTasksList(); // Show the new 'Running' task
             // Optional: Show panel if hidden
             // if (taskListPanel.classList.contains('invisible')) { taskListButton.click(); }
+          } else {
+            // If called as part of batch, update the existing task status if it's 'Pending'
+            const existingTask = activeTasks.find(task => task.id === currentTaskId);
+            if (existingTask && existingTask.status === 'Pending') {
+                existingTask.status = 'Running...';
+                renderTasksList(); // Update UI to show 'Running'
+            }
           }
           // If taskIdToUpdate was provided, the task already exists (as Pending or Running)
           // and we'll update it using currentTaskId within the try/catch blocks.
@@ -2629,14 +2862,30 @@ const cancelButtonHtml = (task.status === 'Pending')
               }
 
               // --- Replace Textarea Content ---
-              textareaElement.focus(); // Focus textarea A
-              textareaElement.select(); // Select existing content (optional, to replace it)
-              document.execCommand('insertText', false, responseText.trim()); // Insert new content
-              // Trigger blur event manually to ensure any related logic (like saving) runs
-              textareaElement.dispatchEvent(new Event('blur'));
+              // Use requestAnimationFrame to ensure layout is stable before interacting
+               requestAnimationFrame(() => {
+                  // Check if element is still in the DOM
+                  if (document.body.contains(textareaElement)) {
+                    textareaElement.focus(); // Focus textarea
+                    textareaElement.select(); // Select existing content (optional, helps replace)
+                    // Try using document.execCommand first for broader compatibility
+                    if (!document.execCommand('insertText', false, responseText.trim())) {
+                      // Fallback for browsers where execCommand might fail or is deprecated
+                      textareaElement.setRangeText(responseText.trim(), textareaElement.selectionStart, textareaElement.selectionEnd, 'select');
+                      console.log("Used setRangeText fallback for inserting text.");
+                    }
+                    // Trigger change and input events manually for frameworks/libraries that might listen
+                    textareaElement.dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
+                    textareaElement.dispatchEvent(new Event('change', { bubbles: true, cancelable: true }));
+                    // Trigger blur event manually to ensure any related logic (like saving/reconstruction) runs
+                    textareaElement.dispatchEvent(new Event('blur', { bubbles: true, cancelable: true }));
+                    // Manually trigger content reconstruction as blur might not be sufficient if focus doesn't change
+                    reconstructRawContent();
+                  } else {
+                    console.warn("Textarea element no longer in DOM, skipping text update.");
+                  }
+               });
 
-              // Manually trigger content reconstruction as blur might not be sufficient if focus doesn't change
-              reconstructRawContent();
 
               // Update task status to Completed
               const completedTask = activeTasks.find(task => task.id === currentTaskId);
@@ -2693,10 +2942,10 @@ const cancelButtonHtml = (task.status === 'Pending')
               renderTasksList(); // Update UI
           } finally {
               // --- Reset Loading State ---
-              if (clickedButton) { // Check if button exists (i.e., called by direct click)
+              // Check if button exists and element is still valid before resetting
+              if (clickedButton && document.body.contains(clickedButton)) {
                 clickedButton.disabled = false;
                 // Ensure originalButtonText was declared outside the earlier 'if' block
-                // let originalButtonText = null; // Should be declared higher up
                 clickedButton.textContent = originalButtonText;
               }
           }
@@ -2725,11 +2974,11 @@ const cancelButtonHtml = (task.status === 'Pending')
           }
 
           // Load Custom Prompts
-          promptCreatePlanEl.value = localStorage.getItem('promptCreatePlanValue') || '';
-          promptGenerateContentEl.value = localStorage.getItem('promptGenerateContentValue') || '';
-          promptFactCheckEl.value = localStorage.getItem('promptFactCheckValue') || '';
-          promptCustom1El.value = localStorage.getItem('promptCustom1Value') || '';
-          promptCustom2El.value = localStorage.getItem('promptCustom2Value') || '';
+          promptCreatePlanEl.value = localStorage.getItem('promptCreatePlanValue') || atob(createPlan);
+          promptGenerateContentEl.value = localStorage.getItem('promptGenerateContentValue') || atob(generateContent);
+          promptFactCheckEl.value = localStorage.getItem('promptFactCheckValue') || atob(factCheck);
+          promptCustom1El.value = localStorage.getItem('promptCustom1Value') || atob(custom1);
+          promptCustom2El.value = localStorage.getItem('promptCustom2Value') || atob(custom2);
           console.log('Custom prompts loaded.');
 
           // Load Batch Delay
@@ -2738,11 +2987,12 @@ const cancelButtonHtml = (task.status === 'Pending')
       }
 
       // --- Initial Setup ---
-      // Run on script load
-      disableActionButtonsButKeepNewEnabled(); // Start with most buttons disabled
-      loadSettings(); // Load saved settings (API key, prompts) and fetch models if key exists
-      loadMarkdownFromUrl(); // NEW: Check URL hash for a markdown file to load
-      switchTab('file'); // NEW: Ensure 'File' tab is active initially
+      applyInitialTheme(); // Apply saved theme preference on load
+      disableActionButtonsButKeepNewEnabled();
+      loadSettings();
+      loadMarkdownFromUrl();
+      switchTab('file');
+
     </script>
   </body>
 </html>
