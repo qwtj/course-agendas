@@ -218,7 +218,8 @@ while [[ $retry_count -lt $MAX_RETRIES && $success == false ]]; do
   # Execute command:
   # - Redirect stdout to the output file
   # - Redirect stderr to a temporary log file
-  if ! ask-google-gemini -s -m "$GEMINI_MODEL" -p "$PROMPT_FILE" "$prompt_argument" > "$output_path" 2> ask_gemini_error.log; then
+  if ! echo -n "$prompt_argument" | ask-google-gemini -s -m "$GEMINI_MODEL" -p "$PROMPT_FILE" > "$output_path" 2> ask_gemini_error.log; then
+
     exit_code=$?
     log "ERROR" "'ask-google-gemini' command failed with exit code ${exit_code}"
     
