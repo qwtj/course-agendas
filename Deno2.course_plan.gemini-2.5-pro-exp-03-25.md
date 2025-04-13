@@ -1,805 +1,603 @@
-# I. Introduction to Deno
+# I. Core Concepts & Philosophy
 
-*   **Learning Objective:** Understand the fundamental concepts, motivations, and setup process for Deno.
+## Learning Objectives
+"<Prompt: Generate 3-5 clear learning objectives for understanding the fundamental principles and design goals behind the Deno runtime. Focus on security, module systems, web standards, and the built-in tooling philosophy. Start response with heading level 3.>"
 
-## What is Deno?
-"<prompt>Explain Deno as a secure runtime environment for JavaScript and TypeScript. Describe its origins, key design philosophies (security by default, built-in tooling, first-class TypeScript support), and how it positions itself relative to Node.js.</prompt>"
+## Understanding Deno's Core Principles
+"<Prompt: Generate an explanation of the core philosophy driving Deno's development, contrasting it with Node.js where relevant. Cover its focus on security, modern JavaScript/TypeScript, web standard APIs, and developer experience. Start response with heading level 2.>"
 
-### Core Principles
-"<prompt>Detail the core principles behind Deno's design, focusing on security, the use of modern web standards (like ES modules and Fetch API), and its integrated toolchain. Explain the significance of Ryan Dahl's involvement.</prompt>"
+### Secure by Default Explained
+"<Prompt: Generate a detailed explanation of Deno's 'secure by default' model. Describe the sandbox environment and the necessity of explicit permission flags (`--allow-*`) for accessing system resources like the network or file system. Include a simple conceptual code example showing an action that would require a permission flag. Start response with heading level 3.>"
 
-### Deno vs. Node.js
-"<prompt>Generate a comparative analysis between Deno and Node.js. Cover key differences in module systems (ES Modules vs. CommonJS), security models (permissions vs. default access), API design (web standards vs. custom), built-in tooling, TypeScript support, and the handling of package management (URLs/deno.land/x vs. npm).</prompt>"
+### First-Class TypeScript Support
+"<Prompt: Generate an explanation of how Deno provides first-class TypeScript support out-of-the-box. Detail how users can run `.ts` files directly without a separate pre-compilation step, and mention the benefits this offers for type safety and development workflow. Start response with heading level 3.>"
 
-## Setting Up the Deno Environment
-"<prompt>Provide step-by-step instructions for installing Deno on major operating systems (Windows, macOS, Linux) using official methods like shell scripts (curl, iwr) and package managers (Homebrew, Scoop, etc.). Include verification steps (`deno --version`).</prompt>"
+### Embracing ES Modules (ESM)
+"<Prompt: Generate a description of Deno's native use of the standard ES Module (ESM) system (`import`/`export`). Explain how this differs from Node.js's traditional CommonJS (`require()`) system and why Deno adopted ESM. Mention the initial lack of `package.json` and reliance on URL imports. Start response with heading level 3.>"
 
-### Installation
-*   "<prompt>List the specific commands required to install Deno on Windows using PowerShell.</prompt>"
-*   "<prompt>List the specific commands required to install Deno on macOS using curl and Homebrew.</prompt>"
-*   "<prompt>List the specific commands required to install Deno on Linux using curl.</prompt>"
+### Compatibility with Web Platform APIs
+"<Prompt: Generate an explanation of Deno's goal to align with standard Web Platform APIs (like `fetch`, `Web Crypto`, `Web Streams`). Discuss the advantages of using familiar browser APIs on the server-side and provide examples of common web APIs available in Deno. Start response with heading level 3.>"
 
-### Verifying Installation
-*   "<prompt>Show the command `deno --version` and explain its expected output for verifying a successful Deno installation.</prompt>"
+### The Simplicity of a Single Executable
+"<Prompt: Generate a brief explanation of the advantage of Deno shipping as a single executable binary. Cover ease of installation and distribution. Start response with heading level 3.>"
 
-### Basic Usage: Running a Remote Script
-*   "<prompt>Demonstrate how to run a simple remote JavaScript or TypeScript file directly using the `deno run <URL>` command, using the official welcome script as an example. Explain the permission prompts that might appear.</prompt>"
-*   **Example:** `<prompt>Provide the command to run the standard Deno welcome example script: \`deno run https://deno.land/std/examples/welcome.ts\`.</prompt>`
+### Integrated Built-in Tooling
+"<Prompt: Generate an overview of Deno's built-in tooling philosophy. List the essential tools included (formatter, linter, tester, etc.) and explain how having them integrated into the runtime improves the developer experience (DX) and consistency. Start response with heading level 3.>"
 
-*   **Section Summary:** Deno is a modern, secure runtime for JS/TS, differing from Node.js in key areas like security and module handling. Installation is straightforward across platforms.
-*   **Glossary:**
-    *   `Runtime`: The environment in which a program executes.
-    *   `TypeScript`: A superset of JavaScript that adds static types.
-    *   `ES Modules (ESM)`: The standard module system for JavaScript.
-    *   `Permissions`: Explicit flags required by Deno programs to access system resources (network, file system, etc.).
-*   **Quiz:** "<prompt>Generate a 3-question multiple-choice quiz about Deno's core principles and its main difference from Node.js regarding security.</prompt>"
-*   **Transition:** Now that Deno is installed, let's explore its fundamental operations.
-*   **Callout:** **Key Point:** Deno's security model requires explicit permissions for file, network, and environment access.
-*   **Difficulty:** Beginner
-*   **Cross-Reference:** See Section II for module details.
-*   **Further Reading:** `<prompt>Provide a link to the official Deno manual's introduction section.</prompt>`
-*   **Reflection:** `<prompt>Ask the user to reflect: What aspect of Deno's philosophy (security, web standards, tooling) interests you the most, and why?</prompt>`
+## Section Summary
+"<Prompt: Generate a concise summary paragraph recapping the core concepts and philosophy of Deno covered in this section. Highlight the key differentiators like security by default, native TypeScript/ESM support, web API compatibility, and integrated tooling. Start response with heading level 2.>"
 
-# II. Deno Fundamentals
+## Key Terms Glossary
+"<Prompt: Generate glossary definitions for the following terms within the context of Deno's Core Concepts & Philosophy: 'Sandbox', 'Permissions Flag', 'ES Modules (ESM)', 'Web Platform API', 'Runtime', 'Developer Experience (DX)'. Start response with heading level 2.>"
 
-*   **Learning Objective:** Understand how to execute code, manage dependencies, handle permissions, and utilize basic standard library features in Deno.
+## Self-Assessment Quiz
+"<Prompt: Generate a 3-5 question multiple-choice quiz to test understanding of Deno's core concepts, covering security, TypeScript, ESM, Web APIs, and built-in tools. Include answers. Start response with heading level 2.>"
 
-## Running Local and Remote Code
-"<prompt>Explain the different ways to execute code with Deno, including running local files (`deno run my_script.ts`), running remote URLs (`deno run <URL>`), using the REPL (`deno`), and executing scripts with specific permissions.</prompt>"
+## Reflective Prompt
+"<Prompt: Generate a reflective question prompting the learner to consider how Deno's core philosophy (e.g., security by default, web standards) might impact their approach to building applications compared to other runtimes like Node.js. Start response with heading level 2.>"
 
-### Executing Local Scripts
-"<prompt>Provide examples of creating a simple TypeScript file (`hello.ts`) that logs to the console and running it using `deno run hello.ts`.</prompt>"
-*   **Example Code:**
-    
+## Further Exploration
+"<Prompt: Generate a list of 2-3 links to official Deno documentation or authoritative articles that delve deeper into Deno's design philosophy and core concepts. Start response with heading level 2.>"
+
+# II. Runtime Architecture
+
+## Learning Objectives
+"<Prompt: Generate 3-5 learning objectives focused on understanding the internal components and structure of the Deno runtime, including V8, Rust, Tokio, and the event loop. Start response with heading level 3.>"
+
+## Exploring Deno's Internals
+"<Prompt: Generate an overview of the Deno runtime's architecture, describing how its main components work together. Mention the roles of V8, Rust, and Tokio. Start response with heading level 2.>"
+
+### The V8 JavaScript Engine
+"<Prompt: Generate an explanation of the role of the V8 JavaScript engine within Deno. Mention that it's the same engine used by Chrome and Node.js and is responsible for executing JavaScript code efficiently. Start response with heading level 3.>"
+
+### The Rust Core
+"<Prompt: Generate an explanation of why Deno's core is built primarily in Rust. Highlight the benefits of Rust, such as memory safety and performance, and how this contributes to Deno's reliability and security. Start response with heading level 3.>"
+
+### Tokio for Asynchronous I/O
+"<Prompt: Generate a description of the Tokio runtime and its role in handling asynchronous I/O operations (like network requests or file system access) in Deno. Explain how Tokio enables efficient, non-blocking concurrency. Start response with heading level 3.>"
+
+### The Event Loop Mechanism
+"<Prompt: Generate an explanation of the event loop concept within Deno's architecture. Describe how it manages and executes asynchronous callbacks, similar to browsers and Node.js, enabling non-blocking operations. Start response with heading level 3.>"
+
+## Section Summary
+"<Prompt: Generate a concise summary paragraph recapping the key components of Deno's runtime architecture: V8, Rust core, Tokio, and the event loop, and how they contribute to Deno's functionality. Start response with heading level 2.>"
+
+## Key Terms Glossary
+"<Prompt: Generate glossary definitions for the following terms within the context of Deno's Runtime Architecture: 'V8 Engine', 'Rust', 'Tokio', 'Async I/O', 'Event Loop', 'Non-blocking'. Start response with heading level 2.>"
+
+## Self-Assessment Quiz
+"<Prompt: Generate a 3-5 question multiple-choice quiz testing understanding of Deno's runtime components (V8, Rust, Tokio) and the event loop's function. Include answers. Start response with heading level 2.>"
+
+## Reflective Prompt
+"<Prompt: Generate a reflective question asking the learner to consider the implications of Deno using Rust for its core compared to runtimes primarily built on C++. Start response with heading level 2.>"
+
+## Further Exploration
+"<Prompt: Generate a list of 2-3 links to resources (e.g., Deno documentation, blog posts, conference talks) that provide more technical details on Deno's internal architecture. Start response with heading level 2.>"
+
+# III. Security Model
+
+## Learning Objectives
+"<Prompt: Generate 3-5 learning objectives centered on understanding Deno's security model, including the concept of sandboxing, the use of explicit permissions flags, and the Permission Management API. Start response with heading level 3.>"
+
+## Understanding Deno's Security Approach
+"<Prompt: Generate an explanation of Deno's security model, emphasizing the principle of least privilege enforced through sandboxing and explicit permissions. Contrast this with Node.js's typically broader default access. Start response with heading level 2.>"
+
+### The Need for Explicit Permissions
+"<Prompt: Generate a detailed explanation of why Deno requires explicit permissions. Describe the sandboxed environment where code runs by default and how flags are used to grant specific capabilities, enhancing security by preventing unintended access. Start response with heading level 3.>"
+
+### `--allow-*` Flags Explained
+"<Prompt: Generate a description of the various `--allow-*` flags used to grant permissions in Deno. Provide a list of the most common flags and briefly explain the capability each one enables. Start response with heading level 3.>"
+
+#### `--allow-env`
+"<Prompt: Generate a description of the `--allow-env` permission flag in Deno, explaining that it allows the script to access environment variables. Provide a simple command-line example: `deno run --allow-env main.ts`. Start response with heading level 4.>"
+#### `--allow-hrtime`
+"<Prompt: Generate a description of the `--allow-hrtime` permission flag in Deno, explaining its use for accessing high-resolution timers, often needed for performance benchmarking. Provide a command-line example: `deno run --allow-hrtime main.ts`. Start response with heading level 4.>"
+#### `--allow-net`
+"<Prompt: Generate a description of the `--allow-net` permission flag in Deno, explaining that it grants network access (e.g., making HTTP requests, starting servers). Provide a command-line example: `deno run --allow-net main.ts`. Mention it can be restricted, e.g., `--allow-net=deno.land`. Start response with heading level 4.>"
+#### `--allow-ffi`
+"<Prompt: Generate a description of the `--allow-ffi` permission flag in Deno, explaining that it allows loading and calling native dynamic libraries using the Foreign Function Interface, highlighting the associated security risks. Provide a command-line example: `deno run --allow-ffi main.ts`. Start response with heading level 4.>"
+#### `--allow-read`
+"<Prompt: Generate a description of the `--allow-read` permission flag in Deno, explaining that it grants read access to the file system. Provide a command-line example: `deno run --allow-read main.ts`. Mention it can be restricted to specific paths, e.g., `--allow-read=/etc`. Start response with heading level 4.>"
+#### `--allow-run`
+"<Prompt: Generate a description of the `--allow-run` permission flag in Deno, explaining that it allows the script to spawn subprocesses. Provide a command-line example: `deno run --allow-run main.ts`. Start response with heading level 4.>"
+#### `--allow-write`
+"<Prompt: Generate a description of the `--allow-write` permission flag in Deno, explaining that it grants write access to the file system. Provide a command-line example: `deno run --allow-write main.ts`. Mention it can be restricted to specific paths, e.g., `--allow-write=/tmp`. Start response with heading level 4.>"
+#### `--allow-sys`
+"<Prompt: Generate a description of the `--allow-sys` permission flag in Deno, explaining that it allows access to various system information APIs (like OS type, CPU details). Provide a command-line example: `deno run --allow-sys main.ts`. Start response with heading level 4.>"
+
+### Programmatic Permission Management
+"<Prompt: Generate an introduction to the Deno Permissions API (`Deno.permissions`). Explain how scripts can programmatically query, request, and revoke permissions at runtime, allowing for more dynamic permission handling. Include a conceptual code snippet demonstrating a permission query. Start response with heading level 3.>"
+
+## Practical Exercise: Running with Permissions
+"<Prompt: Generate a small practical exercise where the learner creates a simple Deno script that attempts to read a file and then run it, first without and then with the appropriate `--allow-read` flag, to observe the permission system in action. Provide the script code and the commands to run. Start response with heading level 2.>"
+
+## Section Summary
+"<Prompt: Generate a concise summary paragraph reviewing Deno's security model, focusing on the default sandbox, the role and usage of `--allow-*` flags, and the capability for runtime permission management via the API. Start response with heading level 2.>"
+
+## Key Terms Glossary
+"<Prompt: Generate glossary definitions for: 'Sandboxing', 'Permissions Flag', 'Least Privilege', '--allow-net', '--allow-read', '--allow-write', 'Permissions API'. Start response with heading level 2.>"
+
+## Self-Assessment Quiz
+"<Prompt: Generate a 3-5 question quiz (e.g., multiple-choice, true/false) covering Deno's security flags and the concept of default security. Include answers. Start response with heading level 2.>"
+
+## Reflective Prompt
+"<Prompt: Generate a reflective question asking the learner to think about the trade-offs between Deno's explicit security model and the convenience of more permissive environments. Start response with heading level 2.>"
+
+## Further Exploration
+"<Prompt: Generate a list of 2-3 links to the official Deno manual page or relevant articles detailing the security model and permission flags. Start response with heading level 2.>"
+
+# IV. Standard Library (deno.land/std)
+
+## Learning Objectives
+"<Prompt: Generate 3-5 learning objectives focused on understanding the purpose, structure, and usage of the Deno Standard Library (`deno.land/std`), including familiarity with key modules like `fs`, `http`, `path`, and `testing`. Start response with heading level 3.>"
+
+## Introduction to `deno.land/std`
+"<Prompt: Generate an introduction to the Deno Standard Library (`deno.land/std`). Explain its purpose as a curated, versioned set of essential, high-quality modules maintained by the Deno team, separate from the core runtime. Mention how modules are imported via URL. Start response with heading level 2.>"
+
+### Exploring Key Standard Library Modules
+"<Prompt: Generate a brief overview of the categories of modules available in the Standard Library, setting the stage for exploring specific ones. Start response with heading level 3.>"
+
+#### Core Utilities (`std/`)
+"<Prompt: Generate a description of the general-purpose utilities often found at the root or in common subdirectories of `std`, highlighting their role in common programming tasks. Start response with heading level 4.>"
+#### Async Helpers (`std/async/`)
+"<Prompt: Generate a description of the `std/async` module, explaining its utilities for managing asynchronous operations, such as debouncing, delays, and working with async iterators. Provide a conceptual import example: `import { delay } from 'https://deno.land/std@<VERSION>/async/delay.ts';`. Start response with heading level 4.>"
+#### Datetime (`std/datetime/`)
+"<Prompt: Generate a description of the `std/datetime` module, explaining its functions for parsing, formatting, and manipulating dates and times. Provide a conceptual import example: `import { parse } from 'https://deno.land/std@<VERSION>/datetime/mod.ts';`. Start response with heading level 4.>"
+#### File System API (`std/fs/`)
+"<Prompt: Generate a description of the `std/fs` module, explaining its APIs for file system interactions (reading, writing, copying, watching files/directories). Provide a conceptual import example: `import { copy } from 'https://deno.land/std@<VERSION>/fs/copy.ts';`. Start response with heading level 4.>"
+#### HTTP Server/Client (`std/http/`)
+"<Prompt: Generate a description of the `std/http` module, outlining its tools for creating HTTP servers and clients, including handling requests, responses, and cookies. Provide a conceptual import example: `import { serve } from 'https://deno.land/std@<VERSION>/http/server.ts';`. Start response with heading level 4.>"
+#### Hashing (`std/hash/`)
+"<Prompt: Generate a description of the `std/hash` (or similar, e.g., `std/crypto`) module, explaining its functions for cryptographic hashing (e.g., MD5, SHA-1, SHA-256). Provide a conceptual import example: `import { Sha256 } from 'https://deno.land/std@<VERSION>/crypto/sha256.ts';`. Start response with heading level 4.>"
+#### JSON Handling (`std/json/`)
+"<Prompt: Generate a description of utilities within `std` for handling JSON, potentially including support for JSON with comments (JSONC). Provide a conceptual import example if applicable (e.g., `std/jsonc`). Start response with heading level 4.>"
+#### Path Manipulation (`std/path/`)
+"<Prompt: Generate a description of the `std/path` module, explaining its cross-platform utilities for joining, normalizing, and parsing file paths. Provide a conceptual import example: `import * as path from 'https://deno.land/std@<VERSION>/path/mod.ts';`. Start response with heading level 4.>"
+#### Testing Utilities (`std/testing/`)
+"<Prompt: Generate a description of the `std/testing/asserts.ts` module, highlighting its role in providing assertion functions (like `assertEquals`, `assertExists`) specifically for use with the `deno test` runner. Provide a conceptual import example: `import { assertEquals } from 'https://deno.land/std@<VERSION>/testing/asserts.ts';`. Start response with heading level 4.>"
+#### WebSockets (`std/ws/` - Note: May be integrated into `std/http` or core)
+"<Prompt: Generate a description of the standard library support for WebSockets, explaining how to create WebSocket servers and clients for real-time communication. Provide conceptual import examples based on its location in `std`. Start response with heading level 4.>"
+#### UUID Generation (`std/uuid/`)
+"<Prompt: Generate a description of the `std/uuid` module, explaining its functions for generating different versions of Universally Unique Identifiers (UUIDs). Provide a conceptual import example: `import { v4 } from 'https://deno.land/std@<VERSION>/uuid/mod.ts';`. Start response with heading level 4.>"
+
+## Practical Exercise: Using `std/fs` and `std/path`
+"<Prompt: Generate a practical exercise where the learner writes a Deno script that uses `std/path` to join path segments and `std/fs` to read the contents of a text file and print them to the console. Provide the script code, instructions for creating a sample file, and the `deno run` command with necessary permissions. Start response with heading level 2.>"
+
+## Section Summary
+"<Prompt: Generate a concise summary paragraph highlighting the role and importance of the Deno Standard Library (`deno.land/std`), mentioning its curated nature, versioning, URL-based imports, and key module areas like `fs`, `http`, `path`, and `testing`. Start response with heading level 2.>"
+
+## Key Terms Glossary
+"<Prompt: Generate glossary definitions for: 'Standard Library', 'deno.land/std', 'Module', 'URL Import', 'Versioning (in std)', 'std/fs', 'std/http', 'std/path', 'std/testing/asserts'. Start response with heading level 2.>"
+
+## Self-Assessment Quiz
+"<Prompt: Generate a 3-5 question quiz testing knowledge about the Standard Library's purpose, how to import modules, and the functions of common modules like `fs`, `path`, and `http`. Include answers. Start response with heading level 2.>"
+
+## Reflective Prompt
+"<Prompt: Generate a reflective question asking the learner to compare Deno's approach of having a versioned standard library separate from the runtime versus Node.js's model of built-in core modules. What are the pros and cons? Start response with heading level 2.>"
+
+## Further Exploration
+"<Prompt: Generate a link to the official Deno Standard Library documentation (`deno.land/std`) and perhaps 1-2 links to specific module documentation pages (e.g., `fs`, `http`). Start response with heading level 2.>"
+
+# V. Module System
+
+## Learning Objectives
+"<Prompt: Generate 3-5 learning objectives focused on Deno's module system, covering ESM, URL imports, caching, integrity checking (lock files), import maps, and the JSR registry. Start response with heading level 3.>"
+
+## Understanding Deno's Module Management
+"<Prompt: Generate an explanation of Deno's module system, emphasizing its foundation on ES Modules (ESM) and URL-based imports. Contrast this with traditional package manager approaches. Start response with heading level 2.>"
+
+### ES Modules (ESM) by Default
+"<Prompt: Generate a reinforcement of Deno's use of the standard ES Module (`import`/`export`) syntax as the default and only module system. Include a simple code example showing an import and export. Start response with heading level 3.>"
+
 ```typescript
-    // hello.ts
-    console.log("Hello, Deno!");
-    ```
+// utils.ts
+export function greet(name: string): string {
+  return `Hello, ${name}!`;
+}
 
-    "<prompt>Show the command `deno run hello.ts` and its expected output for the example code above.</prompt>"
+// main.ts
+import { greet } from './utils.ts';
 
-### Using the REPL
-"<prompt>Explain how to start and use the Deno Read-Eval-Print Loop (REPL) for executing quick JavaScript/TypeScript snippets. Show example commands within the REPL.</prompt>"
+console.log(greet('World'));
+```
 
-## Understanding Modules and Dependencies
-"<prompt>Describe Deno's module system, based on ES Modules. Explain how dependencies are imported directly from URLs (like `deno.land/x` or GitHub) or local paths. Discuss module caching (`DENO_DIR`) and integrity checking (`deno.lock` file).</prompt>"
 
-### Importing Modules
-"<prompt>Show the syntax for importing modules from a URL and a local file within a Deno script. Use an example from `deno.land/x`, such as the `oak` web framework or a standard library module.</prompt>"
-*   **Example:**
-    
+### Importing via URLs
+"<Prompt: Generate an explanation of how Deno imports modules using URLs, which can point to local files (`./`, `../`, `file:///`) or remote HTTP/HTTPS locations. Provide examples of both local and remote URL imports. Mention the security implications and how permissions (`--allow-net`) interact with remote imports. Start response with heading level 3.>"
+
+### Dependency Caching
+"<Prompt: Generate a description of Deno's module caching mechanism. Explain that when remote modules are imported, they are downloaded and cached locally (`DENO_DIR`) for offline use and faster subsequent runs. Mention how to reload dependencies using the `--reload` flag. Start response with heading level 3.>"
+
+### Ensuring Integrity with Lock Files
+"<Prompt: Generate an explanation of Deno's lock file (`deno.lock`). Describe how it records the checksums (subresource integrity) of remote dependencies to ensure that the code being run hasn't changed unexpectedly. Explain how to generate/update it (`--lock=deno.lock --lock-write`) and use it (`--lock=deno.lock`). Start response with heading level 3.>"
+
+### Simplifying Imports with Import Maps
+"<Prompt: Generate a description of import maps in Deno. Explain how they allow aliasing module URLs, managing dependency versions centrally, and simplifying import statements within the code. Show a simple `deno.json` example with an import map and how it changes the `import` statement in the code. Start response with heading level 3.>"
+
+```json
+// deno.json example
+{
+  "imports": {
+    "std/": "https://deno.land/std@0.220.1/",
+    "server": "https://deno.land/std@0.220.1/http/server.ts"
+  }
+}
+
+// main.ts usage
+import { serve } from "server"; // Instead of the full URL
+import { copy } from "std/fs/copy.ts"; // Using the alias
+```
+
+
+### JSR (JavaScript Registry)
+"<Prompt: Generate an introduction to JSR (JavaScript Registry), the modern package registry designed for Deno and ESM. Explain its key features and goals. Start response with heading level 3.>"
+#### JSR Scoped Packages (`@scope/pkg`)
+"<Prompt: Generate an explanation of how JSR uses scopes (`@scope/package-name`) for namespacing packages. Start response with heading level 4.>"
+#### JSR Native TypeScript Support
+"<Prompt: Generate an explanation of how JSR is designed with TypeScript as a first-class citizen, often providing types directly without needing separate `@types` packages. Start response with heading level 4.>"
+#### JSR ESM-First Approach
+"<Prompt: Generate an explanation reinforcing that JSR focuses exclusively on the ES Module format, aligning with Deno and modern web standards. Start response with heading level 4.>"
+#### JSR Integrated Tooling (`deno publish`)
+"<Prompt: Generate a description of how the Deno CLI integrates with JSR, specifically mentioning the `deno publish` command for easily publishing packages. Start response with heading level 4.>"
+#### Using JSR Packages
+"<Prompt: Generate an explanation on how to use JSR packages in Deno projects, using the `jsr:` specifier (e.g., `import author from 'jsr:@luca/author';`). Mention that Deno handles discovery and download seamlessly, often integrating with import maps or `deno.json`. Start response with heading level 4.>"
+
+## Practical Exercise: Using Import Maps and JSR
+"<Prompt: Generate a practical exercise where the learner sets up a simple `deno.json` file with an import map aliasing a `std` module and a JSR package. Then, write a small script that imports and uses both via their aliases/specifiers. Start response with heading level 2.>"
+
+## Section Summary
+"<Prompt: Generate a concise summary paragraph covering Deno's module system: ESM, URL imports, caching, lock files for integrity, import maps for management, and the role of the JSR registry for modern package distribution. Start response with heading level 2.>"
+
+## Key Terms Glossary
+"<Prompt: Generate glossary definitions for: 'ES Modules (ESM)', 'URL Import', 'Module Caching', 'Lock File (`deno.lock`)', 'Integrity Checking', 'Import Map', 'JSR (JavaScript Registry)', `jsr:` specifier, `@scope/package`. Start response with heading level 2.>"
+
+## Self-Assessment Quiz
+"<Prompt: Generate a 3-5 question quiz testing understanding of ESM vs CommonJS, URL imports, the purpose of lock files and import maps, and how to use JSR packages. Include answers. Start response with heading level 2.>"
+
+## Reflective Prompt
+"<Prompt: Generate a reflective question asking the learner to compare the pros and cons of Deno's URL-based/JSR module system versus Node.js's npm/`node_modules` approach regarding decentralization, security, and version management. Start response with heading level 2.>"
+
+## Further Exploration
+"<Prompt: Generate links to the Deno manual sections on Modules, Import Maps, Lock Files, and a link to the JSR website (jsr.io). Start response with heading level 2.>"
+
+# VI. Built-in Tooling
+
+## Learning Objectives
+"<Prompt: Generate 3-5 learning objectives about Deno's built-in development tools, covering running code, formatting, linting, testing, dependency inspection, task running, and LSP integration. Start response with heading level 3.>"
+
+## Leveraging Deno's Integrated Toolchain
+"<Prompt: Generate an introduction to Deno's suite of built-in tools, emphasizing how they provide a consistent and batteries-included development experience directly from the Deno executable. Start response with heading level 2.>"
+
+### Code Runner (`deno run`)
+"<Prompt: Generate a description of the `deno run` command. Explain its primary function of executing JavaScript and TypeScript files, mentioning the need for permission flags (covered previously). Include a basic usage example: `deno run main.ts`. Start response with heading level 3.>"
+
+### Dependency Inspector (`deno info`)
+"<Prompt: Generate a description of the `deno info` command. Explain how it's used to display a module's dependency tree, local cache location, and type information without executing the code. Provide a usage example: `deno info main.ts`. Start response with heading level 3.>"
+
+### Code Formatter (`deno fmt`)
+"<Prompt: Generate a description of the `deno fmt` command. Explain its role in automatically formatting code (JS, TS, JSON, Markdown) according to predefined style rules (based on `dprint`). Show how to format specific files or the whole project: `deno fmt main.ts` or `deno fmt`. Mention checking formatting with `deno fmt --check`. Start response with heading level 3.>"
+
+### Linter (`deno lint`)
+"<Prompt: Generate a description of the `deno lint` command. Explain how it analyzes code for potential errors, bad practices, and stylistic issues based on configurable rules. Provide a usage example: `deno lint main.ts` or `deno lint`. Mention configuration via `deno.json`. Start response with heading level 3.>"
+
+### Task Runner (`deno task`)
+"<Prompt: Generate a description of the `deno task` command. Explain how it executes user-defined scripts specified in the `tasks` section of a `deno.json` configuration file, serving as a simple cross-platform script runner. Show a simple `deno.json` example with a task and how to run it: `deno task dev`. Start response with heading level 3.>"
+
+```json
+// deno.json example
+{
+  "tasks": {
+    "dev": "deno run --watch --allow-net main.ts",
+    "check": "deno fmt --check && deno lint && deno test"
+  }
+}
+```
+
+
+### Testing Framework (`deno test`)
+"<Prompt: Generate a description of the `deno test` command and the built-in testing framework. Explain how to define tests using the `Deno.test` API and how `deno test` discovers and runs these tests. Mention the integration with `std/testing/asserts`. Provide a simple test case example and the command to run tests: `deno test`. Start response with heading level 3.>"
+
 ```typescript
-    // Import Oak framework from deno.land/x
-    import { Application } from "https://deno.land/x/oak/mod.ts";
-    // Import a standard library module
-    import { serve } from "https://deno.land/std/http/server.ts";
-    ```
-
-
-### Managing Dependencies (`deno.lock`)
-"<prompt>Explain the purpose and usage of the `deno.lock` file for ensuring reproducible builds by locking dependency versions. Show how it's generated (`--lock-write`) and used (`--lock=deno.lock`).</prompt>"
-
-### Caching Dependencies
-"<prompt>Describe how Deno caches remote modules locally. Explain the `deno cache` command for pre-downloading and caching dependencies of a script.</prompt>"
-*   **Command:** `<prompt>Show the command `deno cache my_module.ts` and explain its function.</prompt>`
-
-## The Deno Permissions Model
-"<prompt>Detail Deno's security model, emphasizing that scripts run in a sandbox by default. Explain the common permission flags (`--allow-net`, `--allow-read`, `--allow-write`, `--allow-env`, `--allow-run`, `--allow-ffi`, `--allow-hrtime`) and how to grant specific permissions.</prompt>"
-
-### Granting Permissions
-"<prompt>Provide examples of running a script that requires network access (e.g., fetching data) with the appropriate flag: `deno run --allow-net my_net_script.ts`.</prompt>"
-
-### Granular Permissions
-"<prompt>Explain how to grant more specific permissions, such as allowing network access only to certain domains (`--allow-net=example.com`) or read access only to specific directories (`--allow-read=/data`).</prompt>"
-
-*   **Section Summary:** Deno runs local/remote code via `deno run`, uses URL-based ES Modules for dependencies managed via caching and a lock file, and enforces security through explicit permission flags.
-*   **Glossary:**
-    *   `REPL`: Read-Eval-Print Loop, an interactive programming environment.
-    *   `deno.land/x`: Deno's official hosting service for third-party modules.
-    *   `Module Caching`: Storing downloaded dependencies locally to avoid re-downloading.
-    *   `Lock File`: A file specifying exact versions of dependencies (`deno.lock`).
-    *   `Sandbox`: An isolated environment with restricted access to system resources.
-*   **Quiz:** "<prompt>Generate a 3-question quiz covering module importing, the purpose of `deno.lock`, and how to grant file system read permission.</prompt>"
-*   **Transition:** With the basics covered, we now delve into Deno's core APIs and its integration with TypeScript.
-*   **Callout:** **Best Practice:** Always use a `deno.lock` file for applications to ensure dependency integrity.
-*   **Difficulty:** Beginner/Intermediate
-*   **Cross-Reference:** See Section V for more on the Standard Library. See Section IV for Tooling.
-*   **Further Reading:** `<prompt>Provide links to the Deno manual sections on Scripting, Modules, and Permissions.</prompt>`
-*   **Reflection:** `<prompt>Ask the user to reflect: How does Deno's permission system change the way you think about writing and running scripts compared to environments like Node.js or browser JavaScript?</prompt>`
-
-# III. Core Deno Concepts
-
-*   **Learning Objective:** Master asynchronous programming, built-in web standard APIs, and TypeScript integration within Deno.
-
-## Asynchronous Operations (Async/Await)
-"<prompt>Explain how Deno leverages modern JavaScript features like Promises and `async`/`await` for handling asynchronous operations (e.g., network requests, file I/O). Provide examples of common async patterns in Deno.</prompt>"
-
-### Using Promises
-"<prompt>Show an example of using a Promise-based Deno API, such as `Deno.readFile`, and consuming it with `.then()`/`.catch()`.</prompt>"
-
-### Using `async`/`await`
-"<prompt>Rewrite the previous Promise example using `async`/`await` syntax for cleaner asynchronous code flow. Explain the benefits of `async`/`await`.</prompt>"
-*   **Example:**
-    
-```typescript
-    // Example using async/await with Deno.readFile
-    async function readFileContent(filePath: string) {
-      try {
-        const data = await Deno.readFile(filePath);
-        const decoder = new TextDecoder("utf-8");
-        console.log(decoder.decode(data));
-      } catch (error) {
-        console.error("Error reading file:", error);
-      }
-    }
-    readFileContent("my_file.txt"); // Requires --allow-read
-    ```
-
-    "<prompt>Explain the above code snippet, including the need for `--allow-read` permission.</prompt>"
-
-## Built-in Web Standard APIs
-"<prompt>Describe Deno's emphasis on using Web Standard APIs. Focus on the built-in `fetch` API for making HTTP requests and the global `window` (or `self`) object.</prompt>"
-
-### Using `fetch`
-"<prompt>Provide a practical example of using the global `fetch` function in Deno to make a GET request to a public API and process the JSON response. Remember to mention the required `--allow-net` permission.</prompt>"
-*   **Example:**
-    
-```typescript
-    async function fetchData(url: string) {
-      try {
-        const response = await fetch(url);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        console.log(data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    }
-    fetchData("https://api.github.com/users/denoland"); // Requires --allow-net
-    ```
-
-    "<prompt>Explain the structure of the fetch example, including error handling and JSON parsing.</prompt>"
-
-### File System Access (`Deno.`)
-"<prompt>Introduce the `Deno` global namespace for accessing Deno-specific APIs, particularly for file system operations like `Deno.readFile`, `Deno.writeFile`, `Deno.readDir`, etc. Contrast these with Node.js `fs` module.</prompt>"
-*   "<prompt>Show an example of writing text to a file using `Deno.writeFile` and the necessary `--allow-write` permission.</prompt>"
-
-## First-Class TypeScript Support
-"<prompt>Explain how Deno supports TypeScript out-of-the-box without requiring a separate compilation step. Describe how Deno type-checks and transpiles TypeScript code automatically.</prompt>"
-
-### Writing Typed Code
-"<prompt>Provide an example of a simple Deno script written in TypeScript, demonstrating basic type annotations for variables and function parameters/return types.</prompt>"
-*   **Example:**
-    
-```typescript
-    function greet(name: string): string {
-      return `Hello, ${name}!`;
-    }
-
-    const message: string = greet("Deno Developer");
-    console.log(message);
-    ```
-
-    "<prompt>Explain how Deno processes the type annotations in the example above during execution.</prompt>"
-
-### Type Checking (`deno check`)
-"<prompt>Introduce the `deno check` command as a way to type-check a Deno project without executing the code. Explain its utility in development workflows.</prompt>"
-*   **Command:** `<prompt>Show the command `deno check my_module.ts` and describe its purpose.</prompt>`
-
-*   **Section Summary:** Deno excels at async operations using `async`/`await`, provides web-standard APIs like `fetch`, uses the `Deno` namespace for core functions, and integrates TypeScript seamlessly.
-*   **Glossary:**
-    *   `Promise`: An object representing the eventual completion (or failure) of an asynchronous operation.
-    *   `async`/`await`: JavaScript syntax for writing asynchronous code that looks synchronous.
-    *   `fetch`: A Web API for making network requests.
-    *   `Transpilation`: The process of converting code from one language (e.g., TypeScript) to another (e.g., JavaScript).
-    *   `Type Checking`: Verifying that the types used in code are consistent.
-*   **Quiz:** "<prompt>Generate a 3-question quiz about using `fetch` in Deno, the purpose of `async/await`, and how Deno handles TypeScript.</prompt>"
-*   **Transition:** Having grasped core Deno concepts, let's explore the powerful built-in tooling Deno provides.
-*   **Callout:** **Performance Tip:** Deno's direct TypeScript execution is optimized; `deno check` helps catch type errors early.
-*   **Difficulty:** Intermediate
-*   **Cross-Reference:** See Section I for TypeScript basics. See Section V for more on Deno APIs.
-*   **Further Reading:** `<prompt>Provide links to the Deno manual sections on Async, Fetch API, and TypeScript support.</prompt>`
-*   **Reflection:** `<prompt>Ask the user to reflect: How does built-in TypeScript support in Deno potentially streamline your development workflow compared to other environments?</prompt>`
-
-# IV. Deno Tooling
-
-*   **Learning Objective:** Become proficient with Deno's integrated toolchain for formatting, linting, testing, bundling, and compiling applications.
-
-## Code Formatting (`deno fmt`)
-"<prompt>Explain the built-in code formatter `deno fmt`. Describe its purpose (enforcing consistent code style), how it uses `dprint` internally, and how to use it to check or format files and directories.</prompt>"
-
-### Using `deno fmt`
-*   "<prompt>Show the command `deno fmt` to format all supported files in the current directory and subdirectories.</prompt>"
-*   "<prompt>Show the command `deno fmt --check` to check formatting without making changes, suitable for CI environments.</prompt>"
-*   "<prompt>Show the command `deno fmt specific_file.ts another_dir/` to format specific files or directories.</prompt>"
-
-## Linting (`deno lint`)
-"<prompt>Describe the built-in code linter `deno lint`. Explain its role (catching potential errors and enforcing code quality rules), the rules it applies by default, and how to customize rules using configuration files.</prompt>"
-
-### Using `deno lint`
-*   "<prompt>Show the command `deno lint` to lint all supported files in the current directory and subdirectories.</prompt>"
-*   "<prompt>Explain how to interpret the output of `deno lint` and fix reported issues.</prompt>"
-*   "<prompt>Mention the possibility of configuring lint rules via a `deno.json(c)` file (though explicit configuration details might be advanced).</prompt>"
-
-## Testing (`deno test`)
-"<prompt>Introduce the built-in test runner `deno test`. Explain how to define test cases using `Deno.test()`, including synchronous and asynchronous tests. Cover basic assertions and test organization.</prompt>"
-
-### Writing Tests
-"<prompt>Provide an example of a simple test file (`my_module.test.ts`) with a basic synchronous test case using `Deno.test` and assertions from `https://deno.land/std/assert/mod.ts`.</prompt>"
-*   **Example:**
-    
-```typescript
-    // my_module.test.ts
-    import { assertEquals } from "https://deno.land/std/assert/mod.ts";
-
-    function add(a: number, b: number): number {
-      return a + b;
-    }
-
-    Deno.test("add function basic test", () => {
-      const result = add(2, 3);
-      assertEquals(result, 5);
-    });
-
-    Deno.test("add function async test", async () => {
-      // Simulate async operation
-      await new Promise(resolve => setTimeout(resolve, 10));
-      const result = add(-1, 1);
-      assertEquals(result, 0);
-    });
-    ```
-
-    "<prompt>Explain the structure of the test file, how to import assertion functions, and define both sync and async tests.</prompt>"
-
-### Running Tests
-*   "<prompt>Show the command `deno test` to run all tests found in files matching the `*test.{js,mjs,ts,jsx,tsx}` pattern.</prompt>"
-*   "<prompt>Explain how to run specific test files: `deno test my_module.test.ts`.</prompt>"
-*   "<prompt>Mention common flags like `--allow-` permissions for tests requiring them, and filtering tests (`--filter`).</prompt>"
-
-## Bundling (`deno bundle`) **(Deprecated - Use `deno compile` or ESBuild)**
-"<prompt>Explain that `deno bundle` was a tool for creating self-contained JavaScript files but is deprecated. Recommend using `deno compile` for creating executables or external bundlers like ESBuild for web bundles. Briefly explain the original purpose of `deno bundle`.</prompt>"
-
-## Compiling (`deno compile`)
-"<prompt>Describe `deno compile` as the tool for creating self-contained, standalone executables from Deno scripts. Explain its benefits (easy distribution) and basic usage.</prompt>"
-
-### Using `deno compile`
-*   "<prompt>Show the command `deno compile --allow-net my_app.ts` to create an executable named `my_app` from `my_app.ts`, including necessary permissions.</prompt>"
-*   "<prompt>Explain that the resulting executable includes the Deno runtime and the script's dependencies.</prompt>"
-*   "<prompt>Mention flags like `--output` to specify the executable name and `--target` for cross-compilation.</prompt>"
-
-*   **Section Summary:** Deno provides a comprehensive built-in toolchain including `deno fmt` (formatting), `deno lint` (linting), `deno test` (testing), and `deno compile` (creating executables).
-*   **Glossary:**
-    *   `Formatter`: A tool that automatically adjusts code layout to match style guidelines.
-    *   `Linter`: A tool that analyzes code for potential errors, bugs, and stylistic issues.
-    *   `Test Runner`: A tool that executes automated tests and reports results.
-    *   `Bundler`: A tool that combines multiple code files and dependencies into fewer files (often one). `deno bundle` is deprecated.
-    *   `Compiler (in Deno context)`: A tool (`deno compile`) that packages a script and the Deno runtime into a single executable.
-*   **Quiz:** "<prompt>Generate a 4-question quiz covering the main purpose of `deno fmt`, `deno lint`, `deno test`, and `deno compile`.</prompt>"
-*   **Transition:** With a solid understanding of Deno's tooling, let's dive deeper into its powerful Standard Library.
-*   **Callout:** **Workflow Tip:** Integrate `deno fmt --check`, `deno lint`, and `deno test` into your CI/CD pipeline for automated quality checks.
-*   **Difficulty:** Intermediate
-*   **Cross-Reference:** See Section II for permissions needed during testing. See Section VII for using external tools/bundlers.
-*   **Further Reading:** `<prompt>Provide links to the Deno manual sections for `fmt`, `lint`, `test`, and `compile`.</prompt>`
-*   **Reflection:** `<prompt>Ask the user to reflect: How does having built-in formatting, linting, and testing tools change your approach to setting up a new project compared to environments requiring external tool configuration?</prompt>`
-
-# V. Deno Standard Library In-Depth
-
-*   **Learning Objective:** Gain proficiency in using key modules from the Deno Standard Library (`std`) for common tasks like building HTTP servers, file system manipulation, path handling, and more.
-
-## Overview of `deno.land/std`
-"<prompt>Provide an overview of the Deno Standard Library (`std`), hosted at `deno.land/std`. Explain its goals (providing high-quality, audited utility modules), its versioning strategy (aligned with Deno versions but importable by specific version), and how it contrasts with Node.js's built-in modules.</prompt>"
-
-## HTTP Server (`std/http`)
-"<prompt>Explore the `std/http` module for creating HTTP servers. Focus on the modern `Deno.serve` API (which supersedes older APIs in `std/http/server.ts`). Show how to create a basic server that handles requests and sends responses.</prompt>"
-
-### Basic HTTP Server with `Deno.serve`
-"<prompt>Provide a code example using `Deno.serve` to create a simple HTTP server that responds with 'Hello, Deno!' to all requests. Include necessary imports and permissions (`--allow-net`).</prompt>"
-*   **Example:**
-    
-```typescript
-    // basic_server.ts
-    import { serve } from "https://deno.land/std/http/server.ts"; // Older std way might still be seen
-    // Modern preferred way (built-in):
-    // import { serve } from "https://deno.land/std@0.x.y/http/server.ts"; // Or use Deno.serve directly
-
-    // Using the built-in Deno.serve (Recommended)
-    console.log("Listening on http://localhost:8000");
-    Deno.serve((_req: Request) => {
-      return new Response("Hello, Deno!");
-    }, { port: 8000 }); // Requires --allow-net=:8000
-    ```
-
-    "<prompt>Explain the `Deno.serve` function, the request handler callback, and the use of the standard `Request` and `Response` objects. Mention the required network permission.</prompt>"
-
-## File System (`std/fs`)
-"<prompt>Explore the `std/fs` module, which provides higher-level utilities for file system operations beyond the basic `Deno.*` functions. Cover functions like `copy`, `ensureDir`, `walk`, and `move`.</prompt>"
-
-### Ensuring a Directory Exists
-"<prompt>Show an example using `ensureDir` from `std/fs/ensure_dir.ts` to create a directory if it doesn't already exist. Include necessary imports and permissions (`--allow-read`, `--allow-write`).</prompt>"
-*   **Example:**
-    
-```typescript
-    import { ensureDir } from "https://deno.land/std/fs/ensure_dir.ts";
-    await ensureDir("./my_data_directory"); // Requires --allow-read, --allow-write
-    console.log("Directory ensured.");
-    ```
-
-
-### Walking a Directory Tree
-"<prompt>Demonstrate how to recursively iterate over files and directories using `walk` from `std/fs/walk.ts`. Include necessary imports and permissions (`--allow-read`).</prompt>"
-
-## Path Manipulation (`std/path`)
-"<prompt>Explain the `std/path` module for handling file paths in a platform-independent way. Cover key functions like `join`, `basename`, `dirname`, and `extname`.</prompt>"
-
-### Joining Paths
-"<prompt>Provide an example using `path.join` to construct a file path correctly, regardless of the operating system. Include the import statement.</prompt>"
-*   **Example:**
-    
-```typescript
-    import * as path from "https://deno.land/std/path/mod.ts";
-    const fullPath = path.join("/users/deno", "data", "file.txt");
-    console.log(fullPath); // Output varies by OS, but constructed correctly
-    ```
-
-
-## Assertions (`std/assert`)
-"<prompt>Revisit the `std/assert` module, highlighting its importance for writing tests (`deno test`). Showcase common assertion functions like `assertEquals`, `assertNotEquals`, `assertThrows`, `assertExists`.</prompt>"
-*   "<prompt>Provide a brief example demonstrating the use of `assertThrows` to test error conditions within a `Deno.test` block.</prompt>"
-
-## Datetime Utilities (`std/datetime`)
-"<prompt>Introduce the `std/datetime` module for parsing, formatting, and manipulating dates and times. Show an example of formatting the current date.</prompt>"
-*   "<prompt>Provide an example using `format` from `std/datetime/format.ts` to display the current date in a specific format.</prompt>"
-
-*   **Section Summary:** The Deno Standard Library (`std`) offers essential, versioned modules for common tasks like HTTP serving (`Deno.serve`), file system utilities (`std/fs`), path manipulation (`std/path`), testing assertions (`std/assert`), and date/time handling (`std/datetime`).
-*   **Glossary:**
-    *   `Standard Library`: A set of pre-built modules provided with a programming language or runtime.
-    *   `Versioning`: Tracking different releases of software (e.g., `std@0.200.0`).
-    *   `Assertion`: A statement in testing that checks if a condition is true.
-*   **Quiz:** "<prompt>Generate a 4-question quiz covering the purpose of `std/http`, `std/fs`, `std/path`, and `std/assert`.</prompt>"
-*   **Transition:** Having explored the standard library, let's look at how to build more complex applications using Deno, including web frameworks and database interactions.
-*   **Callout:** **Important:** Always import standard library modules using explicit versions (e.g., `std@0.200.0`) for stability in applications. Check `deno.land/std` for the latest versions.
-*   **Difficulty:** Intermediate
-*   **Cross-Reference:** See Section IV for using `std/assert` in `deno test`. See Section VI for using `std/http` (or frameworks) in web apps.
-*   **Further Reading:** `<prompt>Provide a link to the Deno Standard Library documentation page (`deno.land/std`).</prompt>`
-*   **Reflection:** `<prompt>Ask the user to reflect: How does the approach of having a standard library separate from the runtime but officially maintained (like Deno's `std`) compare to Node.js's built-in modules or relying solely on third-party packages?</prompt>`
-
-# VI. Building Applications with Deno
-
-*   **Learning Objective:** Learn to structure and build practical applications in Deno, incorporating web frameworks, database connections, and handling application configuration.
-
-## Web Frameworks in Deno
-"<prompt>Introduce popular third-party web frameworks available for Deno, such as Oak, Hono, or Fresh. Briefly describe their characteristics (e.g., middleware-based, routing features, server-side rendering). Select one (e.g., Oak) for a basic example.</prompt>"
-
-### Example: Basic Oak Server
-"<prompt>Provide a starter code example for creating a simple web server using the Oak framework. Show basic routing (handling a GET request) and starting the server. Include imports and necessary permissions (`--allow-net`).</prompt>"
-*   **Example (Oak):**
-    
-```typescript
-    import { Application, Router } from "https://deno.land/x/oak/mod.ts"; // Use specific version in real projects
-
-    const router = new Router();
-    router.get("/", (ctx) => {
-      ctx.response.body = "Hello from Oak!";
-    });
-
-    const app = new Application();
-    app.use(router.routes());
-    app.use(router.allowedMethods());
-
-    console.log("Oak server running on http://localhost:8000");
-    await app.listen({ port: 8000 }); // Requires --allow-net=:8000
-    ```
-
-    "<prompt>Explain the basic structure of the Oak example: importing modules, creating a router, defining a route, creating the application instance, adding middleware, and listening for connections.</prompt>"
-
-## Database Interaction
-"<prompt>Discuss common approaches for interacting with databases (SQL and NoSQL) from Deno applications. Mention popular Deno-compatible database drivers/ORMs available on `deno.land/x` (e.g., `deno-postgres`, `mongo`, potential ORMs).</prompt>"
-
-### Example: Connecting to PostgreSQL (Conceptual)
-"<prompt>Provide a conceptual code example using a hypothetical or real PostgreSQL client for Deno (e.g., `deno-postgres`). Show establishing a connection, executing a simple query, and handling results/errors. Emphasize the need for network permissions (`--allow-net`) and potentially environment variables for credentials (`--allow-env`).</prompt>"
-*   **Conceptual Example (using `deno-postgres` syntax):**
-    
-```typescript
-    import { Client } from "https://deno.land/x/postgres/mod.ts"; // Use specific version
-
-    // Connection details often come from environment variables
-    const client = new Client({
-      user: Deno.env.get("DB_USER") || "user",
-      database: Deno.env.get("DB_NAME") || "test",
-      hostname: Deno.env.get("DB_HOST") || "localhost",
-      password: Deno.env.get("DB_PASSWORD") || "password",
-      port: 5432,
-    });
-
-    try {
-      await client.connect();
-      console.log("Connected to database!");
-
-      const result = await client.queryArray("SELECT version()");
-      console.log("PostgreSQL Version:", result.rows[0][0]);
-
-      // ... perform other queries ...
-
-    } catch (error) {
-      console.error("Database connection or query error:", error);
-    } finally {
-      await client.end();
-      console.log("Disconnected from database.");
-    }
-    // Requires: --allow-net=localhost:5432 --allow-env=DB_USER,DB_NAME,DB_HOST,DB_PASSWORD (adjust net target)
-    ```
-
-    "<prompt>Explain the conceptual PostgreSQL example, focusing on client instantiation, connection handling, query execution, result processing, error handling, and the necessary permissions (`--allow-net`, `--allow-env`). Highlight the importance of managing credentials securely.</prompt>"
-
-## Configuration Management
-"<prompt>Describe strategies for managing application configuration in Deno, including using environment variables (`Deno.env`), command-line arguments, and configuration files (e.g., JSON, YAML, `.env` files using `std/dotenv`).</prompt>"
-
-### Using Environment Variables
-"<prompt>Show how to access environment variables using `Deno.env.get("VARIABLE_NAME")` and the required `--allow-env` permission. Provide an example of setting a default value if the variable is not present.</prompt>"
-
-### Using `std/dotenv`
-"<prompt>Demonstrate how to load configuration from a `.env` file using the `std/dotenv` module. Include creating a sample `.env` file and the code to load it. Mention necessary permissions (`--allow-read`, potentially `--allow-env` if setting env vars).</prompt>"
-*   **Example `.env` file:**
-    
-```dotenv
-    # .env
-    API_KEY=your_secret_key
-    PORT=8080
-    ```
-
-*   **Example Deno script:**
-    
-```typescript
-    import { config } from "https://deno.land/std/dotenv/mod.ts"; // Use specific version
-
-    // Load .env file content into Deno.env (requires --allow-read, --allow-env)
-    await config({ export: true });
-
-    const apiKey = Deno.env.get("API_KEY");
-    const port = Deno.env.get("PORT") || "8000"; // Use default if not set
-
-    console.log(`API Key: ${apiKey ? "Loaded" : "Not found"}`);
-    console.log(`Port: ${port}`);
-    ```
-
-    "<prompt>Explain the `.env` loading example, including file format, import, the `config` function, the `export: true` option, and required permissions.</prompt>"
-
-*   **Section Summary:** Building Deno applications involves choosing web frameworks (like Oak), using database clients (like `deno-postgres`), and managing configuration via environment variables or files (`std/dotenv`).
-*   **Glossary:**
-    *   `Web Framework`: A set of tools and libraries to simplify web application development.
-    *   `Middleware`: Functions that process requests and responses in a web server pipeline.
-    *   `ORM (Object-Relational Mapper)`: A tool that maps database tables to objects in code.
-    *   `Database Driver`: Software that enables an application to communicate with a database system.
-    *   `Configuration`: Settings that control an application's behavior.
-    *   `.env file`: A common file format for storing environment variables.
-*   **Quiz:** "<prompt>Generate a 3-question quiz about choosing a web framework, connecting to a database (permissions needed), and using `std/dotenv`.</prompt>"
-*   **Transition:** Now that we can build applications, let's explore some of Deno's advanced features for more complex scenarios.
-*   **Callout:** **Security Note:** Never commit sensitive credentials directly into your code or `.env` files in public repositories. Use secure methods for managing secrets in production.
-*   **Difficulty:** Intermediate/Advanced
-*   **Cross-Reference:** See Section V for `std/http`. See Section II for Permissions.
-*   **Further Reading:** `<prompt>Provide links to documentation for Oak (or chosen framework), deno-postgres (or chosen DB client), and std/dotenv.</prompt>`
-*   **Reflection:** `<prompt>Ask the user to reflect: How does the availability of frameworks and database clients on `deno.land/x` influence your decision to use Deno for a specific type of application?</prompt>`
-
-# VII. Advanced Deno Topics
-
-*   **Learning Objective:** Explore advanced Deno capabilities including interacting with native code (FFI), running WebAssembly, using workers for concurrency, and leveraging Node.js/npm compatibility.
-
-## Foreign Function Interface (FFI)
-"<prompt>Explain Deno's unstable Foreign Function Interface (FFI) API (`Deno.dlopen`). Describe its purpose: allowing Deno code to call functions in native dynamic libraries (.so, .dylib, .dll). Mention the security implications and the required `--allow-ffi` permission.</prompt>"
-
-### Basic FFI Example (Conceptual)
-"<prompt>Provide a conceptual example of using `Deno.dlopen` to load a simple native library (e.g., a C library with an `add` function) and call a function from it. Highlight the structure: defining the function signature in Deno and calling the symbol. Emphasize the 'unstable' status.</prompt>"
-*   **Conceptual Example:**
-    
-```typescript
-    // Assume native library 'libmymath.so'/'mymath.dll' exists with 'int add(int, int)'
-    const libraryPath = "./libmymath.so"; // Adjust path and extension per OS
-
-    // Requires --allow-ffi and potentially --unstable flag depending on Deno version
-    const dylib = Deno.dlopen(libraryPath, {
-      "add": { parameters: ["i32", "i32"], result: "i32" },
-    });
-
-    const result = dylib.symbols.add(5, 7); // Call the native function
-    console.log("Result from native code:", result); // Output: 12
-
-    dylib.close(); // Close the library handle
-    ```
-
-    "<prompt>Explain the conceptual FFI example: loading the library, defining the symbol's signature, calling the native function via `dylib.symbols`, and the necessary permissions/flags (`--allow-ffi`, `--unstable`).</prompt>"
-
-## WebAssembly (Wasm) Integration
-"<prompt>Describe Deno's support for running WebAssembly (Wasm) modules. Explain how Wasm allows running code compiled from languages like C++, Rust, Go, etc., within Deno. Show how to load and instantiate a Wasm module using the standard WebAssembly Web APIs (`WebAssembly.instantiateStreaming`, `fetch`).</prompt>"
-
-### Loading and Running Wasm
-"<prompt>Provide an example of fetching a Wasm file (`.wasm`) and instantiating it using `WebAssembly.instantiateStreaming`. Show how to call an exported function from the Wasm module. Mention necessary permissions (`--allow-net` or `--allow-read` depending on Wasm source).</prompt>"
-*   **Example (assuming `add.wasm` exports an `add` function):**
-    
-```typescript
-    // Assuming add.wasm is available locally or via URL
-    const wasmUrl = "./add.wasm"; // Or "http://..."
-
-    // Fetch and instantiate the Wasm module
-    // Requires --allow-read for local file or --allow-net for URL
-    const wasmModule = await WebAssembly.instantiateStreaming(fetch(wasmUrl));
-
-    // Or for local files without fetch:
-    // const wasmCode = await Deno.readFile(wasmUrl);
-    // const wasmModule = await WebAssembly.instantiate(wasmCode);
-
-    const { add } = wasmModule.instance.exports;
-
-    const result = add(10, 22);
-    console.log("Result from Wasm:", result); // Output: 32
-    ```
-
-    "<prompt>Explain the Wasm example: fetching/reading the Wasm file, instantiating it, accessing exported functions via `instance.exports`, and calling the Wasm function. Mention required permissions.</prompt>"
-
-## Deno Workers
-"<prompt>Explain the concept of Workers in Deno for achieving parallelism/concurrency by running scripts in separate threads. Describe the `Worker` API, how to create a new worker, pass messages using `postMessage`, and receive messages using event listeners (`onmessage`).</prompt>"
-
-### Basic Worker Example
-"<prompt>Provide a code example with two files: `main.ts` and `worker.ts`. `main.ts` creates a `Worker` instance from `worker.ts`, sends it a message, and listens for a response. `worker.ts` listens for messages, performs a computation, and sends the result back.</prompt>"
-*   **Example `worker.ts`:**
-    
-```typescript
-    // worker.ts
-    self.onmessage = (event) => {
-      console.log("Worker received:", event.data);
-      const result = event.data * 2;
-      self.postMessage(result);
-    };
-    ```
-
-*   **Example `main.ts`:**
-    
-```typescript
-    // main.ts
-    const worker = new Worker(new URL("./worker.ts", import.meta.url).href, { type: "module" });
-
-    worker.onmessage = (event) => {
-      console.log("Main received result:", event.data);
-      // Optionally terminate the worker if done
-      // worker.terminate();
-    };
-
-    console.log("Main sending message to worker...");
-    worker.postMessage(10);
-    ```
-
-    "<prompt>Explain the Worker example: how the main script creates the worker using its URL, how messages are sent with `postMessage`, how both scripts use `onmessage` to receive data, and the use of `import.meta.url` for relative path resolution.</prompt>"
-
-## Node.js and npm Compatibility
-"<prompt>Describe Deno's increasing compatibility with Node.js built-in modules and npm packages. Explain the use of `npm:` specifiers (e.g., `import express from "npm:express@4";`) to directly import and use packages from the npm registry. Mention the current state and limitations of this compatibility layer.</prompt>"
-
-### Using an npm Package
-"<prompt>Show a simple example of importing and using a popular npm package (like `lodash` or `express`) directly within a Deno script using an `npm:` specifier. Include necessary permissions (`--allow-net`, `--allow-read` for dependency installation/caching, potentially `--allow-env`).</prompt>"
-*   **Example (using lodash):**
-    
-```typescript
-    // Requires Deno 1.28+ or later for stable npm support
-    import _ from "npm:lodash@4"; // Requires --allow-net, --allow-read, --allow-env
-
-    const numbers = [1, 2, 3, 4, 5];
-    const shuffled = _.shuffle(numbers);
-
-    console.log("Original:", numbers);
-    console.log("Shuffled:", shuffled);
-    ```
-
-    "<prompt>Explain the npm compatibility example: the `npm:` specifier syntax, how Deno downloads and manages the npm package, and the permissions required during the first run to download/cache dependencies.</prompt>"
-
-*   **Section Summary:** Deno offers advanced features like FFI for native code, robust Wasm support, Workers for concurrency, and direct compatibility with Node.js/npm modules via `npm:` specifiers.
-*   **Glossary:**
-    *   `FFI (Foreign Function Interface)`: A mechanism for code in one language to call code written in another (often native) language.
-    *   `Dynamic Library`: A compiled library of code (.so, .dylib, .dll) loaded by programs at runtime.
-    *   `WebAssembly (Wasm)`: A binary instruction format for a stack-based virtual machine, enabling high-performance applications on the web and beyond.
-    *   `Worker (in Deno)`: A separate thread executing a script, used for concurrency.
-    *   `npm Specifier`: A URI scheme (`npm:`) used in Deno to import packages directly from the npm registry.
-*   **Quiz:** "<prompt>Generate a 4-question quiz covering the purpose of FFI, how to run Wasm, the use case for Deno Workers, and how to import an npm package.</prompt>"
-*   **Transition:** To build robust and efficient applications, understanding performance optimization and benchmarking is crucial. Let's explore these next.
-*   **Callout:** **Stability Note:** FFI is still marked as unstable in Deno; its API might change. Node/npm compatibility is rapidly evolving; check Deno release notes for the latest status.
-*   **Difficulty:** Advanced
-*   **Cross-Reference:** See Section II for Permissions. See Section IX for Debugging complex scenarios involving these features.
-*   **Further Reading:** `<prompt>Provide links to the Deno manual sections on FFI, WebAssembly, Workers, and Node/NPM compatibility.</prompt>`
-*   **Reflection:** `<prompt>Ask the user to reflect: Which of these advanced features (FFI, Wasm, Workers, npm compatibility) seems most likely to be useful in the types of projects you envision building with Deno, and why?</prompt>`
-
-# VIII. Performance and Optimization
-
-*   **Learning Objective:** Learn techniques for benchmarking, profiling, and optimizing the performance of Deno applications.
-
-## Benchmarking (`Deno.bench`)
-"<prompt>Introduce the built-in benchmarking function `Deno.bench`. Explain how it differs from `Deno.test` and its purpose: measuring the performance of code snippets. Show how to define and run benchmark tests.</prompt>"
-
-### Writing Benchmarks
-"<prompt>Provide an example of a benchmark file (`my_module.bench.ts`) using `Deno.bench` to compare the performance of two different ways of achieving the same task (e.g., string concatenation methods). Include necessary imports and explain the output format.</prompt>"
-*   **Example:**
-    
-```typescript
-    // my_module.bench.ts
-    const iterations = 1000;
-
-    // Baseline: Using + operator
-    Deno.bench("String Concatenation: + operator", () => {
-      let str = "";
-      for (let i = 0; i < iterations; i++) {
-        str += "a";
-      }
-    });
-
-    // Method 2: Using Array.join
-    Deno.bench("String Concatenation: Array.join", () => {
-      const arr = [];
-      for (let i = 0; i < iterations; i++) {
-        arr.push("a");
-      }
-      arr.join("");
-    });
-    ```
-
-    "<prompt>Explain the structure of the benchmark file and the `Deno.bench` function.</prompt>"
-
-### Running Benchmarks
-*   "<prompt>Show the command `deno bench` to run all benchmarks found in files matching typical test/bench patterns (`*.bench.ts`, `*bench.js`, etc.).</prompt>"
-*   "<prompt>Explain how to interpret the output, focusing on metrics like runs/second (higher is better) and average time per iteration (lower is better).</prompt>"
-*   "<prompt>Mention that `--allow-` flags might be needed if benchmarks access restricted resources.</prompt>"
-
-## Profiling Deno Applications
-"<prompt>Discuss strategies for profiling Deno applications to identify performance bottlenecks. Mention the use of external profiling tools compatible with V8 (like Chrome DevTools or command-line profilers) and how to generate profiling data from Deno.</prompt>"
-
-### Using V8 Inspector/Chrome DevTools
-"<prompt>Explain how to run a Deno script with the `--inspect` or `--inspect-brk` flag to enable the V8 inspector protocol. Show how to connect Chrome DevTools to the running Deno process and use the 'Profiler' tab to record CPU profiles.</prompt>"
-*   **Command:** `<prompt>Show the command `deno run --inspect-brk my_app.ts` and explain that it starts the inspector and pauses execution until a debugger attaches.</prompt>`
-*   "<prompt>Describe the steps to connect Chrome DevTools (by navigating to `chrome://inspect`) and record a CPU profile to identify functions consuming the most execution time.</prompt>"
-
-## Common Optimization Techniques
-"<prompt>List and explain common performance optimization techniques relevant to Deno/JavaScript/TypeScript development, such as: minimizing blocking I/O, efficient use of async/await, optimizing loops, choosing appropriate data structures, leveraging Wasm or FFI for CPU-intensive tasks, and reducing unnecessary work.</prompt>"
-
-### Avoiding Blocking I/O
-"<prompt>Explain why synchronous I/O operations (less common in Deno's async-first APIs, but possible) can block the event loop and degrade performance. Emphasize using asynchronous APIs (`async`/`await`) for file and network operations.</prompt>"
-
-### Efficient Asynchronous Patterns
-"<prompt>Discuss using `Promise.all` or `Promise.allSettled` to run independent asynchronous operations concurrently instead of sequentially with multiple `await` statements.</prompt>"
-*   "<prompt>Provide a brief code example comparing sequential `await`s with `Promise.all` for multiple fetch requests.</prompt>"
-
-*   **Section Summary:** Deno provides `Deno.bench` for micro-benchmarking. Profiling can be done using V8 tools like Chrome DevTools via `--inspect`. Optimization involves using async APIs effectively, choosing efficient algorithms, and potentially offloading work to Wasm/FFI.
-*   **Glossary:**
-    *   `Benchmarking`: Measuring the performance of code under specific conditions.
-    *   `Profiling`: Analyzing code execution to identify performance bottlenecks (CPU usage, memory allocation).
-    *   `V8 Inspector`: A debugging and profiling protocol built into the V8 JavaScript engine used by Deno and Chrome.
-    *   `Event Loop`: The mechanism in JavaScript runtimes that handles asynchronous operations. Blocking it hinders performance.
-*   **Quiz:** "<prompt>Generate a 3-question quiz covering the purpose of `Deno.bench`, how to enable profiling with `--inspect`, and one common optimization technique.</prompt>"
-*   **Transition:** Effective development also requires robust error handling and debugging skills, especially for complex issues. Let's focus on that next.
-*   **Callout:** **Performance Mindset:** Profile *before* optimizing. Premature optimization can lead to complex, harder-to-maintain code with little actual benefit.
-*   **Difficulty:** Advanced
-*   **Cross-Reference:** See Section III for Async/Await. See Section VII for Wasm/FFI.
-*   **Further Reading:** `<prompt>Provide links to the Deno manual section on Benchmarking and potentially V8/Chrome DevTools profiling guides.</prompt>`
-*   **Reflection:** `<prompt>Ask the user to reflect: When developing an application, at what stage would you typically consider running benchmarks or profiling the code?</prompt>`
-
-# IX. Advanced Error Handling and Debugging
-
-*   **Learning Objective:** Develop strategies for robust error management and master techniques for debugging complex scenarios in Deno applications.
-
-## Robust Error Management Strategies
-"<prompt>Discuss best practices for error handling in Deno applications. Cover topics like using try...catch blocks effectively, differentiating between operational errors and programmer errors, centralized error handling/logging, and creating custom error types.</prompt>"
-
-### `try...catch` and Error Propagation
-"<prompt>Explain the importance of catching specific errors where they can be handled and letting unexpected errors propagate up the call stack to a central handler. Show examples of `try...catch` with specific error checking (`instanceof`).</prompt>"
-
-### Custom Error Types
-"<prompt>Demonstrate how to create custom error classes extending the built-in `Error` class to provide more specific error information and facilitate better error handling logic.</prompt>"
-*   **Example:**
-    
-```typescript
-    class DatabaseError extends Error {
-      constructor(message: string, public query?: string) {
-        super(message);
-        this.name = "DatabaseError";
-      }
-    }
-
-    function queryDB() {
-      // Simulate error
-      const error = true;
-      if (error) {
-        throw new DatabaseError("Failed to execute query", "SELECT * FROM users");
-      }
-      // ...
-    }
-
-    try {
-      queryDB();
-    } catch (error) {
-      if (error instanceof DatabaseError) {
-        console.error(`DB Error: ${error.message}, Query: ${error.query}`);
-        // Handle specific DB error (e.g., retry, alert)
-      } else {
-        console.error("An unexpected error occurred:", error);
-        // Handle generic errors
-      }
-    }
-    ```
-
-    "<prompt>Explain the custom `DatabaseError` class and how `instanceof` is used in the `catch` block for specific handling.</prompt>"
-
-### Centralized Logging
-"<prompt>Recommend implementing a centralized logging mechanism (potentially using `std/log` or a third-party library) to capture errors and application events consistently. Discuss logging levels (debug, info, warn, error) and structured logging (e.g., JSON format).</prompt>"
-*   "<prompt>Provide a brief conceptual example using `std/log` to set up a basic file logger for errors.</prompt>"
-
-## Debugging Complex Scenarios
-"<prompt>Explore techniques for debugging challenging issues in Deno, such as race conditions in async code, memory leaks, issues with FFI/Wasm integration, or problems within worker threads.</prompt>"
-
-### Using the Debugger (`--inspect`/`--inspect-brk`)
-"<prompt>Reiterate the use of `--inspect`/`--inspect-brk` and a debugger (like Chrome DevTools, VS Code debugger) as the primary tool. Explain setting breakpoints, stepping through code, inspecting variables, and analyzing the call stack, especially for tracing asynchronous operations.</prompt>"
-
-### Debugging Workers
-"<prompt>Explain how to debug Deno workers. Mention that each worker typically requires its own inspector instance, often initiated on a different port automatically by Deno, and how to connect the debugger to worker threads.</prompt>"
-*   "<prompt>Refer to Deno documentation or provide specific instructions if available on how DevTools lists worker targets for inspection.</prompt>"
-
-### Debugging FFI/Wasm
-"<prompt>Discuss challenges in debugging interactions with native code (FFI) or WebAssembly. Suggest strategies like extensive logging on both sides of the boundary (Deno and native/Wasm), using native debugging tools (like GDB/LLDB) for the library itself, and simplifying the interaction points to isolate issues.</prompt>"
-
-### Identifying Memory Leaks
-"<prompt>Explain how to use the Memory tab in Chrome DevTools (connected via `--inspect`) to take heap snapshots, compare them over time, and identify objects that are not being garbage collected as expected, potentially indicating memory leaks.</prompt>"
-
-*   **Section Summary:** Robust error handling involves specific catches, custom errors, and centralized logging. Debugging complex Deno issues leverages the V8 inspector (`--inspect`), specialized techniques for workers and FFI/Wasm, and memory profiling tools.
-*   **Glossary:**
-    *   `Operational Error`: Runtime errors expected during operation (e.g., network unavailable, file not found). Often recoverable.
-    *   `Programmer Error`: Bugs in the code (e.g., type error, logic flaw). Usually require code changes.
-    *   `Race Condition`: A bug where the outcome depends on the unpredictable timing of concurrent operations.
-    *   `Memory Leak`: A bug where memory is allocated but not released when no longer needed, eventually exhausting resources.
-    *   `Heap Snapshot`: A record of all objects in the JavaScript heap memory at a specific point in time.
-*   **Quiz:** "<prompt>Generate a 4-question quiz covering custom error types, the use of `--inspect-brk`, a strategy for debugging workers, and how to investigate memory leaks.</prompt>"
-*   **Transition:** Finally, let's look at the broader Deno ecosystem, community resources, and the future direction of the runtime.
-*   **Callout:** **Debugging Tip:** Use `console.log` strategically, but rely on the interactive debugger (`--inspect`) for complex issues, as it provides much more context.
-*   **Difficulty:** Advanced
-*   **Cross-Reference:** See Section VII for Workers, FFI, Wasm. See Section VIII for Profiling introduction.
-*   **Further Reading:** `<prompt>Provide links to the Deno manual section on Debugging, the `std/log` module documentation, and guides on using Chrome DevTools for Node.js/Deno debugging.</prompt>`
-*   **Reflection:** `<prompt>Ask the user to reflect: Describe a complex bug you encountered in a previous project (any language/runtime) and how the debugging techniques discussed here might have helped you solve it more efficiently.</prompt>`
-
-# X. The Deno Ecosystem and Future
-
-*   **Learning Objective:** Understand the current state of the Deno ecosystem, how to find and contribute to modules, and where Deno might be heading.
-
-## The Deno Ecosystem (`deno.land/x`, `jsr.io`)
-"<prompt>Describe the primary sources for finding third-party Deno modules: the official `deno.land/x` registry and the newer JavaScript Registry `jsr.io` (also from the Deno team). Explain the differences and how to use modules from both.</prompt>"
-
-### Using `deno.land/x`
-"<prompt>Reiterate how modules are imported from `deno.land/x` using URLs with explicit versions. Mention the website's features for searching and browsing modules.</prompt>"
-
-### Using `jsr.io`
-"<prompt>Introduce `jsr.io` as a modern registry for JavaScript and TypeScript, designed to work well with Deno and other runtimes. Explain the `jsr:` specifier (e.g., `import { serve } from "jsr:@std/http/server";`) and its advantages (semantic versioning awareness, better tooling integration).</prompt>"
-*   **Example:** `<prompt>Show an example importing a module using the `jsr:` specifier.</prompt>`
-
-## Contributing to Deno and its Ecosystem
-"<prompt>Explain how developers can contribute to Deno itself (the runtime) or its standard library and third-party modules. Point towards contribution guidelines, the Deno community Discord/forums, and the process of submitting issues and pull requests on GitHub.</prompt>"
-
-### Reporting Issues
-"<prompt>Describe the process for reporting bugs or suggesting features for Deno or its standard library on the respective GitHub repositories.</prompt>"
-
-### Contributing Code
-"<prompt>Outline the general steps for contributing code: finding an issue, forking the repository, making changes, writing tests, and submitting a pull request following the project's guidelines.</prompt>"
-
-## Deno's Roadmap and Future Directions
-"<prompt>Discuss the known future plans and ongoing development areas for Deno based on official announcements, blog posts, or GitHub milestones. Topics might include continued Node/npm compatibility improvements, performance optimizations, development of JSR, new APIs, or integration with web standards.</prompt>"
-*   **Note:** `<prompt>Search for recent Deno blog posts or official roadmap updates to provide current information here.</prompt>` (Requires live search capability)
-
-## Community and Resources
-"<prompt>List key resources for Deno developers, including the official Deno manual, API reference, standard library documentation, Deno blog, community Discord server, and relevant subreddits or forums.</prompt>"
-*   **Links:** `<prompt>Provide direct links to the Deno Manual, Deno API Reference, Deno Blog, and the main community hubs (like Discord).</prompt>`
-
-*   **Section Summary:** The Deno ecosystem revolves around module registries like `deno.land/x` and `jsr.io`. Contribution is encouraged via GitHub. Deno continues to evolve with a focus on compatibility, performance, and tooling (JSR). Ample community resources are available.
-*   **Glossary:**
-    *   `Module Registry`: A centralized repository for hosting and distributing reusable code modules (e.g., `deno.land/x`, `npm`, `jsr.io`).
-    *   `JSR (JavaScript Registry)`: A modern package registry for TypeScript and JavaScript developed by the Deno team.
-    *   `Semantic Versioning (SemVer)`: A versioning scheme (MAJOR.MINOR.PATCH) used to convey the nature of changes between releases.
-    *   `Pull Request (PR)`: A proposal to merge changes from a developer's fork into the main repository.
-*   **Quiz:** "<prompt>Generate a 3-question quiz about the purpose of `deno.land/x` vs `jsr.io`, how to contribute to Deno, and where to find official Deno news.</prompt>"
-*   **Transition:** This concludes the learning agenda for mastering Deno. Continuous learning and community engagement are key to staying current.
-*   **Callout:** **Stay Updated:** Follow the official Deno blog and Twitter account for the latest announcements and releases.
-*   **Difficulty:** Intermediate
-*   **Cross-Reference:** See Section II for importing modules.
-*   **Further Reading:** `<prompt>Provide links to `deno.land/x`, `jsr.io`, and the Deno GitHub repository.</prompt>`
-*   **Reflection:** `<prompt>Ask the user to reflect: Based on what you've learned, what do you see as the biggest strengths and potential challenges of using Deno for your future projects? How might you get involved in the Deno community?</prompt>`
+// main_test.ts
+import { assertEquals } from "https://deno.land/std@0.220.1/testing/asserts.ts";
+import { greet } from "./main.ts"; // Assuming greet is in main.ts
+
+Deno.test("greet function test", () => {
+  const result = greet("Deno");
+  assertEquals(result, "Hello, Deno!");
+});
+```
+
+
+### REPL (`deno repl`)
+"<Prompt: Generate a description of the `deno repl` command. Explain its function as an interactive Read-Eval-Print Loop for experimenting with Deno APIs and JavaScript/TypeScript code snippets directly in the terminal. Start response with heading level 3.>"
+
+### Documentation Generator (`deno doc`)
+"<Prompt: Generate a description of the `deno doc` command. Explain how it generates documentation for modules by parsing JSDoc comments in the source code. Show a basic usage example: `deno doc main.ts`. Start response with heading level 3.>"
+
+### Language Server Protocol (LSP) Integration (`deno lsp`)
+"<Prompt: Generate a description of Deno's Language Server Protocol (LSP) support (`deno lsp`). Explain how this enables rich editor integration (e.g., in VS Code via extensions) providing features like autocompletion, diagnostics (linting/type checking), formatting, and code navigation within the editor. Start response with heading level 3.>"
+
+### Compiler (`deno compile`)
+"<Prompt: Generate a description of the `deno compile` command. Explain its purpose: to bundle a script and its dependencies, along with the Deno runtime itself, into a single, self-contained, standalone executable. Mention its use case for distributing applications. Provide a basic usage example: `deno compile --allow-net main.ts`. Start response with heading level 3.>"
+
+## Practical Exercise: Using `fmt`, `lint`, and `test`
+"<Prompt: Generate a practical exercise where the learner takes a slightly messy code snippet (provided), uses `deno fmt` to format it, `deno lint` to identify potential issues, and writes a simple test case using `Deno.test` and `std/testing/asserts`, then runs it with `deno test`. Start response with heading level 2.>"
+
+## Section Summary
+"<Prompt: Generate a concise summary paragraph reviewing the key built-in tools provided by Deno (`run`, `info`, `fmt`, `lint`, `task`, `test`, `repl`, `doc`, `lsp`, `compile`) and their contribution to a streamlined development workflow. Start response with heading level 2.>"
+
+## Key Terms Glossary
+"<Prompt: Generate glossary definitions for: 'Toolchain', `deno run`, `deno fmt`, `deno lint`, `deno test`, `deno task`, `deno info`, `deno compile`, 'REPL', 'LSP (Language Server Protocol)'. Start response with heading level 2.>"
+
+## Self-Assessment Quiz
+"<Prompt: Generate a 3-5 question quiz matching Deno commands (`fmt`, `lint`, `test`, `info`, `task`, `compile`) to their primary function. Include answers. Start response with heading
+ level 2.>"
+
+## Reflective Prompt
+"<Prompt: Generate a reflective question asking the learner to consider the benefits and potential drawbacks of having essential development tools built directly into the runtime versus relying on installing and managing third-party tools. Start response with heading level 2.>"
+
+## Further Exploration
+"<Prompt: Generate links to the Deno manual sections covering the main built-in tools like `deno fmt`, `deno lint`, `deno test`, `deno task`, and `deno compile`. Start response with heading level 2.>"
+
+# VII. Node.js Compatibility
+
+## Learning Objectives
+"<Prompt: Generate 3-5 learning objectives focused on understanding Deno's Node.js compatibility features, including `node:` specifiers for built-ins, npm package support via `npm:` specifiers, and the limited use of `package.json`. Start response with heading level 3.>"
+
+## Bridging the Gap: Deno and Node.js
+"<Prompt: Generate an introduction to Deno's efforts to provide compatibility with the Node.js ecosystem. Explain the motivation behind this (leveraging the vast npm ecosystem, easing migration) and the main mechanisms used. Start response with heading level 2.>"
+
+### Using Node.js Built-in Modules (`node:` Specifiers)
+"<Prompt: Generate an explanation of how Deno allows importing Node.js built-in modules (like `fs`, `path`, `os`) using the `node:` prefix (e.g., `import fs from 'node:fs';`). Mention that Deno provides polyfills or native implementations for many of these APIs. Provide a simple code example importing and using a `node:` module. Start response with heading level 3.>"
+
+### Polyfills for Node.js APIs
+"<Prompt: Generate a brief explanation that Deno includes internal polyfills (shims) to mimic the behavior of many core Node.js APIs when using `node:` specifiers, enabling Node.js code relying on these APIs to run within Deno. Start response with heading level 3.>"
+
+### Importing NPM Packages (`npm:` Specifiers)
+"<Prompt: Generate a detailed explanation of how Deno supports importing packages directly from the npm registry using `npm:` specifiers (e.g., `import express from 'npm:express@4';`). Describe how Deno downloads, caches, and makes these packages available, translating CommonJS to ESM where needed. Mention the security and performance implications. Start response with heading level 3.>"
+
+### `package.json` Integration
+"<Prompt: Generate an explanation of Deno's limited support for `package.json`. Clarify that its primary use in Deno is often for detecting dependencies (that might be imported via `npm:` specifiers) and for defining scripts runnable via `deno task`. Emphasize that Deno does *not* use `node_modules` in the traditional Node.js way. Start response with heading level 3.>"
+
+## Practical Exercise: Using an NPM Package in Deno
+"<Prompt: Generate a practical exercise where the learner creates a Deno script that imports a simple utility package from npm (e.g., `lodash-es` or `chalk`) using an `npm:` specifier and uses one of its functions. Provide the script code and the `deno run` command (potentially requiring `--allow-read` or `--allow-env` depending on the package). Start response with heading level 2.>"
+
+## Section Summary
+"<Prompt: Generate a concise summary paragraph reviewing Deno's Node.js compatibility features: `node:` specifiers for built-ins, `npm:` specifiers for npm packages, and the role of `package.json` primarily for dependency discovery and tasks. Start response with heading level 2.>"
+
+## Key Terms Glossary
+"<Prompt: Generate glossary definitions for: 'Node.js Compatibility', 'Polyfill', `node:` specifier, `npm:` specifier, 'npm Package', `package.json`. Start response with heading level 2.>"
+
+## Self-Assessment Quiz
+"<Prompt: Generate a 3-5 question quiz testing understanding of how to import Node built-ins and npm packages in Deno, and the role of `package.json`. Include answers. Start response with heading level 2.>"
+
+## Reflective Prompt
+"<Prompt: Generate a reflective question asking the learner to consider the significance of Node.js compatibility for Deno's adoption and ecosystem growth. What challenges might arise from this compatibility layer? Start response with heading level 2.>"
+
+## Further Exploration
+"<Prompt: Generate links to the Deno manual sections detailing Node.js compatibility, `npm:` specifiers, and polyfills. Start response with heading level 2.>"
+
+# VIII. Web Frameworks & Ecosystem
+
+## Learning Objectives
+"<Prompt: Generate 3-5 learning objectives focused on exploring popular web frameworks used with Deno (like Fresh, Oak, Hono) and understanding how Deno integrates with the broader JavaScript/TypeScript ecosystem. Start response with heading level 3.>"
+
+## Building Web Applications with Deno
+"<Prompt: Generate an introduction to building server-side web applications and APIs using Deno. Mention that while Deno provides native HTTP capabilities, frameworks often simplify development. Highlight some popular choices. Start response with heading level 2.>"
+
+### Fresh Framework
+"<Prompt: Generate an overview of the Fresh framework, developed by the Deno team. Highlight its key features and architectural choices. Start response with heading level 3.>"
+#### Just-in-Time (JIT) Rendering
+"<Prompt: Generate an explanation of Fresh's Just-in-Time (JIT) server-side rendering approach and its goal of shipping minimal JavaScript to the client by default. Start response with heading level 4.>"
+#### Islands Architecture
+"<Prompt: Generate an explanation of the Islands Architecture concept as implemented in Fresh, where interactive components ('islands') are hydrated independently within otherwise static pages. Start response with heading level 4.>"
+#### Zero Build Step Development
+"<Prompt: Generate an explanation of Fresh's 'no build step' development experience, emphasizing faster iteration cycles. Start response with heading level 4.>"
+#### File-based Routing
+"<Prompt: Generate an explanation of how routing in Fresh is typically defined by the file and directory structure within the `routes/` folder. Start response with heading level 4.>"
+
+### Oak Framework
+"<Prompt: Generate an overview of the Oak web framework for Deno. Mention its middleware-based architecture, inspired by Koa.js (a Node.js framework), and its common use cases for building APIs and web applications. Provide a conceptual code snippet showing basic Oak usage. Start response with heading level 3.>"
+
+### Hono Framework
+"<Prompt: Generate an overview of the Hono web framework. Highlight its characteristics: fast, lightweight, and multi-runtime (working in Deno, Node.js, Cloudflare Workers, etc.). Mention its suitability for edge computing environments. Provide a conceptual code snippet showing basic Hono usage in Deno. Start response with heading level 3.>"
+
+### Leveraging the Wider Ecosystem
+"<Prompt: Generate a discussion on how Deno applications can utilize the vast JavaScript/TypeScript ecosystem through ESM, JSR packages, and npm compatibility, allowing developers to integrate many existing libraries and tools. Start response with heading level 3.>"
+
+## Practical Exercise: Simple API with Oak or Hono
+"<Prompt: Generate a practical exercise where the learner creates a very simple HTTP API endpoint (e.g., returning a JSON message) using either the Oak or Hono framework in Deno. Provide the basic setup code and the `deno run` command. Start response with heading level 2.>"
+
+## Section Summary
+"<Prompt: Generate a concise summary paragraph highlighting popular Deno web frameworks like Fresh (JIT rendering, Islands), Oak (middleware, Koa-inspired), and Hono (fast, multi-runtime), and Deno's ability to leverage the broader JS/TS ecosystem. Start response with heading level 2.>"
+
+## Key Terms Glossary
+"<Prompt: Generate glossary definitions for: 'Web Framework', 'Fresh', 'Oak', 'Hono', 'Middleware (in web frameworks)', 'Server-Side Rendering (SSR)', 'Islands Architecture', 'File-based Routing', 'Edge Computing'. Start response with heading level 2.>"
+
+## Self-Assessment Quiz
+"<Prompt: Generate a 3-5 question quiz matching frameworks (Fresh, Oak, Hono) to their key characteristics or architectural patterns. Include answers. Start response with heading level 2.>"
+
+## Reflective Prompt
+"<Prompt: Generate a reflective question asking the learner to consider the factors they might weigh when choosing a web framework for a Deno project (e.g., performance, features, architecture, learning curve). Start response with heading level 2.>"
+
+## Further Exploration
+"<Prompt: Generate links to the official websites or documentation for the Fresh, Oak, and Hono frameworks. Start response with heading level 2.>"
+
+# IX. Deno Deploy
+
+## Learning Objectives
+"<Prompt: Generate 3-5 learning objectives focused on understanding Deno Deploy, its purpose as an edge runtime, key features like Git integration and global distribution, and its integration with Deno KV. Start response with heading level 3.>"
+
+## Deploying Deno Applications to the Edge
+"<Prompt: Generate an introduction to Deno Deploy. Explain its concept as a globally distributed, serverless JavaScript/TypeScript/Wasm runtime optimized for running code at the edge, close to users, for low latency. Start response with heading level 2.>"
+
+### Global Edge Network Advantage
+"<Prompt: Generate an explanation of the benefits of Deno Deploy's global edge network, focusing on reduced latency for users worldwide compared to traditional single-region server deployments. Start response with heading level 3.>"
+
+### Serverless Execution Model
+"<Prompt: Generate an explanation of the serverless nature of Deno Deploy, where developers deploy code without managing underlying server infrastructure, and the platform handles scaling automatically based on incoming requests. Start response with heading level 3.>"
+
+### Deployment via Git Integration
+"<Prompt: Generate a description of Deno Deploy's seamless Git integration, particularly with GitHub. Explain how pushes to a linked repository can automatically trigger deployments, simplifying the CI/CD workflow. Start response with heading level 3.>"
+
+### Simplified Deployment Process
+"<Prompt: Generate an overview of the ease of deploying applications to Deno Deploy, often involving linking a repository or using deployment tools, fitting Deno's focus on developer experience. Start response with heading level 3.>"
+
+### Support for WebSockets and Streaming
+"<Prompt: Generate a mention of Deno Deploy's native support for persistent WebSocket connections and HTTP response streaming, enabling real-time applications and efficient data handling. Start response with heading level 3.>"
+
+### Integrated KV Database (Deno KV on Deploy)
+"<Prompt: Generate an explanation of how Deno KV, the key-value database, is seamlessly integrated with Deno Deploy, providing a globally distributed, low-latency persistence layer for edge applications. Start response with heading level 3.>"
+
+## Conceptual Deployment Workflow
+"<Prompt: Generate a high-level description of a typical workflow for deploying a simple Deno web application (like one using Fresh or Hono) to Deno Deploy via GitHub integration. Start response with heading level 2.>"
+
+## Section Summary
+"<Prompt: Generate a concise summary paragraph recapping Deno Deploy as a serverless edge runtime, highlighting its global network, Git-based deployment, support for WebSockets/streaming, and integration with Deno KV for edge data persistence. Start response with heading level 2.>"
+
+## Key Terms Glossary
+"<Prompt: Generate glossary definitions for: 'Deno Deploy', 'Edge Computing', 'Serverless', 'Global Edge Network', 'Latency', 'CI/CD', 'Git Integration', 'Deno KV'. Start response with heading level 2.>"
+
+## Self-Assessment Quiz
+"<Prompt: Generate a 3-5 question quiz testing understanding of Deno Deploy's purpose, key features (edge, serverless, Git deploy), and benefits (latency). Include answers. Start response with heading level 2.>"
+
+## Reflective Prompt
+"<Prompt: Generate a reflective question asking the learner to consider use cases where deploying to an edge runtime like Deno Deploy would offer significant advantages over traditional cloud hosting. Start response with heading level 2.>"
+
+## Further Exploration
+"<Prompt: Generate a link to the official Deno Deploy website and its documentation/quickstart guides. Start response with heading level 2.>"
+
+# X. Advanced Features
+
+## Learning Objectives
+"<Prompt: Generate 3-5 learning objectives covering Deno's advanced capabilities, including WebAssembly (Wasm) integration, the Foreign Function Interface (FFI), experimental WebGPU support, and the built-in Deno KV database with its features. Start response with heading level 3.>"
+
+## Extending Deno's Capabilities
+"<Prompt: Generate an introduction to some of the more advanced features available in the Deno runtime, enabling integration with other technologies and providing powerful built-in functionalities. Start response with heading level 2.>"
+
+### WebAssembly (Wasm) Integration
+"<Prompt: Generate an explanation of Deno's support for WebAssembly (Wasm). Describe how Wasm modules can be imported and instantiated alongside JavaScript/TypeScript, allowing performance-critical code written in languages like Rust or C++ to run within Deno. Provide a conceptual import example. Start response with heading level 3.>"
+
+### Foreign Function Interface (FFI)
+"<Prompt: Generate an explanation of Deno's Foreign Function Interface (FFI). Describe how it allows Deno code to call functions within native dynamic libraries (.so, .dylib, .dll) compiled from languages like Rust, C, C++, Zig, etc. Mention the requirement for the `--allow-ffi` permission flag and the associated security considerations. Provide a conceptual code snippet showing how FFI might be used. Start response with heading level 3.>"
+
+### WebGPU API (Experimental)
+"<Prompt: Generate a brief description of Deno's experimental support for the WebGPU API. Explain that WebGPU is a modern API for leveraging GPU hardware for both graphics rendering and general-purpose computation (GPGPU), opening possibilities for high-performance computing tasks within Deno. Start response with heading level 3.>"
+
+### Deno KV (Built-in Key-Value Database)
+"<Prompt: Generate a detailed introduction to Deno KV as a built-in feature. Describe it as a zero-configuration, persistent, transactional key-value database available directly within the Deno runtime (and on Deno Deploy). Highlight its ease of use for simple persistence needs. Start response with heading level 3.>"
+#### Atomic Operations in Deno KV
+"<Prompt: Generate an explanation of Deno KV's support for atomic operations (transactions). Describe how multiple read and write operations can be grouped together to ensure they either all succeed or all fail, maintaining data consistency. Provide a conceptual code example using `.atomic()`. Start response with heading level 4.>"
+#### Deno KV Queues
+"<Prompt: Generate an explanation of the built-in queueing system (`Deno.Kv.enqueue`) that leverages Deno KV. Describe its use case for scheduling background tasks or messages reliably, with guaranteed delivery handled by the KV store. Provide a conceptual code example of enqueueing and listening. Start response with heading level 4.>"
+
+## Practical Exercise: Using Deno KV
+"<Prompt: Generate a practical exercise where the learner writes a Deno script that uses Deno KV to set a key-value pair, retrieve it, and then use an atomic operation to update one key while checking another. Provide the script code and the `deno run` command (mentioning KV is unstable and might require `--unstable` flag initially). Start response with heading level 2.>"
+
+## Section Summary
+"<Prompt: Generate a concise summary paragraph reviewing Deno's advanced features: Wasm for performance, FFI for native code integration, experimental WebGPU for GPU access, and the built-in Deno KV database with atomic operations and queues for persistence and background tasks. Start response with heading level 2.>"
+
+## Key Terms Glossary
+"<Prompt: Generate glossary definitions for: 'WebAssembly (Wasm)', 'Foreign Function Interface (FFI)', '--allow-ffi', 'WebGPU', 'Deno KV', 'Key-Value Database', 'Atomic Operation', 'Transaction (Database)', 'Background Task Queue'. Start response with heading level 2.>"
+
+## Self-Assessment Quiz
+"<Prompt: Generate a 3-5 question quiz testing understanding of Wasm, FFI, Deno KV, atomic operations, and queues in Deno. Include answers. Start response with heading level 2.>"
+
+## Reflective Prompt
+"<Prompt: Generate a reflective question asking the learner to consider how features like FFI and Deno KV change the types of applications one might build solely within the Deno ecosystem, without external dependencies. Start response with heading level 2.>"
+
+## Further Exploration
+"<Prompt: Generate links to the Deno manual sections or blog posts detailing Wasm support, FFI usage, WebGPU status, and the Deno KV API. Start response with heading level 2.>"
+
+# XI. Development Workflow & Best Practices
+
+## Learning Objectives
+"<Prompt: Generate 3-5 learning objectives focused on establishing effective development workflows and applying best practices in Deno projects, covering project structure, dependency management, testing, configuration (`deno.json`), IDE integration, and debugging. Start response with heading level 3.>"
+
+## Efficient Deno Development
+"<Prompt: Generate an introduction emphasizing the importance of adopting consistent workflows and best practices for building maintainable and robust Deno applications. Start response with heading level 2.>"
+
+### Structuring Deno Projects
+"<Prompt: Generate recommendations for organizing Deno project directories and files. Suggest common structures for separating source code, tests, configuration, dependencies (if using local paths/vendor), and potentially documentation or scripts. Start response with heading level 3.>"
+
+### Managing Dependencies Effectively
+"<Prompt: Generate best practices for managing dependencies in Deno. Discuss strategies for using import maps (`deno.json`) for version control and aliasing, leveraging JSR for package management, and considering the pros/cons of vendoring dependencies for stability. Reinforce the use of lock files (`deno.lock`) for reproducible builds. Start response with heading level 3.>"
+
+### Comprehensive Testing Strategies
+"<Prompt: Generate guidance on testing Deno applications. Recommend approaches for unit testing individual functions/modules, integration testing interacting components, and potentially end-to-end testing for full application flows, all utilizing the `deno test` runner and `std/testing`. Start response with heading level 3.>"
+
+### Utilizing `deno.json`/`deno.jsonc`
+"<Prompt: Generate a detailed explanation of the central role of the `deno.json` (or `deno.jsonc`) configuration file. Summarize its key sections: `imports` (import map), `tasks`, `lint`, `fmt`, `compilerOptions`, `test`, demonstrating how it centralizes project settings. Start response with heading level 3.>"
+
+### Optimizing IDE Integration (VS Code Example)
+"<Prompt: Generate guidance on setting up and leveraging IDE integration for Deno, using VS Code as a primary example. Mention installing the official Deno extension, enabling editor integration (`"deno.enable": true`), and utilizing features like intellisense, linting/formatting on save, and debugger integration provided by the Deno LSP. Start response with heading level 3.>"
+
+### Debugging Deno Applications
+"<Prompt: Generate techniques for debugging Deno applications. Explain how to use the standard `--inspect` or `--inspect-brk` flags with `deno run` or `deno test` to connect browser DevTools (like Chrome's) or the integrated debugger in editors like VS Code for setting breakpoints, inspecting variables, and stepping through code. Start response with heading level 3.>"
+
+## Advanced Error Handling and Debugging
+"<Prompt: Generate an introduction to advanced error handling and debugging concepts relevant in Deno development. Start response with heading level 2.>"
+### Robust Error Management Patterns
+"<Prompt: Generate a description of patterns for robust error handling in Deno/TypeScript, such as using specific Error subclasses, leveraging `try...catch` effectively, handling Promise rejections properly (e.g., with `.catch()` or `try...catch` with async/await), and potentially using result types or functional error handling approaches. Start response with heading level 3.>"
+### Debugging Complex Scenarios
+"<Prompt: Generate tips for debugging more complex scenarios in Deno, such as asynchronous operations (understanding stack traces, using async/await), issues related to permissions, problems with FFI or Wasm interactions, or debugging Deno KV operations. Mention the use of logging (`console.log`, `console.error`, `console.trace`) as a supplementary debugging tool. Start response with heading level 3.>"
+
+## Performance Optimization & Benchmarking
+"<Prompt: Generate an introduction to performance considerations in Deno applications. Start response with heading level 2.>"
+### Identifying Performance Bottlenecks
+"<Prompt: Generate guidance on identifying performance bottlenecks in Deno code. Mention using basic timing (`performance.now()`, `console.time`/`console.timeEnd`), leveraging the `--inspect` flag with browser DevTools profiling capabilities, and potentially using external profiling tools if needed. Start response with heading level 3.>"
+### Deno Performance Best Practices
+"<Prompt: Generate a list of general performance best practices relevant to Deno/JavaScript/TypeScript, such as minimizing I/O operations, optimizing loops and data structures, understanding asynchronous patterns, and considering the performance implications of dependencies (e.g., Wasm vs. JS, native FFI calls). Start response with heading level 3.>"
+### Benchmarking with `Deno.bench`
+"<Prompt: Generate an explanation of the built-in `Deno.bench` API for creating and running performance benchmarks within the `deno test` framework (or via `deno bench`), allowing for more structured performance testing and comparison of different code implementations. Provide a simple `Deno.bench` example. Start response with heading level 3.>"
+
+## Section Summary
+"<Prompt: Generate a concise summary paragraph covering key development workflows and best practices for Deno: project structure, dependency management (import maps, JSR, lock files), testing, configuration via `deno.json`, IDE integration, debugging techniques, error handling patterns, performance analysis, and benchmarking. Start response with heading level 2.>"
+
+## Key Terms Glossary
+"<Prompt: Generate glossary definitions for: 'Project Structure', 'Dependency Management', 'Vendoring', 'Unit Testing', 'Integration Testing', `deno.json`, 'IDE Integration', 'Debugging', '--inspect', 'Error Handling', 'Performance Profiling', 'Benchmarking', `Deno.bench`. Start response with heading level 2.>"
+
+## Self-Assessment Quiz
+"<Prompt: Generate a 3-5 question quiz covering best practices for dependency management (import maps/lock files), the purpose of `deno.json` sections (tasks, imports), and how to initiate a debugging session in Deno. Include answers. Start response with heading level 2.>"
+
+## Reflective Prompt
+"<Prompt: Generate a reflective question asking the learner to think about how integrating tools like the formatter, linter, tester, and task runner directly into the runtime (and often configured via `deno.json`) impacts their overall development workflow and project consistency compared to managing these tools separately. Start response with heading level 2.>"
+
+## Further Exploration
+"<Prompt: Generate links to the Deno manual sections on `deno.json`, Testing, Debugging, Benchmarking, and perhaps relevant style guides or best practice articles from the Deno community or team. Start response with heading level 2.>"
+
+# XII. Future & Roadmap
+
+## Learning Objectives
+"<Prompt: Generate 2-3 learning objectives focused on understanding the general direction of Deno's development, including areas like performance, web API compatibility, Node.js compatibility improvements, tooling enhancements, and ecosystem growth (JSR). Start response with heading level 3.>"
+
+## The Evolution of Deno
+"<Prompt: Generate an introduction discussing the ongoing development and potential future directions for the Deno runtime and its ecosystem, based on current trends and stated goals. Start response with heading level 2.>"
+
+### Ongoing Performance Optimizations
+"<Prompt: Generate a description of the continuous focus on improving Deno's performance, including faster startup times, more efficient runtime execution (V8 updates, Rust core optimizations), reduced memory footprint, and optimized I/O operations. Start response with heading level 3.>"
+
+### Expanding Web API Compatibility
+"<Prompt: Generate a discussion on the potential expansion of Web Platform API support within Deno, aiming to implement more browser-standard APIs that are relevant and useful in server-side or CLI contexts. Start response with heading level 3.>"
+
+### Enhancing Node.js Compatibility
+"<Prompt: Generate a discussion on the likely continued efforts to improve the fidelity and scope of the Node.js compatibility layer, including broader support for Node built-in modules and more seamless integration with npm packages via `npm:` specifiers. Start response with heading level 3.>"
+
+### Refining Built-in Tooling
+"<Prompt: Generate a discussion on potential improvements and refinements to Deno's integrated toolchain (`fmt`, `lint`, `test`, `task`, `compile`, etc.) based on user feedback and evolving development practices. Start response with heading level 3.>"
+
+### Growing the JSR Ecosystem
+"<Prompt: Generate a discussion on the importance of the JSR (JavaScript Registry) for Deno's future and the ongoing efforts to foster its growth by encouraging developers to publish high-quality, TypeScript-first, ESM-native packages. Start response with heading level 3.>"
+
+## Staying Updated
+"<Prompt: Generate advice on how to stay informed about Deno's development, roadmap, and new releases, such as following the official Deno blog, GitHub repository (releases, discussions), and social media channels (e.g., Twitter, Discord). Start response with heading level 2.>"
+
+## Section Summary
+"<Prompt: Generate a concise summary paragraph outlining the likely future directions for Deno, focusing on performance gains, enhanced web and Node.js compatibility, tooling improvements, and the growth of the JSR ecosystem. Start response with heading level 2.>"
+
+## Reflective Prompt
+"<Prompt: Generate a reflective question asking the learner to consider which potential future development area of Deno (e.g., performance, Node compatibility, JSR growth, new APIs) they think is most critical for its wider adoption and success. Start response with heading level 2.>"
+
+## Further Exploration
+"<Prompt: Generate links to the official Deno Blog, the Deno GitHub repository (specifically releases), and perhaps the Deno Discord server or Twitter account for staying up-to-date. Start response with heading level 2.>"
