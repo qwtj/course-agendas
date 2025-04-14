@@ -2975,8 +2975,8 @@
 
           // Load Custom Prompts
           promptCreatePlanEl.value = localStorage.getItem('promptCreatePlanValue') || atob(createPlan);
-          promptGenerateContentEl.value = localStorage.getItem('promptGenerateContentValue') || atob(generateContent);
-          promptFactCheckEl.value = localStorage.getItem('promptFactCheckValue') || atob(factCheck);
+          promptGenerateContentEl.value = localStorage.getItem('promptGenerateContentValue') || generateContent;
+          promptFactCheckEl.value = localStorage.getItem('promptFactCheckValue') || factCheck;
           promptCustom1El.value = localStorage.getItem('promptCustom1Value') || atob(custom1);
           promptCustom2El.value = localStorage.getItem('promptCustom2Value') || atob(custom2);
           console.log('Custom prompts loaded.');
