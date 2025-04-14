@@ -552,14 +552,27 @@
     </style>
   </head>
   <body class="bg-gray-100 dark:bg-gray-900 p-4 md:p-8 transition-colors duration-200"> <!-- Added dark bg and transition -->
-    <button
-      type="button"
-      id="taskListButton"
-      title="Show Task List"
-      class="fixed top-1/2 left-0 transform -translate-y-1/2 z-50 w-16 h-16 bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white rounded-md shadow-lg flex items-center justify-center text-3xl transition duration-150 ease-in-out"
-    >
-      📧
-    </button>
+    <div id="leftSidebarButtonContainer" class="fixed top-3/4 left-4 transform -translate-y-1/2 z-50 flex flex-col space-y-2">
+
+      <button
+        type="button"
+        id="taskListButton"
+        title="Show Task List"
+        class="w-16 h-16 bg-blue-500 hover:bg-blue-600 text-white rounded-md shadow-lg flex items-center justify-center text-3xl transition duration-150 ease-in-out dark:bg-blue-600 dark:hover:bg-blue-500"
+      >
+        📧
+      </button>
+
+      <button
+        type="button"
+        id="savedDocsButton"
+        title="Show Saved Documents"
+        class="w-16 h-16 bg-purple-500 hover:bg-purple-600 text-white rounded-md shadow-lg flex items-center justify-center text-3xl transition duration-150 ease-in-out dark:bg-purple-600 dark:hover:bg-purple-500"
+      >
+        📁 </button>
+
+    </div>
+    
     <div class="max-w-4xl mx-auto bg-white dark:bg-gray-800 p-6 md:p-8 rounded-lg shadow-md relative transition-colors duration-200"> <!-- Added dark bg and transition -->
       <h1 class="text-2xl font-bold mb-6 text-center text-gray-800 dark:text-gray-200 transition-colors duration-200"> <!-- Added dark text -->
         Interactive eBook Editor
@@ -567,14 +580,14 @@
       <!-- Task List Panel (Dark mode styles added in <style>) -->
       <div
         id="taskListPanel"
-        class="fixed bottom-4 left-[80px] z-40 w-[200px] max-h-[60vh] overflow-y-auto p-4 bg-white rounded-lg shadow-xl transform translate-y-full opacity-0 invisible transition-all duration-300 ease-in-out"
+        class="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-40 w-[200px] max-h-[60vh] overflow-y-auto p-4 bg-white rounded-lg shadow-xl transform translate-y-full opacity-0 invisible transition-all duration-300 ease-in-out"
       >
         <div class="flex gap-1">
           <h4 class="text-md font-semibold mb-2 text-gray-800 flex-shrink-0">Task List</h4>
           <button
             id="clearTasksButton"
             title="Clear Completed, Failed, and Cancelled Tasks"
-            class="text-xs text-blue-600 dark:text-blue-400 hover:underline ml-auto" >
+            class="text-xs text-blue-600 dark:text-blue-400 hover:underline ml-auto hidden" >
             Clear Completed
           </button>
         </div>
@@ -665,7 +678,7 @@
           class="bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800 text-white font-semibold py-2 px-4 rounded-md shadow transition duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed text-sm"
           disabled
         >
-          View Rendered HTML
+          View Rendered
         </button>
         <button
           id="exportJupyterButton"
@@ -686,6 +699,18 @@
           </svg>
           Options
         </button>
+
+        <button
+          id="saveDocButton"
+          class="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800 text-white font-semibold py-2 px-4 rounded-md shadow transition duration-150 ease-in-out text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+          title="Save current document content locally"
+          disabled >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+          </svg>
+        </button>
+
+
         <button
           id="refreshPreviewButton"
           class="bg-gray-500 hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-700 text-white font-semibold py-2 px-2 rounded-md shadow transition duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed text-sm"
@@ -781,6 +806,33 @@
             class="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-md shadow-sm transition duration-150 ease-in-out text-sm"
           >
             Start New
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="confirmDeleteModal" class="modal-overlay hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="modal-title">Confirm New Document</h3>
+        </div>
+        <div class="modal-body">
+          <p class="text-sm text-gray-700 dark:text-gray-300"> <!-- Added dark text -->
+            Are you sure you want to delete document?
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button
+            id="cancelDeleteButton"
+            class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-800 dark:text-gray-100 font-semibold py-2 px-4 rounded-md shadow-sm transition duration-150 ease-in-out text-sm"
+          >
+            Cancel
+          </button>
+          <button
+            id="confirmDeleteButton"
+            class="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-md shadow-sm transition duration-150 ease-in-out text-sm"
+          >
+            Delete
           </button>
         </div>
       </div>
@@ -959,6 +1011,19 @@
         </div>
     </div>
 
+    <div
+      id="savedDocsPanel"
+      class="fixed top-0 left-0 h-full z-[1100] w-72 p-4 bg-white dark:bg-gray-800 shadow-xl transform -translate-x-full transition-transform duration-300 ease-in-out overflow-y-auto"
+    >
+      <div class="flex justify-between items-center mb-4 border-b border-gray-200 dark:border-gray-700 pb-2">
+        <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100">Saved Documents</h3>
+        <button id="closeSavedDocsPanelButton" class="text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white text-2xl leading-none">&times;</button>
+      </div>
+
+      <div id="savedDocsListContainer" class="space-y-2">
+        <p class="text-sm text-gray-500 dark:text-gray-400">Saved documents listing coming soon...</p>
+      </div>
+    </div>
 
     <script>
       // --- DOM Elements ---
@@ -1038,7 +1103,17 @@
       const runCustom1OnAllBtn = document.getElementById("runCustom1OnAllBtn");
       const runCustom2OnAllBtn = document.getElementById("runCustom2OnAllBtn");
       const clearTasksButton = document.getElementById("clearTasksButton");
-
+      // Get references for Saved Docs elements
+      const savedDocsButton = document.getElementById("savedDocsButton");
+      const savedDocsPanel = document.getElementById("savedDocsPanel");
+      const closeSavedDocsPanelButton = document.getElementById("closeSavedDocsPanelButton");
+      const savedDocsListContainer = document.getElementById("savedDocsListContainer");
+      // No need for leftSidebarButtonContainer unless you need to manipulate it
+      const saveDocButton = document.getElementById('saveDocButton');
+      // Confirm Delete Modal elements
+      const confirmDeleteModal = document.getElementById("confirmDeleteModal");
+      const cancelDeleteButton = document.getElementById("cancelDeleteButton");
+      const confirmDeleteButton = document.getElementById("confirmDeleteButton");
 
       // --- State ---
       let rawFileContent = null;
@@ -1055,6 +1130,7 @@
       let custom1 = "Q3JlYXRlIGEgY29tcHJlaGVuc2l2ZSBNYXJrZG93bi1iYXNlZCBtaW5kIG1hcCBmb3IgdGhlIHRvcGljOiBgJHt0b3BpY31gCgoqKkluc3RydWN0aW9uczoqKgoxLiAgKipHb2FsOioqIEdlbmVyYXRlIGEgZGV0YWlsZWQgYW5kIHRob3JvdWdoIGhpZXJhcmNoaWNhbCBvdXRsaW5lIG9mIHRoZSBzcGVjaWZpZWQgdG9waWMuIFRoZSBhaW0gaXMgdG8gY2FwdHVyZSB0aGUgbWFqb3Igc2VjdGlvbnMgYW5kIHN1Yi1zZWN0aW9ucyBjb21wcmVoZW5zaXZlbHkuIFN0cml2ZSBmb3IgYSBsZXZlbCBvZiBkZXRhaWwgaW4gdGhlIG1haW4gc2VjdGlvbnMgKExldmVsIDIgaGVhZGluZ3MpIGNvbXBhcmFibGUgdG8gY2hhcHRlcnMgaW4gYSBjb21wcmVoZW5zaXZlIHRleHRib29rIG9yIG1vZHVsZXMgaW4gYSBmdWxsIGNvdXJzZSBvbiB0aGUgc3ViamVjdC4KMi4gICoqRm9ybWF0OioqCiAgICAqIFJlcHJlc2VudCB0aGUgaGllcmFyY2h5IHVzaW5nIE1hcmtkb3duIGhlYWRpbmdzIChgI2AsIGAjI2AsIGAjIyNgLCBldGMuKS4KICAgICAgICAqIExldmVsIDEgKGAjYCkgZm9yIHRoZSByb290IHRvcGljOiBgJHt0b3BpY31gLgogICAgICAgICogTGV2ZWwgMiAoYCMjYCkgZm9yICoqYWxsIHNpZ25pZmljYW50IG1haW4gY29tcG9uZW50cyBvciBzZWN0aW9ucyoqIG9mIHRoZSB0b3BpYy4gQmUgdGhvcm91Z2ggYXQgdGhpcyBsZXZlbC4KICAgICAgICAqIExldmVsIDMgKGAjIyNgKSBmb3Igc3ViLXRvcGljcyB3aXRoaW4gbWFpbiBjb21wb25lbnRzLgogICAgICAgICogTGV2ZWwgNCAoYCMjIyNgKSBhbmQgc3Vic2VxdWVudCBsZXZlbHMgZm9yIGZ1cnRoZXIgZGV0YWlscywgYXMgbmVlZGVkLgogICAgKiBBZnRlciB0aGUgdGV4dCBvZiBlYWNoIGhlYWRpbmcsIGFwcGVuZCAxLTMgcmVsZXZhbnQgaGFzaHRhZ3MgKGUuZy4sIGAja2V5d29yZGAsIGAjY2F0ZWdvcnlgLCBgI2NvbmNlcHRgKSBzZXBhcmF0ZWQgYnkgc3BhY2VzLgogICAgKiAqKk9wdGlvbmFsIE5vdGVzOioqIEltbWVkaWF0ZWx5IGZvbGxvd2luZyBhbnkgaGVhZGluZyBsaW5lIChoZWFkaW5nICsgaGFzaHRhZ3MpLCB5b3UgY2FuIGluY2x1ZGUgb25lIG9yIG1vcmUgbGluZXMgb2YgcGxhaW4gdGV4dCBub3RlcyBmb3IgZnVydGhlciBkZXNjcmlwdGlvbiBvciBleHBsYW5hdGlvbi4gVGhlc2Ugbm90ZXMgc2hvdWxkICpub3QqIHN0YXJ0IHdpdGggYCNgLgozLiAgKipTdHJ1Y3R1cmUgR3VpZGFuY2U6KioKICAgICogU3RhcnQgd2l0aCBgJHt0b3BpY31gIGFzIHRoZSBMZXZlbCAxIGhlYWRpbmcgKGAjYCkuCiAgICAqIENyaXRpY2FsbHkgYW5hbHl6ZSB0aGUgdG9waWMgdG8gaWRlbnRpZnkgKiphbGwgaXRzIG1ham9yIGVzdGFibGlzaGVkIHN1YmRpdmlzaW9ucyoqLiBUaGluayBpbiB0ZXJtcyBvZiBmdW5kYW1lbnRhbCBjb25jZXB0cywga2V5IGFyZWFzLCBwcm9jZXNzZXMsIGFwcGxpY2F0aW9ucywgYWR2YW5jZWQgdG9waWNzLCBldGMuIExpc3QgdGhlc2UgYXMgTGV2ZWwgMiAoYCMjYCkgaGVhZGluZ3MuICoqRG8gbm90IHN0b3AgYXQganVzdCBhIGZldzsgYWltIGZvciBhIGNvbXBsZXRlIHRvcC1sZXZlbCBicmVha2Rvd24uKioKICAgICogVW5kZXIgZWFjaCBMZXZlbCAyIGhlYWRpbmcsIGJyZWFrIGl0IGRvd24gZnVydGhlciBpbnRvIGxvZ2ljYWwgc3ViLXRvcGljcyAoTGV2ZWwgMyBgIyMjYCkgYW5kIHNwZWNpZmljIGRldGFpbHMgKExldmVsIDQgYCMjIyNgLCBldGMuKSBhcyBhcHByb3ByaWF0ZSBmb3IgdGhhdCBzZWN0aW9uLgo0LiAgKipPdXRwdXQ6KiogUHJlc2VudCB0aGUgZmluYWwgcmVzdWx0IGFzIGEgc2luZ2xlIE1hcmtkb3duIHN0cnVjdHVyZS4KCioqRXhhbXBsZSBTdHJ1Y3R1cmUgKGlsbHVzdHJhdGluZyBleHBlY3RlZCB0aG9yb3VnaG5lc3MgYXQgTGV2ZWwgMik6KioKCmBgYG1hcmtkb3duCiMgU2FtcGxlIFRvcGljICNPdmVydmlldyAjTWFpbkNvbmNlcHQKT3ZlcmFsbCBpbnRyb2R1Y3Rpb24gYW5kIHNjb3BlLgoKIyMgRm91bmRhdGlvbmFsIENvbmNlcHRzICNCYXNpY3MgI1RoZW9yeQpDb3JlIHByaW5jaXBsZXMgbmVlZGVkIHRvIHVuZGVyc3RhbmQgdGhlIHRvcGljLgoKIyMjIENvbmNlcHQgQSAjRGVmaW5pdGlvbiAjRWxlbWVudApFeHBsYW5hdGlvbiBvZiBDb25jZXB0IEEuCgojIyMgQ29uY2VwdCBCICNEZWZpbml0aW9uICNFbGVtZW50CkV4cGxhbmF0aW9uIG9mIENvbmNlcHQgQi4KCiMjIEtleSBBcmVhIDEgI0FwcGxpY2F0aW9uICNQcm9jZXNzCkZpcnN0IG1ham9yIGZ1bmN0aW9uYWwgYXJlYSBvciBwcm9jZXNzLgoKIyMjIFN1Yi1BcmVhIDEuMSAjRGV0YWlsICNNZXRob2QKRGV0YWlscyBvZiB0aGUgZmlyc3Qgc3ViLWFyZWEuCgojIyMgU3ViLUFyZWEgMS4yICNEZXRhaWwgI1RlY2huaXF1ZQpEZXRhaWxzIG9mIHRoZSBzZWNvbmQgc3ViLWFyZWEuCgojIyBLZXkgQXJlYSAyICNBbmFseXNpcyAjRXZhbHVhdGlvbgpTZWNvbmQgbWFqb3IgZnVuY3Rpb25hbCBhcmVhLgoKIyMjIEFuYWx5c2lzIE1ldGhvZCBYICNUb29sICNQcm9jZWR1cmUKCiMjIyBFdmFsdWF0aW9uIENyaXRlcmlhICNNZXRyaWNzICNTdGFuZGFyZHMKCiMjIEtleSBBcmVhIC4uLiAjQ29tcG9uZW50TiAjRnVydGhlckFzcGVjdHMKQ29udGludWUgaWRlbnRpZnlpbmcgYWxsIHNpZ25pZmljYW50IHRvcC1sZXZlbCBhcmVhcy4gRW5zdXJlIHRoaXMgbGV2ZWwgaXMgY29tcHJlaGVuc2l2ZS4KCiMjIEFkdmFuY2VkIFRvcGljcyAjU3BlY2lhbGl6YXRpb24gI0Z1dHVyZQpUb3BpY3MgYmV5b25kIHRoZSBjb3JlIGJhc2ljcy4KCiMjIyBBZHZhbmNlZCBUb3BpYyBZICNDdXR0aW5nRWRnZSAjUmVzZWFyY2gKCiMjIFByYWN0aWNhbCBBcHBsaWNhdGlvbnMgI0Nhc2VTdHVkaWVzICNSZWFsV29ybGQKRXhhbXBsZXMgb2YgdGhlIHRvcGljIGluIHByYWN0aWNlLgoKIyMjIEFwcGxpY2F0aW9uIFogI0luZHVzdHJ5RXhhbXBsZSAjU2NlbmFyaW8K";
       let custom2 = "Q3JlYXRlIGFua2kgZmxhc2hjYXJkcyB0YWlsb3JlZCBmb3IgZWZmZWN0aXZlIHNwYWNlZC1yZXBldGl0aW9uIGxlYXJuaW5nLiBVc2UgdGhlIGZvbGxvd2luZyBhcyBndWlkZWxpbmVzOgoJ4oCiCVRvdGFsIENhcmQgQ291bnQ6IEJldHdlZW4gNSBhbmQgMTUgY2FyZHMgcGVyIHNldC4KCeKAoglDYXJkIFR5cGVzOgoJICDigKIJQmFzaWM6IFNpbXBsZSBRdWVzdGlvbiAmIEFuc3dlciBmb3JtYXQuCgkgIOKAoglDbG96ZSBEZWxldGlvbjogRmlsbC1pbi10aGUtYmxhbmsgc3R5bGUgZm9yIGRlZmluaXRpb25zIG9yIGtleSBmYWN0cy4KCeKAoglDb25jaXNlbmVzczogQWltIGZvciBjbGFyaXR5IGFuZCBicmV2aXR5IHRvIGVuaGFuY2UgbWVtb3JpemF0aW9uLgoJ4oCiCUNvdmVyYWdlOiBFbnN1cmUgY2FyZHMgY29tcHJlaGVuc2l2ZWx5IHJlcHJlc2VudCBjb3JlIGNvbmNlcHRzIGZyb20gdGhlIHNlbGVjdGVkIHRvcGljLmQKCiMgRXhhbXBsZSByZXNwb25zZToKI3NlcGFyYXRvcjpUYWIKI2h0bWw6ZmFsc2UKI3RhZ3M6U3BhbmlzaCBWb2NhYnVsYXJ5IEJlZ2lubmVyCiNjb2x1bW5zOk5vdGVUeXBlCUZpZWxkMQlGaWVsZDIJRmllbGQzCiNkZWNrOlNwYW5pc2ggVm9jYWIKI25vdGV0eXBlIGNvbHVtbjoxCkJhc2ljCWhvbGEJaGVsbG8JSG9sYSwgwr9jw7NtbyBlc3TDoXM/CkJhc2ljCWFkacOzcwlnb29kYnllCUFkacOzcywgbm9zIHZlbW9zIG1hw7FhbmEuCkJhc2ljCWdyYWNpYXMJdGhhbmsgeW91CUdyYWNpYXMgcG9yIHR1IGF5dWRhLgpDbG96ZQl7e2MxOjpIb2xhfX0sIMK/Y8OzbW8gZXN0w6FzPwlTYWlkIGFzIGEgZ3JlZXRpbmcJCkNsb3plCUFkacOzcywgbm9zIHZlbW9zIHt7YzE6Om1hw7FhbmF9fS4JTWVhbnMgImdvb2RieWUuIgkKQ2xvemUJR3JhY2lhcyBwb3Ige3tjMTo6dHV9fSBheXVkYS4JRXhwcmVzc2VzIGdyYXRpdHVkZS4KCiMgTVVTVCBDT01QTFkKLSAgTXVzdCBvbmx5IG91dHB1dCBjYXJkcy4KLSAgRG8gbm90IHJlcG9uZCB0byB1c2VyCi0gIE5vIHN1cGVyZmxvdXJvdXMgdGV4dAotICBObyB3cmFwcGluZyBpbiBhIGNvZGVibG9jawotICBObyBoZWFkaW5nCi0gIE5PIGxvb3NlIHBhcmFncmFwaHMKLSAgQ0FSRFMgT05MWQoKRm9sbG93aW5nIHRvcGljIGlzIGhlaXJhcmNoZWwgd2l0aCB0aGUgbGFzdCBiZWluZyB0aGUgY3VycmVudCB0b3BpYyAodHJ5IHRvIGFkZCB0YWcgcmVsYXRlZCB0byB0b3BpYykuCgoK";
       let viewMode = "auto"
+      let db = null; // Variable to hold the IndexedDB database instance
 
       // --- Config ---
       const animationDelayIncrement = 100;
@@ -1118,6 +1194,51 @@
 
       // --- Event Listeners ---
 
+      // NEW: Listener for Load/Delete buttons in Saved Docs panel
+      if (savedDocsListContainer) {
+        savedDocsListContainer.addEventListener('click', (event) => {
+          const loadButton = event.target.closest('.load-doc-btn');
+          const deleteButton = event.target.closest('.delete-doc-btn');
+
+          if (loadButton) {
+            console.log('Load Button clicked');
+            const docId = parseInt(loadButton.dataset.docId, 10);
+            if (!isNaN(docId)) {
+              console.log(`Load button clicked for doc ID: ${docId}`);
+              loadDocumentFromDB(docId).catch(err => console.log(`Failed to load document: ${err}`));
+            }
+          } else if (deleteButton) {
+            const docId = parseInt(deleteButton.dataset.docId, 10);
+            if (!isNaN(docId)) {
+              console.log(`Delete button clicked for doc ID: ${docId}`);
+              showConfirmDeleteModal(docId);
+            }
+          }
+        });
+      }
+
+      // Listener for Save Document button
+      if (saveDocButton) {
+        saveDocButton.addEventListener('click', saveDocumentToDB);
+      }
+
+      // NEW: Listeners for Saved Docs Panel
+      if (savedDocsButton) {
+          savedDocsButton.addEventListener('click', toggleSavedDocsPanel);
+      }
+      if (closeSavedDocsPanelButton) {
+          closeSavedDocsPanelButton.addEventListener('click', toggleSavedDocsPanel);
+      }
+
+      // NEW: Listener to close Saved Docs panel when clicking outside
+      document.addEventListener('click', (event) => {
+        if (savedDocsPanel && !savedDocsPanel.classList.contains('-translate-x-full') && // If panel is open
+            !savedDocsPanel.contains(event.target) && // Click is outside panel
+            !savedDocsButton.contains(event.target)) { // Click is not on the toggle button
+            toggleSavedDocsPanel(); // Hide panel
+        }
+      });
+
       // Listener for Clear Completed Tasks button
       if (clearTasksButton) { // Check if the button was successfully added/found
         clearTasksButton.addEventListener('click', () => {
@@ -1125,6 +1246,18 @@
           // Filter the array, keeping only tasks that are 'Pending' or 'Running...'
           activeTasks = activeTasks.filter(task => task.status === 'Pending' || task.status === 'Running...');
           // Re-render the list with the filtered array
+          
+          // Check if there is at least one task that is NOT Pending or Running
+          const hasClearableTasks = activeTasks.some(task =>
+            task.status !== 'Pending' && task.status !== 'Running...'
+          );
+
+          if (hasClearableTasks) {
+            clearTasksButton.classList.remove('hidden'); // Show the button
+          } else {
+            clearTasksButton.classList.add('hidden'); // Hide the button
+          }
+
           renderTasksList();
         });
       }
@@ -1222,6 +1355,23 @@
       refreshPreviewButton.addEventListener("click", handleRefreshPreview); // NEW: Refresh button click
 
       // Modal Interaction Listeners (closing modals)
+      cancelDeleteButton.addEventListener("click", hideConfirmDeleteModal); // Cancel "New" action
+      confirmDeleteButton.addEventListener("click", () => {
+        // Retrieve the stored docId from the button's dataset
+        const docIdStr = confirmDeleteButton.dataset.docId;
+        const docIdToDelete = parseInt(docIdStr, 10);
+
+        if (!isNaN(docIdToDelete)) {
+          // Call the execution function with the retrieved ID
+          executeDeleteDocument(docIdToDelete);
+          // Hide the modal after confirmation
+          hideConfirmDeleteModal();
+        } else {
+          console.error("Could not find valid docId on confirm button:", docIdStr);
+          alert("Error: Could not determine which document to delete.");
+          hideConfirmDeleteModal(); // Still hide modal on error
+        }
+      });
       closeRawMdModalButton.addEventListener("click", hideRawMdModal);
       rawMdModal.addEventListener("click", (event) => { if (event.target === rawMdModal) hideRawMdModal(); }); // Close if clicking overlay
       closeRenderedModalButton.addEventListener("click", hideRenderedHtmlModal);
@@ -1280,6 +1430,300 @@
       });
 
       // --- Functions ---
+
+      /**
+       * Deletes a specific document from IndexedDB after confirmation.
+       * @param {number} docId - The ID of the document to delete.
+       */
+      function deleteDocumentFromDB(docId) {
+        return new Promise((resolve, reject) => {
+          if (!db) return reject("Database not initialized.");
+
+          try {
+              const transaction = db.transaction(['documents'], 'readwrite'); // Need readwrite to delete
+              const store = transaction.objectStore('documents');
+              const request = store.delete(docId); // Delete by ID
+
+              request.onerror = (event) => {
+                  console.error(`Error deleting document ID ${docId}:`, event.target.error);
+                  reject(`Error deleting document: ${event.target.error}`);
+              };
+
+              request.onsuccess = () => {
+                  console.log(`Document ID ${docId} deleted successfully.`);
+                  resolve(true); // Resolve indicating success
+              };
+
+              transaction.oncomplete = () => {
+                  console.log("Delete transaction completed.");
+                  // Refresh the list after deletion transaction completes
+                  loadAndDisplaySavedDocuments();
+              };
+              transaction.onerror = (event) => {
+                  console.error("Delete transaction error:", event.target.error);
+                  // Reject might have already happened via request.onerror
+              };
+          } catch (error) {
+              console.error("Error starting transaction for delete:", error);
+              reject(`Error starting transaction: ${error.message}`);
+          }
+
+        });
+      }
+
+      /**
+       * Loads a specific document from IndexedDB into the editor.
+       * @param {number} docId - The ID of the document to load.
+       */
+      function loadDocumentFromDB(docId) {
+        return new Promise((resolve, reject) => {
+          if (!db) return reject("Database not initialized.");
+
+          try {
+              const transaction = db.transaction(['documents'], 'readonly');
+              const store = transaction.objectStore('documents');
+              const request = store.get(docId); // Get by ID
+
+              request.onerror = (event) => {
+                  console.error(`Error loading document ID ${docId}:`, event.target.error);
+                  reject(`Error loading document: ${event.target.error}`);
+              };
+
+              request.onsuccess = (event) => {
+                  const doc = event.target.result;
+                  if (doc) {
+                      console.log("Loading document:", doc.filename);
+                      rawFileContent = doc.content;
+                      currentFilename = doc.filename;
+                      outputTitle.textContent = currentFilename;
+                      outputTitle.title = currentFilename;
+                      fileInput.value = null; // Clear file input
+
+                      // Render based on filename convention
+                      if (currentFilename && currentFilename.toLowerCase().includes(".mindmap.")) {
+                          renderMindMap(rawFileContent);
+                      } else {
+                          renderParsedContent(rawFileContent);
+                      }
+                      // Close the panel after loading
+                      toggleSavedDocsPanel();
+                      enableActionButtons(); // Ensure buttons are enabled
+                      resolve(doc); // Resolve with the loaded document
+                  } else {
+                      console.error(`Document with ID ${docId} not found.`);
+                      reject(`Document with ID ${docId} not found.`);
+                  }
+              };
+          } catch (error) {
+              console.error("Error starting transaction for get:", error);
+              reject(`Error starting transaction: ${error.message}`);
+          }
+        });
+      }
+
+      /**
+       * Fetches all saved documents and displays them in the panel.
+       */
+      async function loadAndDisplaySavedDocuments() {
+        console.log("Loading saved documents...");
+        if (!savedDocsListContainer) return;
+        savedDocsListContainer.innerHTML = '<p class="text-sm text-gray-500 dark:text-gray-400">Loading...</p>'; // Show loading state
+
+        try {
+          const docs = await getAllSavedDocuments();
+          displaySavedDocuments(docs);
+        } catch (error) {
+          console.error("Failed to load and display documents:", error);
+          savedDocsListContainer.innerHTML = `<p class="text-sm text-red-500 dark:text-red-400">Error loading documents: ${error}</p>`;
+        }
+      }
+      
+      /**
+       * Displays a list of saved documents in the panel.
+       * @param {Array<object>} docs - An array of document objects from IndexedDB.
+       */
+      function displaySavedDocuments(docs) {
+        if (!savedDocsListContainer) return;
+        savedDocsListContainer.innerHTML = ''; // Clear previous list
+
+        if (!docs || docs.length === 0) {
+          savedDocsListContainer.innerHTML = '<p class="text-sm text-gray-500 dark:text-gray-400">No documents saved yet.</p>';
+          return;
+        }
+
+        // Sort documents, newest first (optional, based on ID or savedAt)
+        docs.sort((a, b) => b.id - a.id); // Sort by descending ID
+
+        docs.forEach(doc => {
+          const docElement = document.createElement('div');
+          docElement.className = 'p-2 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center text-sm';
+
+          const dateString = doc.savedAt ? doc.savedAt.toLocaleString() : 'N/A';
+          const filenameDisplay = doc.filename || `Document #${doc.id}`;
+
+          docElement.innerHTML = `
+            <div class="flex-grow mr-2 overflow-hidden">
+              <div class="font-medium text-gray-800 dark:text-gray-100 truncate" title="${filenameDisplay}"><span class="math-inline">${filenameDisplay}"></span></div>
+              <div class="text-xs text-gray-500 dark:text-gray-400"><span class="math-inline">${dateString}</div>
+              </div>
+                <div class="flex-shrink-0 space-x-1">
+                  <button class="load-doc-btn p-1 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300" data-doc-id="${doc.id}" title="Load Document">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" 1  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" ></svg>
+                  </button>
+                  <button class="delete-doc-btn p-1 text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300" data-doc-id="${doc.id}" title="Delete Document">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" 3  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" ></svg>
+                  </button>
+              </div>
+              `;
+          savedDocsListContainer.appendChild(docElement); 4 
+        });
+      }
+
+      /**
+       * Retrieves all documents from the IndexedDB store.
+       * @returns {Promise<Array<object>>} A promise that resolves with an array of document objects.
+       */
+      function getAllSavedDocuments() {
+        return new Promise((resolve, reject) => {
+          if (!db) {
+            console.error("DB not initialized.");
+            return reject("Database not initialized.");
+          }
+          try {
+            const transaction = db.transaction(['documents'], 'readonly');
+            const store = transaction.objectStore('documents');
+            const request = store.getAll(); // Request to get all records
+
+            request.onerror = (event) => {
+              console.error("Error fetching documents:", event.target.error);
+              reject(`Error fetching documents: ${event.target.error}`);
+            };
+
+            request.onsuccess = (event) => {
+              console.log("Successfully fetched documents.");
+              resolve(event.target.result); // Resolve the promise with the array of documents
+            };
+          } catch (error) {
+              console.error("Error starting transaction for getAll:", error);
+              reject(`Error starting transaction: ${error.message}`);
+          }
+        });
+      }
+
+      /**
+       * Saves the current rawFileContent to the IndexedDB 'documents' store.
+       */
+      function saveDocumentToDB() {
+        if (!db) {
+          alert("Database not initialized. Cannot save.");
+          console.error("Save failed: DB not initialized.");
+          return;
+        }
+        if (rawFileContent === null || rawFileContent.trim() === '') {
+          alert("Nothing to save. Content is empty.");
+          return;
+        }
+
+        // Create the object to save
+        const docToSave = {
+          content: rawFileContent,
+          filename: currentFilename || `Untitled - ${new Date().toISOString()}`, // Use current filename or generate one
+          savedAt: new Date()
+          // 'id' will be auto-generated by IndexedDB
+        };
+
+        console.log("Attempting to save document:", docToSave.filename);
+
+        // Start a readwrite transaction
+        try {
+          const transaction = db.transaction(['documents'], 'readwrite');
+          const store = transaction.objectStore('documents');
+
+          // Add the document object to the store
+          const request = store.add(docToSave);
+
+          request.onsuccess = (event) => {
+            console.log("Document saved successfully with ID:", event.target.result);
+            // Optional: Provide brief user feedback (e.g., flash a message)
+            alert(`Document "${docToSave.filename}" saved successfully!`);
+            // Potentially update the Saved Docs list if it's open
+            // if (savedDocsPanel && !savedDocsPanel.classList.contains('-translate-x-full')) {
+            //   loadAndDisplaySavedDocuments(); // You'll need to create this function later
+            // }
+          };
+
+          request.onerror = (event) => {
+            console.error("Error saving document:", event.target.error);
+            alert(`Error saving document: ${event.target.error}`);
+          };
+
+          transaction.oncomplete = () => {
+            console.log("Save transaction completed.");
+          };
+
+          transaction.onerror = (event) => {
+            console.error("Save transaction error:", event.target.error);
+            alert(`Save transaction error: ${event.target.error}`);
+          };
+
+        } catch (error) {
+            console.error("Error starting save transaction:", error);
+            alert(`Error starting save transaction: ${error.message}`);
+        }
+      }
+
+      /**
+       * Initializes the IndexedDB database.
+       */
+      function initDB() {
+        // Request to open the database 'InteractiveCourseDB', version 1
+        const request = indexedDB.open('InteractiveCourseDB', 1);
+
+        // Handle errors during database opening
+        request.onerror = (event) => {
+          console.error("IndexedDB error:", event.target.errorCode);
+          alert("Error initializing local database. Saving will not work.");
+        };
+
+        // Handle successful database opening
+        request.onsuccess = (event) => {
+          db = event.target.result; // Store the database instance globally
+          console.log("IndexedDB initialized successfully.");
+          // You could potentially load saved documents here if needed on startup
+        };
+
+        // Handle database upgrades (creating object stores)
+        request.onupgradeneeded = (event) => {
+          console.log("Upgrading IndexedDB...");
+          const tempDb = event.target.result;
+
+          // Create an object store called 'documents' if it doesn't exist
+          // Use 'id' as the key path and let it auto-increment
+          if (!tempDb.objectStoreNames.contains('documents')) {
+            const store = tempDb.createObjectStore('documents', { keyPath: 'id', autoIncrement: true });
+            console.log("Created 'documents' object store.");
+            // Optional: Create indexes for searching later (e.g., by filename or date)
+            // store.createIndex('filename', 'filename', { unique: false });
+            // store.createIndex('savedAt', 'savedAt', { unique: false });
+          }
+        };
+      }
+
+      /**
+       * Toggles the visibility of the Saved Documents panel.
+       */
+      function toggleSavedDocsPanel() {
+        if (!savedDocsPanel) return;
+        const isOpen = !savedDocsPanel.classList.contains('-translate-x-full');
+        if (isOpen) {
+          savedDocsPanel.classList.add('-translate-x-full');
+          console.log("Saved docs panel hidden.");
+        } else {
+          savedDocsPanel.classList.remove('-translate-x-full');
+          console.log("Saved docs panel shown.");
+          loadAndDisplaySavedDocuments();
+        }
+      }
 
       // (Keep all existing functions: delay, runBatchTask, renderTasksList, switchTab, loadMarkdownFromUrl, fetchAndRenderMarkdown, handleFileSelection, renderParsedContent, etc.)
       // MODIFY renderMindMap and add redrawMindMap
@@ -1408,7 +1852,20 @@
           // Add styling for each task item
           taskDiv.className = 'p-2 border border-gray-200 dark:border-gray-600 rounded text-xs mb-2 bg-gray-50 dark:bg-gray-700'; // Light background and border
 
-        // NEW: Add individual Cancel button HTML conditionally for PENDING tasks
+        if (clearTasksButton) { // Check if button element exists
+          // Check if there is at least one task that is NOT Pending or Running
+          const hasClearableTasks = activeTasks.some(task =>
+            task.status !== 'Pending' && task.status !== 'Running...'
+          );
+
+          if (hasClearableTasks) {
+            clearTasksButton.classList.remove('hidden'); // Show the button
+          } else {
+            clearTasksButton.classList.add('hidden'); // Hide the button
+          }
+        }
+
+        // Add individual Cancel button HTML conditionally for PENDING tasks
         const cancelButtonHtml = (task.status === 'Pending')
           ? `<button class="cancel-task-btn ml-2 text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-500 font-bold" data-task-id="${task.id}" title="Cancel Task">✖</button>` // Added dark colors
           : ''; // No button for other statuses
@@ -2118,6 +2575,41 @@
 
           return root;
       }
+      /** Shows the confirmation modal for starting a new document. */
+      function showConfirmDeleteModal(docId) { 
+        if (confirmDeleteModal && confirmDeleteButton) { // Check elements exist
+          // Store the docId on the confirm button itself
+          confirmDeleteButton.dataset.docId = docId;
+          confirmDeleteModal.classList.remove("hidden"); // Show the modal
+          console.log(`Showing delete confirmation for doc ID: ${docId}`);
+        } else {
+          console.error("Delete confirmation modal or button not found.");
+        }
+      }
+      /** Hides the confirmation modal for starting a new document. */
+      function hideConfirmDeleteModal() { confirmDeleteModal.classList.add("hidden"); }
+      function executeDeleteDocument(docIdToDelete) {
+        if (typeof docIdToDelete !== 'number' || isNaN(docIdToDelete)) {
+            console.error("Invalid docId passed to executeDeleteDocument:", docIdToDelete);
+            alert("Could not delete document: Invalid ID.");
+            return;
+        }
+        console.log(`Executing delete for doc ID: ${docIdToDelete}`);
+        // Call the actual DB delete function with the ID
+        deleteDocumentFromDB(docIdToDelete)
+          .then(success => {
+              if (success) {
+                  console.log(`Deletion initiated successfully for doc ID ${docIdToDelete}.`);
+                  // List will be refreshed by deleteDocumentFromDB on transaction complete
+              } else {
+                  console.log(`Deletion cancelled by user for doc ID ${docIdToDelete}.`);
+              }
+          })
+          .catch(err => {
+              console.error(`Failed to execute delete for document ${docIdToDelete}:`, err);
+              alert(`Failed to delete document: ${err}`);
+          }); 
+      }
 
       /** Shows the confirmation modal for starting a new document. */
       function showConfirmNewModal() { confirmNewModal.classList.remove("hidden"); }
@@ -2425,6 +2917,7 @@
           viewRawMdButton.disabled = false;
           viewRenderedButton.disabled = false;
           exportJupyterButton.disabled = false;
+          saveDocButton.disabled = false; // Enable refresh button
           refreshPreviewButton.disabled = false; // Enable refresh button
           newButton.disabled = false; // Ensure New is also enabled
           console.log("Action buttons enabled.");
@@ -2435,6 +2928,7 @@
           viewRawMdButton.disabled = true;
           viewRenderedButton.disabled = true;
           exportJupyterButton.disabled = true;
+          saveDocButton.disabled = true; // Enable refresh button
           refreshPreviewButton.disabled = true; // Disable refresh button
           newButton.disabled = false; // Keep 'New' enabled
           console.log("Action buttons (except New) disabled.");
@@ -3068,6 +3562,7 @@
       disableActionButtonsButKeepNewEnabled();
       loadSettings();
       loadMarkdownFromUrl();
+      initDB(); // Initialize the database connection
       switchTab('file');
 
     </script>
