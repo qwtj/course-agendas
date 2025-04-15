@@ -7,7 +7,8 @@ fi
 
 topic=$1
 gemini_model="gemini-2.5-pro-exp-03-25"
-template_file_path="${2:-../common-prompts/create-mindmap.1.md}"
+script_name=${2:-create-mindmap.1.md}
+template_file_path="${$(realpath ${(%):-%x})%%/course-agendas*}/common-prompts/${script_name}"
 if [ ! -f "$template_file_path" ]; then
   echo "Error: Content description file '$template_file_path' not found."
   exit 1
