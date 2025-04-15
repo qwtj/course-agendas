@@ -988,6 +988,40 @@
             </div>
 
             <div class="mt-4 border-t dark:border-gray-600 pt-4">
+              <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-100 mb-2">Encryption</h4>
+              <div class="mt-2 flex items-center">
+                <input
+                  type="checkbox"
+                  id="enableEncryptionCheckbox"
+                  name="enableEncryptionCheckbox"
+                  class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:focus:ring-indigo-600 dark:focus:ring-offset-gray-800 rounded transition-colors duration-200"
+                >
+                <label for="enableEncryptionCheckbox" class="ml-2 block text-sm text-gray-700 dark:text-gray-300 transition-colors duration-200">
+                  Encrypt document on save
+                </label>
+              </div>
+              <label for="encryptionKeyInput" class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1 mt-2">Encryption Key/Password:</label>
+              <div class="flex items-center space-x-2"> <input
+                  type="password"
+                  id="encryptionKeyInput"
+                  name="encryptionKeyInput"
+                  placeholder="Enter key/password (optional)"
+                  class="flex-grow px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:focus:border-purple-400 dark:focus:ring-purple-400 dark:placeholder-gray-400 transition-colors duration-200" >
+                <button
+                  type="button"
+                  id="copyEncryptionKeyButton"
+                  title="Copy Key/Password"
+                  class="flex-shrink-0 p-2 bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-300 rounded-md shadow-sm transition"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                </button>
+              </div>
+              <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Note: Key is handled locally in the browser. Be mindful of security.</p>
+            </div>
+
+            <div class="mt-4 border-t dark:border-gray-600 pt-4">
                  <h4 class="text-sm font-semibold text-gray-700 mb-2">Version: 1</h4>
                  <ul>
                     <li class="text-sm font-semibold text-gray-400 mb-2">Add markdown editing.</li>
@@ -1006,6 +1040,8 @@
                     <li class="text-sm font-semibold text-gray-400 mb-2">Add ability to cancel pending task.</li>
                     <li class="text-sm font-semibold text-gray-400 mb-2">Add dark and light mode.</li>
                     <li class="text-sm font-semibold text-gray-400 mb-2">Add toggle mindap shift + ctrl/cmd + m</li>
+                    <li class="text-sm font-semibold text-gray-400 mb-2">Add save, reload, delete documents.</li>
+                    <li class="text-sm font-semibold text-gray-400 mb-2">Add ability to change filenames.</li>
                  </ul>
             </div>
         </div>
@@ -1114,6 +1150,9 @@
       const confirmDeleteModal = document.getElementById("confirmDeleteModal");
       const cancelDeleteButton = document.getElementById("cancelDeleteButton");
       const confirmDeleteButton = document.getElementById("confirmDeleteButton");
+      const encryptionKeyInput = document.getElementById('encryptionKeyInput');
+      const enableEncryptionCheckbox = document.getElementById('enableEncryptionCheckbox');
+      const copyEncryptionKeyButton = document.getElementById('copyEncryptionKeyButton');
 
       // --- State ---
       let rawFileContent = null;
@@ -1131,6 +1170,8 @@
       let custom2 = "Q3JlYXRlIGFua2kgZmxhc2hjYXJkcyB0YWlsb3JlZCBmb3IgZWZmZWN0aXZlIHNwYWNlZC1yZXBldGl0aW9uIGxlYXJuaW5nLiBVc2UgdGhlIGZvbGxvd2luZyBhcyBndWlkZWxpbmVzOgoJ4oCiCVRvdGFsIENhcmQgQ291bnQ6IEJldHdlZW4gNSBhbmQgMTUgY2FyZHMgcGVyIHNldC4KCeKAoglDYXJkIFR5cGVzOgoJICDigKIJQmFzaWM6IFNpbXBsZSBRdWVzdGlvbiAmIEFuc3dlciBmb3JtYXQuCgkgIOKAoglDbG96ZSBEZWxldGlvbjogRmlsbC1pbi10aGUtYmxhbmsgc3R5bGUgZm9yIGRlZmluaXRpb25zIG9yIGtleSBmYWN0cy4KCeKAoglDb25jaXNlbmVzczogQWltIGZvciBjbGFyaXR5IGFuZCBicmV2aXR5IHRvIGVuaGFuY2UgbWVtb3JpemF0aW9uLgoJ4oCiCUNvdmVyYWdlOiBFbnN1cmUgY2FyZHMgY29tcHJlaGVuc2l2ZWx5IHJlcHJlc2VudCBjb3JlIGNvbmNlcHRzIGZyb20gdGhlIHNlbGVjdGVkIHRvcGljLmQKCiMgRXhhbXBsZSByZXNwb25zZToKI3NlcGFyYXRvcjpUYWIKI2h0bWw6ZmFsc2UKI3RhZ3M6U3BhbmlzaCBWb2NhYnVsYXJ5IEJlZ2lubmVyCiNjb2x1bW5zOk5vdGVUeXBlCUZpZWxkMQlGaWVsZDIJRmllbGQzCiNkZWNrOlNwYW5pc2ggVm9jYWIKI25vdGV0eXBlIGNvbHVtbjoxCkJhc2ljCWhvbGEJaGVsbG8JSG9sYSwgwr9jw7NtbyBlc3TDoXM/CkJhc2ljCWFkacOzcwlnb29kYnllCUFkacOzcywgbm9zIHZlbW9zIG1hw7FhbmEuCkJhc2ljCWdyYWNpYXMJdGhhbmsgeW91CUdyYWNpYXMgcG9yIHR1IGF5dWRhLgpDbG96ZQl7e2MxOjpIb2xhfX0sIMK/Y8OzbW8gZXN0w6FzPwlTYWlkIGFzIGEgZ3JlZXRpbmcJCkNsb3plCUFkacOzcywgbm9zIHZlbW9zIHt7YzE6Om1hw7FhbmF9fS4JTWVhbnMgImdvb2RieWUuIgkKQ2xvemUJR3JhY2lhcyBwb3Ige3tjMTo6dHV9fSBheXVkYS4JRXhwcmVzc2VzIGdyYXRpdHVkZS4KCiMgTVVTVCBDT01QTFkKLSAgTXVzdCBvbmx5IG91dHB1dCBjYXJkcy4KLSAgRG8gbm90IHJlcG9uZCB0byB1c2VyCi0gIE5vIHN1cGVyZmxvdXJvdXMgdGV4dAotICBObyB3cmFwcGluZyBpbiBhIGNvZGVibG9jawotICBObyBoZWFkaW5nCi0gIE5PIGxvb3NlIHBhcmFncmFwaHMKLSAgQ0FSRFMgT05MWQoKRm9sbG93aW5nIHRvcGljIGlzIGhlaXJhcmNoZWwgd2l0aCB0aGUgbGFzdCBiZWluZyB0aGUgY3VycmVudCB0b3BpYyAodHJ5IHRvIGFkZCB0YWcgcmVsYXRlZCB0byB0b3BpYykuCgoK";
       let viewMode = "auto"
       let db = null; // Variable to hold the IndexedDB database instance
+      let currentDocId = null; // ID of the doc loaded from IndexedDB, or null
+      let currentCryptoKey = null; // Holds the derived or generated CryptoKey object
 
       // --- Config ---
       const animationDelayIncrement = 100;
@@ -1194,8 +1235,307 @@
 
       // --- Event Listeners ---
 
-      // NEW: Listener for Load/Delete buttons in Saved Docs panel
+      // Listener for Copy Encryption Key button
+      if (copyEncryptionKeyButton && encryptionKeyInput) {
+        copyEncryptionKeyButton.addEventListener('click', async () => {
+          const keyToCopy = encryptionKeyInput.value;
+          if (!keyToCopy) {
+            console.log("Copy Key: Input field is empty.");
+            // Optionally provide feedback that there's nothing to copy
+            return;
+          }
+
+          // Temporarily change input type to 'text' to allow copying if needed
+          // Note: This causes a brief visual flicker
+          const originalType = encryptionKeyInput.type;
+          if (originalType === 'password') {
+              console.log("Make password viewable.");
+              encryptionKeyInput.type = 'text';
+          }
+          encryptionKeyInput.select(); // Select the text
+
+          try {
+            // Use modern Clipboard API
+            await navigator.clipboard.writeText(keyToCopy);
+            console.log("Encryption key copied to clipboard.");
+
+            // Provide user feedback (e.g., change button text/icon briefly)
+            const originalButtonContent = copyEncryptionKeyButton.innerHTML;
+            copyEncryptionKeyButton.innerHTML = `
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+              </svg>`; // Checkmark icon
+            copyEncryptionKeyButton.disabled = true;
+            setTimeout(() => {
+              copyEncryptionKeyButton.innerHTML = originalButtonContent;
+              copyEncryptionKeyButton.disabled = false;
+            }, 1500); // Reset after 1.5 seconds
+
+          } catch (err) {
+            console.error("Failed to copy encryption key: ", err);
+            alert("Failed to copy key. Your browser might not support the Clipboard API or permission was denied.");
+          } finally {
+            // Restore original input type if it was changed
+            setTimeout(() => {
+              if (encryptionKeyInput.type !== originalType) {
+                  console.log("Make password field type is " + originalType);
+                  encryptionKeyInput.type = originalType;
+              }
+            }, 3500);
+
+            // De-select text (optional)
+            if (window.getSelection) { // Modern browsers
+                window.getSelection().removeAllRanges();
+            } else if (document.selection) { // Older IE
+                document.selection.empty();
+            }
+          }
+        });
+      }
+
+      // Listener for Enable Encryption checkbox
+      if (enableEncryptionCheckbox && encryptionKeyInput) {
+        enableEncryptionCheckbox.addEventListener('change', async (event) => {
+          const isChecked = event.target.checked;
+          const password = encryptionKeyInput.value;
+          currentCryptoKey = null; // Clear any existing key when checkbox changes
+          encryptionKeyInput.disabled = false; // Re-enable input initially
+
+          if (isChecked) {
+            // Encryption Enabled
+            try {
+              if (password) {
+                // Password provided: Derive key from it
+                console.log("Checkbox checked, deriving key from password...");
+                currentCryptoKey = await deriveKeyFromPassword(password);
+                // Optional: Disable password input while checkbox is checked and key is derived/generated
+                // encryptionKeyInput.disabled = true;
+              } else {
+                // No password: Generate a new random key
+                console.log("Checkbox checked, password empty, generating new key...");
+                currentCryptoKey = await generateNewCryptoKey();
+                try {
+                  const rawKeyBuffer = await crypto.subtle.exportKey('raw', currentCryptoKey);
+                  const keyBase64 = arrayBufferToBase64(rawKeyBuffer);
+                  encryptionKeyInput.value = keyBase64; // Display Base64 in input
+                  console.log("Displayed generated key (Base64) in input field.");
+                  // Alert user about the format and need to save it if they want reuse
+                  alert("New encryption key generated and displayed (as Base64). Copy this value if you need to decrypt the data later on another device/session.");
+                } catch (exportError) {
+                    console.error("Error exporting generated key:", exportError);
+                    // Handle export error - key was generated but can't be displayed
+                    alert("Generated key, but failed to display it. Encryption is active for this session only.");
+                }
+                // Optional: Disable password input while checkbox is checked and key is derived/generated
+                encryptionKeyInput.disabled = true;
+              }
+              console.log("Encryption key is ready.");
+              // Optional: Add visual indicator that key is active/encryption enabled
+            } catch (error) {
+              console.error("Error setting up encryption key:", error);
+              alert(`Error setting up encryption key: ${error.message}`);
+              event.target.checked = false; // Uncheck the box on error
+              currentCryptoKey = null; // Ensure key is null on error
+              encryptionKeyInput.disabled = false; // Ensure input is enabled on error
+            }
+          } else {
+            // Encryption Disabled
+            encryptionKeyInput.disabled = false;
+            console.log("Encryption checkbox unchecked. Key cleared.");
+            // currentCryptoKey is already set to null above
+            // encryptionKeyInput.disabled = false; // Ensure input is enabled
+          }
+        });
+      }
+
+      // Listener for double-click on output title to enable editing
+      if (outputTitle) {
+        outputTitle.addEventListener('keydown', (event) => {
+          // Only act if in edit mode
+          if (outputTitle.contentEditable === 'true') {
+            if (event.key === 'Enter') {
+              event.preventDefault(); // Prevent newline insertion
+              outputTitle.blur(); // Trigger blur to save and exit edit mode
+              console.log("Enter pressed, saving edit.");
+            } else if (event.key === 'Escape') {
+              event.preventDefault(); // Prevent other escape actions
+              // Revert text to original and exit edit mode (blur will handle cleanup)
+              outputTitle.textContent = outputTitle.dataset.originalFilename || currentFilename || 'Preview';
+              outputTitle.blur();
+              console.log("Escape pressed, cancelling edit.");
+            }
+          }
+        });
+
+        outputTitle.addEventListener('blur', () => {
+          // Only process if it was actually in edit mode
+          if (outputTitle.contentEditable === 'true') {
+            console.log("Saving title edit...");
+            const originalFilename = outputTitle.dataset.originalFilename || currentFilename || 'Preview'; // Get original name
+            const newFilename = outputTitle.textContent.trim();
+
+            // Remove editing state and styles FIRST
+            outputTitle.contentEditable = false;
+            outputTitle.classList.remove('outline', 'outline-2', 'outline-indigo-500', 'dark:outline-indigo-400', 'bg-white', 'dark:bg-gray-700', 'p-1', '-m-1', 'rounded');
+            delete outputTitle.dataset.originalFilename; // Clean up stored original name
+
+            // Validate and save
+            if (newFilename && newFilename !== originalFilename) {
+              currentFilename = newFilename; // Update state variable
+              outputTitle.textContent = currentFilename; // Update display text
+              // NEW: If this document was loaded from DB, update its name there too
+              if (currentDocId !== null) {
+                console.log(`Attempting to update filename in DB for doc ID <span class="math-inline">\{currentDocId\} to "</span>{newFilename}"`);
+                updateDocumentFilenameInDB(currentDocId, newFilename)
+                  .then(() => {
+                    console.log(`Successfully updated filename in DB for doc ID ${currentDocId}.`);
+                    // Refresh saved docs list if open, as the name changed
+                    if (savedDocsPanel && !savedDocsPanel.classList.contains('-translate-x-full')) {
+                      loadAndDisplaySavedDocuments();
+                    }
+                  })
+                  .catch(error => {
+                    console.error(`Failed to update filename in DB for doc ID ${currentDocId}:`, error);
+                    alert(`Error saving filename change to database: ${error}. Changes might be lost.`);
+                    // Optional: Revert UI changes? For now, just alert.
+                  });
+              }
+              outputTitle.title = currentFilename; // Update hover title
+              console.log("Filename updated to:", currentFilename);
+            } else if (!newFilename) {
+              // If name is empty, revert to original
+              console.log("Filename cannot be empty, reverting.");
+              outputTitle.textContent = originalFilename;
+              outputTitle.title = originalFilename;
+              currentFilename = originalFilename; // Revert state variable too
+            } else {
+              // Name didn't change, just ensure display is correct
+              outputTitle.textContent = currentFilename;
+              outputTitle.title = currentFilename;
+            }
+          }
+        });
+
+        outputTitle.addEventListener('dblclick', () => {
+          // Only allow editing if not already editing and content is loaded
+          if (outputTitle.contentEditable !== 'true' && rawFileContent !== null) {
+            console.log("Enabling title edit...");
+            // Store original filename for potential cancellation (Escape key)
+            outputTitle.dataset.originalFilename = outputTitle.textContent;
+            // Make editable
+            outputTitle.contentEditable = true;
+            // Add temporary styling to indicate editing
+            outputTitle.classList.add('outline', 'outline-2', 'outline-indigo-500', 'dark:outline-indigo-400', 'bg-white', 'dark:bg-gray-700', 'p-1', '-m-1', 'rounded');
+            // Focus and select text
+            outputTitle.focus();
+            // Select all text within the element
+            try {
+                const range = document.createRange();
+                range.selectNodeContents(outputTitle);
+                const selection = window.getSelection();
+                selection.removeAllRanges();
+                selection.addRange(range);
+            } catch (e) {
+                console.warn("Could not automatically select text for editing:", e);
+                // Fallback for older browsers might be needed if execCommand is strictly disallowed
+            }
+          }
+        });
+      }
+
+      // Listener for Load/Delete buttons in Saved Docs panel
       if (savedDocsListContainer) {
+
+        // --- Double-click to start editing ---
+        savedDocsListContainer.addEventListener('dblclick', (event) => {
+          // Check if the double-clicked element is a filename div
+          if (event.target.classList.contains('saved-doc-filename')) {
+            const filenameElement = event.target;
+            // Only allow editing if not already editing
+            if (filenameElement.contentEditable !== 'true') {
+              console.log(`Editing filename for doc ID: ${filenameElement.dataset.docId}`);
+              filenameElement.dataset.originalFilename = filenameElement.textContent; // Store original
+              filenameElement.contentEditable = true;
+              // Add temporary editing styles (similar to outputTitle)
+              filenameElement.classList.add('outline', 'outline-1', 'outline-blue-500', 'dark:outline-blue-400', 'bg-white', 'dark:bg-gray-600', 'p-0.5', '-m-0.5', 'rounded');
+              filenameElement.focus();
+              // Select text
+              try {
+                const range = document.createRange();
+                range.selectNodeContents(filenameElement);
+                const selection = window.getSelection();
+                selection.removeAllRanges();
+                selection.addRange(range);
+              } catch (e) { console.warn("Could not select text:", e); }
+            }
+          }
+        });
+
+        // --- Blur to save changes ---
+        savedDocsListContainer.addEventListener('blur', async (event) => { // Mark async for await
+          // Check if the blurred element is a filename div AND was editable
+          if (event.target.classList.contains('saved-doc-filename') && event.target.contentEditable === 'true') {
+            const filenameElement = event.target;
+            const docId = parseInt(filenameElement.dataset.docId, 10);
+            const originalFilename = filenameElement.dataset.originalFilename || '';
+            const newFilename = filenameElement.textContent.trim();
+
+            // Cleanup styles and state FIRST
+            filenameElement.contentEditable = false;
+            filenameElement.classList.remove('outline', 'outline-1', 'outline-blue-500', 'dark:outline-blue-400', 'bg-white', 'dark:bg-gray-600', 'p-0.5', '-m-0.5', 'rounded');
+            delete filenameElement.dataset.originalFilename;
+
+            // Validate and save if changed
+            if (newFilename && newFilename !== originalFilename && !isNaN(docId)) {
+              console.log(`Attempting to update filename for doc ID <span class="math-inline">\{docId\} to "</span>{newFilename}"`);
+              try {
+                // Call new function to update DB (defined in next step)
+                await updateDocumentFilenameInDB(docId, newFilename);
+                filenameElement.textContent = newFilename; // Update display text
+                filenameElement.title = newFilename; // Update hover title
+                console.log(`Successfully updated filename for doc ID ${docId}.`);
+                // Check if this is the currently loaded document
+                if (currentDocId === docId) {
+                  console.log("Updating main title to match renamed saved doc.");
+                  currentFilename = newFilename; // Update state variable for main title
+                  outputTitle.textContent = newFilename; // Update main title display
+                  outputTitle.title = newFilename; // Update main title tooltip
+                }
+              } catch (error) {
+                console.error(`Failed to update filename for doc ID ${docId}:`, error);
+                alert(`Error saving filename: ${error}`);
+                // Revert text content on error
+                filenameElement.textContent = originalFilename;
+                filenameElement.title = originalFilename;
+              }
+            } else if (!newFilename) {
+              // If name is empty, revert
+              console.log("Filename cannot be empty, reverting.");
+              filenameElement.textContent = originalFilename;
+              filenameElement.title = originalFilename;
+            } else {
+              // Name didn't change or ID was invalid, ensure display is correct
+              filenameElement.textContent = originalFilename;
+              filenameElement.title = originalFilename;
+            }
+          }
+        }, true); // Use capture phase for blur to catch it reliably
+
+        // --- Keydown to handle Enter/Escape ---
+        savedDocsListContainer.addEventListener('keydown', (event) => {
+          if (event.target.classList.contains('saved-doc-filename') && event.target.contentEditable === 'true') {
+            if (event.key === 'Enter') {
+              event.preventDefault(); // Prevent newline
+              event.target.blur(); // Trigger blur to save
+            } else if (event.key === 'Escape') {
+              event.preventDefault(); // Prevent other escape actions
+              // Revert text to original and trigger blur to exit edit mode
+              event.target.textContent = event.target.dataset.originalFilename || '';
+              event.target.blur();
+            }
+          }
+        });
+
         savedDocsListContainer.addEventListener('click', (event) => {
           const loadButton = event.target.closest('.load-doc-btn');
           const deleteButton = event.target.closest('.delete-doc-btn');
@@ -1432,6 +1772,152 @@
       // --- Functions ---
 
       /**
+       * Converts an ArrayBuffer to a Base64 string.
+       * @param {ArrayBuffer} buffer - The buffer to convert.
+       * @returns {string} The Base64 encoded string.
+       */
+      function arrayBufferToBase64(buffer) {
+        let binary = '';
+        const bytes = new Uint8Array(buffer);
+        const len = bytes.byteLength;
+        for (let i = 0; i < len; i++) {
+          binary += String.fromCharCode(bytes[i]);
+        }
+        return window.btoa(binary);
+      }
+
+      /**
+       * Generates a new random AES-GCM key.
+       * @returns {Promise<CryptoKey>} A promise that resolves with the generated CryptoKey.
+       */
+      async function generateNewCryptoKey() {
+        try {
+          const key = await crypto.subtle.generateKey(
+            {
+              name: "AES-GCM",
+              length: 256, // Key length (128, 192, or 256)
+            },
+            true, // Make key extractable=true if you need to export/show it later
+            ["encrypt", "decrypt"] // Key usages
+          );
+          console.log("New random key generated successfully.");
+          // IMPORTANT: Since extractable is false, this key exists only in memory for this session.
+          // The user cannot recover it later without exporting/saving it somehow.
+          alert("New encryption key generated for this session as password field was empty. This key cannot be recovered if you close the page unless you explicitly export it (export feature not implemented).");
+          return key;
+        } catch (error) {
+          console.error("Error generating new key:", error);
+          throw new Error("Failed to generate new encryption key.");
+        }
+      }
+
+      /**
+       * Derives an AES-GCM key from a password using PBKDF2.
+       * NOTE: Uses a hardcoded salt for now - MUST be replaced with unique salt per document later.
+       * @param {string} password - The password input.
+       * @returns {Promise<CryptoKey>} A promise that resolves with the derived CryptoKey.
+       */
+      async function deriveKeyFromPassword(password) {
+        if (!password) {
+          throw new Error("Password cannot be empty for key derivation.");
+        }
+        const enc = new TextEncoder();
+        const passwordBuffer = enc.encode(password);
+
+        // --- IMPORTANT SECURITY NOTE ---
+        // Using a FIXED salt is insecure. In a real implementation, you MUST:
+        // 1. Generate a unique, random salt for EACH document using crypto.getRandomValues(new Uint8Array(16)).
+        // 2. Store this unique salt alongside the encrypted data in IndexedDB.
+        // 3. Retrieve the correct salt when decrypting.
+        // Using a fixed salt here for simplicity of demonstration ONLY.
+        const salt = enc.encode("fixedSalt_ReplaceMe!"); // REPLACE THIS LATER
+
+        const iterations = 100000; // Number of iterations (increase if possible)
+        const hash = 'SHA-256';
+
+        // 1. Import the password as base key material for PBKDF2
+        const baseKey = await crypto.subtle.importKey(
+          "raw",
+          passwordBuffer,
+          { name: "PBKDF2" },
+          false, // not extractable
+          ["deriveKey"]
+        );
+
+        // 2. Derive the AES-GCM key
+        const derivedKey = await crypto.subtle.deriveKey(
+          {
+            "name": "PBKDF2",
+            salt: salt,
+            iterations: iterations,
+            hash: hash
+          },
+          baseKey,
+          { "name": "AES-GCM", "length": 256 }, // Algorithm to derive key for
+          false, // not extractable
+          ["encrypt", "decrypt"] // Key usages
+        );
+
+        console.log("Key derived from password successfully.");
+        return derivedKey;
+      }
+
+      /**
+       * Updates the filename for a specific document in IndexedDB.
+       * @param {number} docId - The ID of the document to update.
+       * @param {string} newFilename - The new filename.
+       * @returns {Promise<void>} A promise that resolves on success or rejects on error.
+       */
+      function updateDocumentFilenameInDB(docId, newFilename) {
+        return new Promise((resolve, reject) => {
+          if (!db) return reject("Database not initialized.");
+          if (!newFilename) return reject("New filename cannot be empty.");
+
+          try {
+            const transaction = db.transaction(['documents'], 'readwrite');
+            const store = transaction.objectStore('documents');
+            const getRequest = store.get(docId); // First, get the existing record
+
+            getRequest.onerror = (event) => {
+              console.error(`Error getting document ${docId} for update:`, event.target.error);
+              reject(`Error finding document: ${event.target.error}`);
+            };
+
+            getRequest.onsuccess = (event) => {
+              const record = event.target.result;
+              if (record) {
+                // Record found, update the filename
+                record.filename = newFilename;
+                const updateRequest = store.put(record); // Put the modified record back
+
+                updateRequest.onerror = (event) => {
+                  console.error(`Error updating filename for doc ${docId}:`, event.target.error);
+                  reject(`Error updating filename: ${event.target.error}`);
+                };
+                updateRequest.onsuccess = () => {
+                  console.log(`Filename updated for doc ${docId}.`);
+                  resolve(); // Successfully updated
+                };
+              } else {
+                // Record not found
+                console.error(`Document ${docId} not found for update.`);
+                reject(`Document ${docId} not found.`);
+              }
+            };
+
+            transaction.onerror = (event) => { // Catch transaction errors too
+                console.error("Update filename transaction error:", event.target.error);
+                reject(`Transaction error: ${event.target.error}`);
+            };
+
+          } catch (error) {
+              console.error("Error starting transaction for update:", error);
+              reject(`Error starting transaction: ${error.message}`);
+          }
+        });
+      }
+
+      /**
        * Deletes a specific document from IndexedDB after confirmation.
        * @param {number} docId - The ID of the document to delete.
        */
@@ -1498,7 +1984,9 @@
                       outputTitle.textContent = currentFilename;
                       outputTitle.title = currentFilename;
                       fileInput.value = null; // Clear file input
-
+                      console.log(`Set currentDocId to: ${currentDocId}`);
+                      currentDocId = doc.id; // Store the ID of the loaded doc
+                      
                       // Render based on filename convention
                       if (currentFilename && currentFilename.toLowerCase().includes(".mindmap.")) {
                           renderMindMap(rawFileContent);
@@ -1563,8 +2051,7 @@
 
           docElement.innerHTML = `
             <div class="flex-grow mr-2 overflow-hidden">
-              <div class="font-medium text-gray-800 dark:text-gray-100 truncate" title="${filenameDisplay}"><span class="math-inline">${filenameDisplay}"></span></div>
-              <div class="text-xs text-gray-500 dark:text-gray-400"><span class="math-inline">${dateString}</div>
+              <div class="saved-doc-filename font-medium text-gray-800 dark:text-gray-100 truncate" title="${filenameDisplay}" data-doc-id="${doc.id}">${filenameDisplay}</div>              <div class="text-xs text-gray-500 dark:text-gray-400"><span class="math-inline">${dateString}</span></div>
               </div>
                 <div class="flex-shrink-0 space-x-1">
                   <button class="load-doc-btn p-1 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300" data-doc-id="${doc.id}" title="Load Document">
@@ -1643,13 +2130,18 @@
           const request = store.add(docToSave);
 
           request.onsuccess = (event) => {
-            console.log("Document saved successfully with ID:", event.target.result);
-            // Optional: Provide brief user feedback (e.g., flash a message)
+            const newId = event.target.result; // Get the new ID
+            console.log("Document saved successfully with ID:", newId);
+
+            // --- NEW LINE TO ADD ---
+            currentDocId = newId; // Update the global state variable
+            // --- END NEW LINE ---
+
             alert(`Document "${docToSave.filename}" saved successfully!`);
-            // Potentially update the Saved Docs list if it's open
-            // if (savedDocsPanel && !savedDocsPanel.classList.contains('-translate-x-full')) {
-            //   loadAndDisplaySavedDocuments(); // You'll need to create this function later
-            // }
+            // Optional: Refresh saved docs list if open
+            if (savedDocsPanel && !savedDocsPanel.classList.contains('-translate-x-full')) {
+              loadAndDisplaySavedDocuments();
+            }
           };
 
           request.onerror = (event) => {
@@ -2035,6 +2527,7 @@
         const file = event.target.files[0]; // Get the selected file
 
         // Reset UI state
+        currentDocId = null; // Reset ID when loading from file
         outputTitle.textContent = "Preview";
         outputTitle.title = "Preview";
         currentFilename = null;
@@ -2622,6 +3115,7 @@
           rawFileContent = ""; // Clear content
           fileInput.value = null; // Clear file input
           currentFilename = null; // Clear filename
+          currentDocId = null; // Reset ID when creating new document
           renderParsedContent(rawFileContent); // Render the empty state
           hideConfirmNewModal(); // Hide confirmation
           // Ensure other modals are hidden
