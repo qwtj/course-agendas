@@ -1249,7 +1249,6 @@
           // Note: This causes a brief visual flicker
           const originalType = encryptionKeyInput.type;
           if (originalType === 'password') {
-              console.log("Make password viewable.");
               encryptionKeyInput.type = 'text';
           }
           encryptionKeyInput.select(); // Select the text
@@ -1278,10 +1277,9 @@
             // Restore original input type if it was changed
             setTimeout(() => {
               if (encryptionKeyInput.type !== originalType) {
-                  console.log("Make password field type is " + originalType);
                   encryptionKeyInput.type = originalType;
               }
-            }, 3500);
+            }, 1500);
 
             // De-select text (optional)
             if (window.getSelection) { // Modern browsers
@@ -1297,53 +1295,40 @@
       if (enableEncryptionCheckbox && encryptionKeyInput) {
         enableEncryptionCheckbox.addEventListener('change', async (event) => {
           const isChecked = event.target.checked;
-          const password = encryptionKeyInput.value;
-          currentCryptoKey = null; // Clear any existing key when checkbox changes
-          encryptionKeyInput.disabled = false; // Re-enable input initially
+          currentCryptoKey = null; // Always clear existing key object on change
 
           if (isChecked) {
             // Encryption Enabled
-            try {
-              if (password) {
-                // Password provided: Derive key from it
-                console.log("Checkbox checked, deriving key from password...");
-                currentCryptoKey = await deriveKeyFromPassword(password);
-                // Optional: Disable password input while checkbox is checked and key is derived/generated
-                // encryptionKeyInput.disabled = true;
-              } else {
-                // No password: Generate a new random key
-                console.log("Checkbox checked, password empty, generating new key...");
-                currentCryptoKey = await generateNewCryptoKey();
-                try {
+            const password = encryptionKeyInput.value;
+            if (password) {
+              // Password exists - Key will be derived during save. Enable input.
+              encryptionKeyInput.disabled = false;
+              console.log("Encryption enabled, will use password from input on save.");
+            } else {
+              // No password - Generate a temporary key for this session
+              console.log("Checkbox checked, password empty, generating new key...");
+              try {
+                  currentCryptoKey = await generateNewCryptoKey(); // Generate random key
+                  // Display its Base64 representation
                   const rawKeyBuffer = await crypto.subtle.exportKey('raw', currentCryptoKey);
                   const keyBase64 = arrayBufferToBase64(rawKeyBuffer);
-                  encryptionKeyInput.value = keyBase64; // Display Base64 in input
-                  console.log("Displayed generated key (Base64) in input field.");
-                  // Alert user about the format and need to save it if they want reuse
-                  alert("New encryption key generated and displayed (as Base64). Copy this value if you need to decrypt the data later on another device/session.");
-                } catch (exportError) {
-                    console.error("Error exporting generated key:", exportError);
-                    // Handle export error - key was generated but can't be displayed
-                    alert("Generated key, but failed to display it. Encryption is active for this session only.");
-                }
-                // Optional: Disable password input while checkbox is checked and key is derived/generated
-                encryptionKeyInput.disabled = true;
+                  encryptionKeyInput.value = keyBase64;
+                  console.log("Displayed generated key (Base64). Input disabled.");
+                  alert("New encryption key generated and displayed (as Base64). Copy this value if needed. Input field is disabled while using generated key.");
+              } catch (error) {
+                  console.error("Error generating/displaying new key:", error);
+                  alert(`Error generating key: ${error.message}`);
+                  event.target.checked = false; // Uncheck box on error
+                  currentCryptoKey = null;
+                  encryptionKeyInput.disabled = false;
               }
-              console.log("Encryption key is ready.");
-              // Optional: Add visual indicator that key is active/encryption enabled
-            } catch (error) {
-              console.error("Error setting up encryption key:", error);
-              alert(`Error setting up encryption key: ${error.message}`);
-              event.target.checked = false; // Uncheck the box on error
-              currentCryptoKey = null; // Ensure key is null on error
-              encryptionKeyInput.disabled = false; // Ensure input is enabled on error
             }
           } else {
             // Encryption Disabled
-            encryptionKeyInput.disabled = false;
             console.log("Encryption checkbox unchecked. Key cleared.");
-            // currentCryptoKey is already set to null above
-            // encryptionKeyInput.disabled = false; // Ensure input is enabled
+            encryptionKeyInput.value = ''; // Clear the input field
+            encryptionKeyInput.disabled = false; // Ensure input is enabled
+            currentCryptoKey = null; // Ensure key object is cleared
           }
         });
       }
@@ -1812,30 +1797,26 @@
       }
 
       /**
-       * Derives an AES-GCM key from a password using PBKDF2.
-       * NOTE: Uses a hardcoded salt for now - MUST be replaced with unique salt per document later.
+       * Derives an AES-GCM key from a password using PBKDF2 and a provided salt.
        * @param {string} password - The password input.
+       * @param {Uint8Array} salt - The unique salt (e.g., 16 bytes) for this derivation.
        * @returns {Promise<CryptoKey>} A promise that resolves with the derived CryptoKey.
        */
-      async function deriveKeyFromPassword(password) {
+      async function deriveKeyFromPassword(password, salt) {
         if (!password) {
           throw new Error("Password cannot be empty for key derivation.");
         }
+        // Validate salt (must be provided, typically Uint8Array, recommend 16 bytes)
+        if (!salt || !(salt instanceof Uint8Array) || salt.byteLength < 16) {
+          throw new Error('A valid salt (Uint8Array, >= 16 bytes) must be provided for key derivation.');
+        }
+
         const enc = new TextEncoder();
         const passwordBuffer = enc.encode(password);
-
-        // --- IMPORTANT SECURITY NOTE ---
-        // Using a FIXED salt is insecure. In a real implementation, you MUST:
-        // 1. Generate a unique, random salt for EACH document using crypto.getRandomValues(new Uint8Array(16)).
-        // 2. Store this unique salt alongside the encrypted data in IndexedDB.
-        // 3. Retrieve the correct salt when decrypting.
-        // Using a fixed salt here for simplicity of demonstration ONLY.
-        const salt = enc.encode("fixedSalt_ReplaceMe!"); // REPLACE THIS LATER
-
-        const iterations = 100000; // Number of iterations (increase if possible)
+        const iterations = 100000; // Or higher
         const hash = 'SHA-256';
 
-        // 1. Import the password as base key material for PBKDF2
+        // 1. Import the password as base key material
         const baseKey = await crypto.subtle.importKey(
           "raw",
           passwordBuffer,
@@ -1844,21 +1825,21 @@
           ["deriveKey"]
         );
 
-        // 2. Derive the AES-GCM key
+        // 2. Derive the AES-GCM key using the provided salt
         const derivedKey = await crypto.subtle.deriveKey(
           {
             "name": "PBKDF2",
-            salt: salt,
+            salt: salt, // Use the provided salt parameter
             iterations: iterations,
             hash: hash
           },
           baseKey,
-          { "name": "AES-GCM", "length": 256 }, // Algorithm to derive key for
+          { "name": "AES-GCM", "length": 256 },
           false, // not extractable
-          ["encrypt", "decrypt"] // Key usages
+          ["encrypt", "decrypt"]
         );
 
-        console.log("Key derived from password successfully.");
+        console.log("Key derived from password using provided salt successfully.");
         return derivedKey;
       }
 
@@ -1958,55 +1939,126 @@
       }
 
       /**
-       * Loads a specific document from IndexedDB into the editor.
+       * Loads a specific document from IndexedDB into the editor, handling decryption if necessary.
        * @param {number} docId - The ID of the document to load.
+       * @returns {Promise<object>} A promise that resolves with the loaded document object or rejects on error.
        */
-      function loadDocumentFromDB(docId) {
-        return new Promise((resolve, reject) => {
+      async function loadDocumentFromDB(docId) { // Make function async
+        return new Promise(async (resolve, reject) => { // Make promise callback async
           if (!db) return reject("Database not initialized.");
 
           try {
-              const transaction = db.transaction(['documents'], 'readonly');
-              const store = transaction.objectStore('documents');
-              const request = store.get(docId); // Get by ID
+            const transaction = db.transaction(['documents'], 'readonly');
+            const store = transaction.objectStore('documents');
+            const request = store.get(docId); // Get by ID
 
-              request.onerror = (event) => {
-                  console.error(`Error loading document ID ${docId}:`, event.target.error);
-                  reject(`Error loading document: ${event.target.error}`);
-              };
+            request.onerror = (event) => {
+                console.error(`Error loading document ID ${docId}:`, event.target.error);
+                reject(`Error loading document: ${event.target.error}`);
+            };
 
-              request.onsuccess = (event) => {
-                  const doc = event.target.result;
-                  if (doc) {
-                      console.log("Loading document:", doc.filename);
-                      rawFileContent = doc.content;
-                      currentFilename = doc.filename;
-                      outputTitle.textContent = currentFilename;
-                      outputTitle.title = currentFilename;
-                      fileInput.value = null; // Clear file input
-                      console.log(`Set currentDocId to: ${currentDocId}`);
-                      currentDocId = doc.id; // Store the ID of the loaded doc
-                      
-                      // Render based on filename convention
-                      if (currentFilename && currentFilename.toLowerCase().includes(".mindmap.")) {
-                          renderMindMap(rawFileContent);
-                      } else {
-                          renderParsedContent(rawFileContent);
-                      }
-                      // Close the panel after loading
-                      toggleSavedDocsPanel();
-                      enableActionButtons(); // Ensure buttons are enabled
-                      resolve(doc); // Resolve with the loaded document
-                  } else {
-                      console.error(`Document with ID ${docId} not found.`);
-                      reject(`Document with ID ${docId} not found.`);
-                  }
-              };
+            request.onsuccess = async (event) => { // Make onsuccess async
+                const doc = event.target.result;
+                if (!doc) {
+                    console.error(`Document with ID ${docId} not found.`);
+                    return reject(`Document with ID ${docId} not found.`);
+                }
+
+                console.log("Retrieved document record:", doc);
+                let decryptedContent = ''; // Variable to hold the final content string
+
+                try {
+                    if (doc.isEncrypted) {
+                        // --- Handle Encrypted Document ---
+                        console.log("Document is encrypted. Attempting decryption...");
+
+                        // 1. Check prerequisites
+                        if (!enableEncryptionCheckbox.checked) {
+                            return reject("Encryption checkbox must be checked to load an encrypted document.");
+                        }
+                        if (!doc.iv) {
+                            return reject("Missing IV (Initialization Vector) in saved data. Cannot decrypt.");
+                        }
+                        if (!doc.encryptedContent) {
+                            return reject("Missing encrypted content in saved data. Cannot decrypt.");
+                        }
+
+                        // 2. Get the key
+                        let key;
+                        if (currentCryptoKey) {
+                            // Assume generated key is the correct one (user didn't provide password)
+                            key = currentCryptoKey;
+                            console.log("Using pre-generated key for decryption.");
+                        } else {
+                            // Derive key from password input using stored salt
+                            const password = encryptionKeyInput.value;
+                            if (!password) {
+                                return reject("Password required to decrypt this document.");
+                            }
+                            if (!doc.salt) {
+                                // Salt is required if deriving from password
+                                return reject("Missing salt in saved data. Cannot derive key for decryption.");
+                            }
+                            console.log("Deriving key from password using stored salt...");
+                            try {
+                                key = await deriveKeyFromPassword(password, doc.salt);
+                            } catch (deriveError) {
+                                return reject(`Key derivation failed: ${deriveError.message}`);
+                            }
+                        }
+
+                        // 3. Decrypt
+                        console.log("Attempting decryption...");
+                        const decryptedContentBuffer = await crypto.subtle.decrypt(
+                            { name: "AES-GCM", iv: doc.iv },
+                            key,
+                            doc.encryptedContent // This should be an ArrayBuffer
+                        );
+                        console.log("Decryption successful.");
+
+                        // 4. Decode ArrayBuffer to String
+                        decryptedContent = new TextDecoder().decode(decryptedContentBuffer);
+
+                    } else {
+                        // --- Handle Plain Text Document ---
+                        console.log("Document is not encrypted.");
+                        if (typeof doc.content !== 'string') {
+                          return reject("Invalid content found in non-encrypted document.");
+                        }
+                        decryptedContent = doc.content;
+                    }
+
+                    // --- Common Logic: Update Editor State ---
+                    console.log("Loading content into editor:", doc.filename);
+                    rawFileContent = decryptedContent; // Use the decrypted (or plain) content
+                    currentFilename = doc.filename;
+                    currentDocId = doc.id; // Store the ID of the loaded doc
+                    outputTitle.textContent = currentFilename;
+                    outputTitle.title = currentFilename;
+                    fileInput.value = null; // Clear file input
+
+                    // Render based on filename convention
+                    if (currentFilename && currentFilename.toLowerCase().includes(".mindmap.")) {
+                        renderMindMap(rawFileContent);
+                    } else {
+                        renderParsedContent(rawFileContent);
+                    }
+
+                    toggleSavedDocsPanel(); // Close the panel after loading
+                    enableActionButtons(); // Ensure buttons are enabled
+                    resolve(doc); // Resolve with the original document object (contains metadata)
+
+                } catch (error) {
+                    // Catch errors during decryption or key handling
+                    console.error(`Decryption/Processing failed for doc ID ${docId}:`, error);
+                    reject(`Decryption failed: ${error.message || error}. Incorrect key/password or corrupted data?`);
+                }
+            }; // end onsuccess
           } catch (error) {
               console.error("Error starting transaction for get:", error);
               reject(`Error starting transaction: ${error.message}`);
           }
-        });
+        }); // end promise
       }
 
       /**
@@ -2098,9 +2150,55 @@
       }
 
       /**
-       * Saves the current rawFileContent to the IndexedDB 'documents' store.
+       * Helper function to add/update a document object in the IndexedDB store.
+       * Updates currentDocId on successful add.
+       * @param {object} docObject - The document object to save (might contain content or encryptedContent).
+       * @returns {Promise<number>} A promise that resolves with the new/updated document ID on success.
        */
-      function saveDocumentToDB() {
+      function addDocumentToStore(docObject) {
+        return new Promise((resolve, reject) => {
+          if (!db) return reject("Database not initialized.");
+          try {
+            const transaction = db.transaction(['documents'], 'readwrite');
+            const store = transaction.objectStore('documents');
+            // Use 'put' instead of 'add' if you want saving to overwrite existing entries
+            // based on an ID potentially included in docObject, otherwise 'add' creates new.
+            // Since 'id' is auto-incrementing, 'add' is appropriate for new saves.
+            const request = store.add(docObject);
+
+            request.onerror = (event) => {
+              console.error("Error adding document to store:", event.target.error);
+              reject(`Error saving document: ${event.target.error}`);
+            };
+
+            request.onsuccess = (event) => {
+              const newId = event.target.result; // The ID of the added record
+              console.log(`Document stored successfully with ID: ${newId}`);
+              currentDocId = newId; // Update global state
+              resolve(newId); // Resolve the promise with the new ID
+            };
+
+            transaction.onerror = (event) => {
+              console.error("Save transaction error:", event.target.error);
+              reject(`Save transaction error: ${event.target.error}`);
+            };
+            transaction.oncomplete = () => {
+              console.log("Save transaction completed.");
+              // Refresh saved docs list after transaction completes
+              loadAndDisplaySavedDocuments();
+            };
+
+          } catch (error) {
+              console.error("Error starting save transaction:", error);
+              reject(`Error starting save transaction: ${error.message}`);
+          }
+        });
+      }
+
+      /**
+       * Saves the current rawFileContent to IndexedDB, encrypting if enabled.
+       */
+      async function saveDocumentToDB() { // Make the function async
         if (!db) {
           alert("Database not initialized. Cannot save.");
           console.error("Save failed: DB not initialized.");
@@ -2111,56 +2209,72 @@
           return;
         }
 
-        // Create the object to save
-        const docToSave = {
-          content: rawFileContent,
-          filename: currentFilename || `Untitled - ${new Date().toISOString()}`, // Use current filename or generate one
-          savedAt: new Date()
-          // 'id' will be auto-generated by IndexedDB
-        };
+        const shouldEncrypt = enableEncryptionCheckbox.checked && currentCryptoKey;
+        const filenameToSave = currentFilename || `Untitled - ${new Date().toISOString()}`;
+        const timestamp = new Date();
 
-        console.log("Attempting to save document:", docToSave.filename);
+        console.log(`Attempting to save document: ${filenameToSave}. Encryption enabled: ${!!shouldEncrypt}`);
 
-        // Start a readwrite transaction
         try {
-          const transaction = db.transaction(['documents'], 'readwrite');
-          const store = transaction.objectStore('documents');
+          let docToSave;
+          const isEncryptionEnabled = enableEncryptionCheckbox.checked;
+          const passwordProvided = encryptionKeyInput.value.trim() !== '';
 
-          // Add the document object to the store
-          const request = store.add(docToSave);
+          if (isEncryptionEnabled) {
+            let keyToUse = currentCryptoKey; // Use generated key if available
+            let saltToStore = null; // Salt only needed if deriving from password
 
-          request.onsuccess = (event) => {
-            const newId = event.target.result; // Get the new ID
-            console.log("Document saved successfully with ID:", newId);
-
-            // --- NEW LINE TO ADD ---
-            currentDocId = newId; // Update the global state variable
-            // --- END NEW LINE ---
-
-            alert(`Document "${docToSave.filename}" saved successfully!`);
-            // Optional: Refresh saved docs list if open
-            if (savedDocsPanel && !savedDocsPanel.classList.contains('-translate-x-full')) {
-              loadAndDisplaySavedDocuments();
+            if (!keyToUse && passwordProvided) {
+              // No pre-generated key, but password exists - derive key now
+              console.log("Deriving key from password for saving...");
+              const password = encryptionKeyInput.value;
+              // --- Generate UNIQUE SALT for this save ---
+              saltToStore = crypto.getRandomValues(new Uint8Array(16));
+              console.log("Generated unique salt for PBKDF2.");
+              // --- Derive key using password and unique salt ---
+              keyToUse = await deriveKeyFromPassword(password, saltToStore);
             }
-          };
 
-          request.onerror = (event) => {
-            console.error("Error saving document:", event.target.error);
-            alert(`Error saving document: ${event.target.error}`);
-          };
+            if (keyToUse) {
+              // --- Encryption Path ---
+              console.log("Encrypting content...");
+              const iv = crypto.getRandomValues(new Uint8Array(12));
+              const encodedContent = new TextEncoder().encode(rawFileContent);
+              const ciphertextBuffer = await crypto.subtle.encrypt( { name: "AES-GCM", iv: iv }, keyToUse, encodedContent );
 
-          transaction.oncomplete = () => {
-            console.log("Save transaction completed.");
-          };
+              docToSave = {
+                filename: filenameToSave,
+                savedAt: timestamp,
+                isEncrypted: true,
+                iv: iv, // Store IV
+                salt: saltToStore, // Store salt (will be null if key was generated, not derived)
+                encryptedContent: ciphertextBuffer
+              };
+              console.log("Encryption successful.");
+            } else {
+              // Encryption enabled, but no key available (e.g., password field empty, no generated key)
+              // This case should ideally be prevented by the checkbox listener logic, but handle defensively.
+              alert("Encryption is enabled, but no valid key or password was provided. Cannot save encrypted.");
+              return; // Stop the save process
+            }
+          } else {
+            // --- Plain Text Path ---
+            docToSave = {
+              filename: filenameToSave,
+              savedAt: timestamp,
+              isEncrypted: false,
+              content: rawFileContent
+            };
+            console.log("Saving content as plain text.");
+          }
 
-          transaction.onerror = (event) => {
-            console.error("Save transaction error:", event.target.error);
-            alert(`Save transaction error: ${event.target.error}`);
-          };
+          // --- Save to IndexedDB using the helper ---
+          const savedId = await addDocumentToStore(docToSave);
+          alert(`Document "${filenameToSave}" saved successfully (ID: ${savedId})! ${docToSave.isEncrypted ? '(Encrypted)' : ''}`);
 
         } catch (error) {
-            console.error("Error starting save transaction:", error);
-            alert(`Error starting save transaction: ${error.message}`);
+          console.error("Error during save process:", error);
+          alert(`Error saving document: ${error.message || error}`);
         }
       }
 
