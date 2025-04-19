@@ -1,35 +1,114 @@
 #!/bin/zsh
 
+DEFAULT_LLM_NAME="google"
+DEFAULT_GEMINI_MODEL="gemini-2.5-pro-exp-03-25"
+DEFAULT_GROK_MODEL="grok-3-mini-beta"
+LLM_NAME=$DEFAULT_LLM_NAME
+if [ "$LLM_NAME" = "google" ]; then
+  MODEL="$DEFAULT_GEMINI_MODEL"
+else
+  MODEL="$DEFAULT_GROK_MODEL"
+fi
+
 if [ $# -lt 1 ]; then
   echo "Usage: $0 <topic> <filename-prefix> <prompt path>"
   exit 1
 fi
 
-topic=$1
-gemini_model="gemini-2.5-pro-exp-03-25"
-script_name=${2:-create-mindmap.1.md}
-template_file_path="${$(realpath ${(%):-%x})%%/course-agendas*}/common-prompts/${script_name}"
-if [ ! -f "$template_file_path" ]; then
-  echo "Error: Content description file '$template_file_path' not found."
+# --- Argument Handling ---
+# First argument is optional base filename
+base_filename_arg="$1"
+
+# Process command line options
+while getopts ":n:m:p:t:f:h" opt; do
+  case ${opt} in
+    m )
+      MODEL="$OPTARG"
+      ;;
+    n )
+      LLM_NAME="$OPTARG"
+      if [[ "$LLM_NAME" = "google" ]]; then
+        MODEL="$DEFAULT_GEMINI_MODEL"
+      else
+        MODEL="$DEFAULT_GROK_MODEL"
+      fi
+      ;;
+    t )
+      TOPIC="$OPTARG"
+      ;;
+    p )
+      PROMPT_NAME="$OPTARG"
+      ;;
+    f )
+      OUTPUT_FILENAME="${OPTARG}"
+      ;;
+    h )
+      echo "Usage: $(basename $0) [OPTIONS] [base_filename]"
+      echo
+      echo "Options:"
+      echo "  -m MODEL     Set model (default: $DEFAULT_MODEL)"
+      echo "  -n LLM NAME  Set Gemini model (default: $DEFAULT_LLM_NAME)"
+      echo "  -h           Display this help message"
+      exit 0
+      ;;
+    \? )
+      echo -e "${RED}Invalid option: -$OPTARG${NC}" >&2
+      echo "Use -h for help"
+      exit 1
+      ;;
+    : )
+      echo -e "${RED}Option -$OPTARG requires an argument.${NC}" >&2
+      exit 1
+      ;;
+  esac
+done
+shift $((OPTIND -1))
+
+if [ -z "$TOPIC" ]; then
+  echo "Error: Topic is required" >&2
   exit 1
 fi
 
-filename=${3:-$(echo $1 | tr ' ' '_')}
-if [ -n "$3" ]; then
- mindmap_file=$filename 
-else
-  mindmap_file="${filename}.mindmap.${gemini_model}.md"
+if [ -z "$MODEL" ]; then
+  echo "Eror: Model is missing" >&2
+fi
+  
+if [ -z "$PROMPT_NAME" ]; then
+  PROMPT_NAME="create-mindmap.1.md"
 fi
 
-template_content=$(<"$template_file_path")
+if [ "$PROMPT_NAME" != "-" ]; then
+  TEMPLATE_FILE_PATH="${$(realpath ${(%):-%x})%%/course-agendas*}/common-prompts/${PROMPT_NAME}"
+  if [ ! -f "$TEMPLATE_FILE_PATH" ]; then
+    echo "Error: Content description file '$TEMPLATE_FILE_PATH' not found."
+    exit 1
+  fi
+fi
 
-prompt="${template_content//'${topic}'/$topic}"
-
-if [ "$filename" != "-" ]; then
-  echo "$prompt" | ask-google-gemini -s -m $gemini_model > "$mindmap_file"
-  echo "Mindmap created: $mindmap_file"
+if [ -n "$OUTPUT_FILENAME" ]; then
+  MINDMAP_FILE="$OUTPUT_FILENAME"
 else
-  echo "$prompt"
+  FILENAME="$(echo $TOPIC | tr ' ' '_')"
+  MINDMAP_FILE="${FILENAME}.mindmap.${MODEL}.md"
+fi
+
+if [ -n "$TEMPLATE_FILE_PATH" ]; then
+  TEMPLATE_CONTENT=$(<"$TEMPLATE_FILE_PATH")
+  PROMPT="${TEMPLATE_CONTENT//'${topic}'/$TOPIC}"
+else
+  PROMPT="$TOPIC"
+fi
+
+if [ "$LLM_NAME" = "google" -a "$MINDMAP_FILE" != "-" ]; then
+  echo "$PROMPT" | ask-google-gemini -s -m $MODEL > "$MINDMAP_FILE"
+  echo "Mindmap created: $MINDMAP_FILE"
+elif [ "$LLM_NAME" = "grok" -a "$MINDMAP_FILE" != "-" ]; then
+  echo "$PROMPT" | ask-xAI-grok -m grok-3-mini-beta -e high  > "$MINDMAP_FILE"
+  echo "Mindmap created: $MINDMAP_FILE"
+elif [ "$LLM_NAME" = "google" ]; then
+  echo "$PROMPT" | ask-google-gemini -s -m $MODEL
+elif [ "$LLM_NAME" = "grok" ]; then;
+  echo "$PROMPT" | ask-xAI-grok -m $MODEL
 fi
 
 exit 0
